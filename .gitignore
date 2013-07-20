@@ -1,2 +1,7 @@
 nbproject
 libzippp-Makefile.mk
+lib
+obj
+test
+*.a
+*.so

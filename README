@@ -12,8 +12,15 @@ libzippp is a simple basic C++ wrapper around the libzip library.
 1) download and compile de libzip library with the following command:
 	make libzip
 
-2) then creates the static and shared libraries of libzippp
+2) then create the static and shared libraries of libzippp:
 	make
 
-3) you now just have to include the src folder in your include path and
-   link agains libzippp.a or libzippp.so.
+3) you may want to run the tests:
+	make tests
+
+4) now you just have to include the src folder in your include path and
+   link against libzippp.a or libzippp.so (do not forget to also link 
+   against libzip libraries in lib/libzip-0.11.1/lib/.libs/).
+   An example of compilation with g++ (note also the -lz at the end) :
+   	g++ -I./$(LIB)/libzip-0.11.1/lib -I./src main.cpp libzippp.a lib/libzip-0.11.1/lib/.libs/libzip.a -lz
+
