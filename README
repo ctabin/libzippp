@@ -22,5 +22,12 @@ libzippp is a simple basic C++ wrapper around the libzip library.
    link against libzippp.a or libzippp.so (do not forget to also link 
    against libzip libraries in lib/libzip-0.11.1/lib/.libs/).
    An example of compilation with g++ (note also the -lz at the end) :
-   	g++ -I./$(LIB)/libzip-0.11.1/lib -I./src main.cpp libzippp.a lib/libzip-0.11.1/lib/.libs/libzip.a -lz
+   	g++ -I./lib/libzip-0.11.1/lib -I./src main.cpp libzippp.a lib/libzip-0.11.1/lib/.libs/libzip.a -lz
 
+= ====== =
+= TODO   =
+= ====== =
+
+- Encryption support
+- Windows version
+- Error reporting
