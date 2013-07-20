@@ -1,0 +1,19 @@
+
+= ======== =
+= libzippp =
+= ======== =
+
+libzippp is a simple basic C++ wrapper around the libzip library.
+
+= ====== =
+= Usage  =
+= ====== =
+
+1) download and compile de libzip library with the following command:
+	make libzip
+
+2) then creates the static and shared libraries of libzippp
+	make
+
+3) you now just have to include the src folder in your include path and
+   link agains libzippp.a or libzippp.so.
