@@ -1,5 +1,6 @@
 
 #include <assert.h>
+#include <string.h>
 #include <iostream>
 #include <cstdlib>
 #include <string>
@@ -291,6 +292,38 @@ void test10() {
     cout << " done." << endl;
 }
 
+void test11() {
+    cout << "Running test 11...";
+    
+    string c = "a basic comment";
+    
+    ZipFile z1("test.zip");
+    z1.open(ZipFile::WRITE);
+    z1.addDirectory("test/");
+    z1.setComment(c);
+    z1.close();
+    
+    ZipFile z2("test.zip");
+    z2.open(ZipFile::READ_ONLY);
+    string str = z2.getComment();
+    assert(str == c);
+    z2.close();
+    
+    ZipFile z3("test.zip");
+    z3.open(ZipFile::WRITE);
+    z3.removeComment();
+    z3.close();
+    
+    ZipFile z4("test.zip");
+    z4.open(ZipFile::READ_ONLY);
+    string str2 = z4.getComment();
+    assert(str2.empty());
+    z4.close();
+    z4.unlink();
+    
+    cout << " done." << endl;
+}
+
 int main(int argc, char** argv) {
     test1();
     test2();
@@ -302,5 +335,6 @@ int main(int argc, char** argv) {
     test8();
     test9();
     test10();
+    test11();
 }
 

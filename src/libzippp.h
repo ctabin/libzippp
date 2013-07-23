@@ -85,6 +85,11 @@ namespace libzippp {
          */
         bool isNull(void) const { return zipFile==NULL; }
         
+        /**
+         * Returns the comment of the entry.
+         */
+        string getComment(void) const { return comment; }
+        
     private:
         const ZipFile* zipFile;
         string name;
@@ -94,8 +99,10 @@ namespace libzippp {
         int size;
         int sizeComp;
         int crc;
+        string comment;
         
-        ZipEntry(const ZipFile* zipFile, const string& name, int index, time_t time, int method, int size, int sizeComp, int crc) : zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc) {}
+        ZipEntry(const ZipFile* zipFile, const string& name, int index, time_t time, int method, int size, int sizeComp, int crc, const string& comment) : 
+                zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc), comment(comment) {}
     };
     
     /**
@@ -169,10 +176,17 @@ namespace libzippp {
         
         /**
          * Defines the comment of the archive. In order to set the comment, the archive
-         * must have been open in WRITE or NEW mode.
+         * must have been open in WRITE or NEW mode. If the archive is not open, the getComment
+         * method will return an empty string.
          */
         string getComment(void) const;
         bool setComment(const string& comment) const;
+        
+        /**
+         * Removes the comment of the archive, if any. The archive must have been open
+         * in WRITE or NEW mode.
+         */
+        bool removeComment(void) const { setComment(string()); }
         
         /**
          * Returns the number of entries in this zip file (folders are included).
@@ -274,6 +288,9 @@ namespace libzippp {
         zip* zipHandle;
         OpenMode mode;
         int openflag;
+        
+        //generic method to create ZipEntry
+        ZipEntry createEntry(struct zip_stat* stat) const;
         
         //prevent copy across functions
         ZipFile(const ZipFile& zf);

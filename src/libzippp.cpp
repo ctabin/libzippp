@@ -59,23 +59,42 @@ bool ZipFile::unlink(void) {
 }
 
 string ZipFile::getComment(void) const {
+    if (!isOpen()) { return string(); }
+    
     int length = 0;
     const char* comment = zip_get_archive_comment(zipHandle, &length, ZIP_FL_ENC_GUESS);
-    string result(comment, length);
-    delete comment;
-    return result;
+    if (comment==NULL) { return string(); }
+    return string(comment, length);
 }
 
 bool ZipFile::setComment(const string& comment) const {
     if (!isOpen()) { return false; }
     
-    int result = zip_set_archive_comment(zipHandle, comment.c_str(), comment.size());
+    int size = comment.size();
+    const char* data = comment.c_str();
+    int result = zip_set_archive_comment(zipHandle, data, size);
     return result==0;
 }
 
 int ZipFile::getNbEntries(void) const {
     if (!isOpen()) { return -1; }
     return zip_get_num_entries(zipHandle, openflag);
+}
+
+ZipEntry ZipFile::createEntry(struct zip_stat* stat) const {
+    string name(stat->name);
+    int index = stat->index;
+    int size = stat->size;
+    int method = stat->comp_method;
+    int sizeComp = stat->comp_size;
+    int crc = stat->crc;
+    time_t time = stat->mtime;
+
+    uint clen;
+    const char* com = zip_file_get_comment(zipHandle, index, &clen, ZIP_FL_ENC_GUESS);
+    string comment = com==NULL ? string() : string(com, clen);
+    
+    return ZipEntry(this, name, index, time, method, size, sizeComp, crc, comment);
 }
 
 vector<ZipEntry> ZipFile::getEntries(void) const {
@@ -89,17 +108,8 @@ vector<ZipEntry> ZipFile::getEntries(void) const {
     for(int i=0 ; i<nbEntries ; ++i) {
         int result = zip_stat_index(zipHandle, i, openflag, &stat);
         if (result==0) {
-            string name(stat.name);
-            int index = stat.index;
-            int size = stat.size;
-            int method = stat.comp_method;
-            int sizeComp = stat.comp_size;
-            int crc = stat.crc;
-            time_t time = stat.mtime;
-            
-            ZipEntry entry(this, name, index, time, method, size, sizeComp, crc);
+            ZipEntry entry = createEntry(&stat);
             entries.push_back(entry);
-            
         } else {
             //TODO handle read error => crash ?
         }
@@ -143,15 +153,7 @@ ZipEntry ZipFile::getEntry(int index) const {
         zip_stat_init(&stat);
         int result = zip_stat_index(zipHandle, index, openflag, &stat);
         if (result==0) {
-            string name(stat.name);
-            int index = stat.index;
-            int size = stat.size;
-            int method = stat.comp_method;
-            int sizeComp = stat.comp_size;
-            int crc = stat.crc;
-            time_t time = stat.mtime;
-
-            return ZipEntry(this, name, index, time, method, size, sizeComp, crc);
+            return createEntry(&stat);
         } else {
             //index not found / invalid index
         }
