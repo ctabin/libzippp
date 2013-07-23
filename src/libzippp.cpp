@@ -4,8 +4,12 @@
 using namespace libzippp;
 using namespace std;
 
-ZipFile::ZipFile(const string& zipPath) : path(zipPath), zipHandle(NULL), mode(NOT_OPEN), openflag(ZIP_FL_UNCHANGED) { }
-ZipFile::~ZipFile(void) { close(); /* discard ??? */ }
+ZipFile::ZipFile(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), mode(NOT_OPEN), openflag(ZIP_FL_UNCHANGED), password(password) {
+}
+
+ZipFile::~ZipFile(void) { 
+    close(); /* discard ??? */ 
+}
 
 bool ZipFile::open(OpenMode om, bool checkConsistency) {
     int zipFlag = 0;
@@ -32,8 +36,20 @@ bool ZipFile::open(OpenMode om, bool checkConsistency) {
         return false;
     }
     
-    mode = om;
-    return zipHandle!=NULL;
+    if (zipHandle!=NULL) {
+        if (isEncrypted()) {
+            int result = zip_set_default_password(zipHandle, password.c_str());
+            if (result!=0) { 
+                close();
+                return false;
+            }
+        }
+        
+        mode = om;
+        return true;
+    }
+    
+    return false;
 }
 
 void ZipFile::close(void) {

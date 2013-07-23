@@ -127,9 +127,13 @@ namespace libzippp {
         };
         
         /**
-         * Creates a new ZipFile.
+         * Creates a new ZipFile with the given path. If the password is defined, it
+         * will be used to read encrypted archive. It won't affect the files added
+         * to the archive.
+         * 
+         * http://nih.at/listarchive/libzip-discuss/msg00219.html
          */
-        ZipFile(const string& zipPath);
+        ZipFile(const string& zipPath, const string& password="");
         virtual ~ZipFile(void); //commit all the changes if open
         
         /**
@@ -173,6 +177,12 @@ namespace libzippp {
          * Returns true if the ZipFile is open and mutable.
          */
         bool isMutable(void) const { return isOpen() && mode!=NOT_OPEN && mode!=READ_ONLY; }
+        
+        /**
+         * Returns true if the ZipFile is encrypted. This method returns true only if
+         * a password has been set in the constructor.
+         */
+        bool isEncrypted(void) const { return !password.empty(); }
         
         /**
          * Defines the comment of the archive. In order to set the comment, the archive
@@ -288,6 +298,7 @@ namespace libzippp {
         zip* zipHandle;
         OpenMode mode;
         int openflag;
+        string password;
         
         //generic method to create ZipEntry
         ZipEntry createEntry(struct zip_stat* stat) const;
