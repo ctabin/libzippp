@@ -22,14 +22,17 @@ libzippp is a simple basic C++ wrapper around the libzip library.
    link against libzippp.a or libzippp.so (do not forget to also link 
    against libzip libraries in lib/libzip-0.11.1/lib/.libs/).
    An example of compilation with g++ (note also the -lz at the end) :
-   	g++ -I./lib/libzip-0.11.1/lib -I./src main.cpp libzippp.a lib/libzip-0.11.1/lib/.libs/libzip.a -lz
+   	g++ -I./lib/libzip-0.11.1/lib -I./src \
+		main.cpp libzippp.a \
+		lib/libzip-0.11.1/lib/.libs/libzip.a \
+		-lz
 
 = ===== =
 = Usage =
 = ===== =
 
 The API is meant to be very straight forward. Some french explanations
-can be found here: http://www.astorm.ch/blog/index.php?post/2013/07/23/Gérer-des-archives-ZIP-en-C
+can be found here: http://www.astorm.ch/blog
 
 How to list files in an archive:
 
