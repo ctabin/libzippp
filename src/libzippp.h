@@ -168,6 +168,13 @@ namespace libzippp {
         bool isMutable(void) const { return isOpen() && mode!=NOT_OPEN && mode!=READ_ONLY; }
         
         /**
+         * Defines the comment of the archive. In order to set the comment, the archive
+         * must have been open in WRITE or NEW mode.
+         */
+        string getComment(void) const;
+        bool setComment(const string& comment) const;
+        
+        /**
          * Returns the number of entries in this zip file (folders are included).
          * The zip file must be open otherwise -1 will be returned.
          */

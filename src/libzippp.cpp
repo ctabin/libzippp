@@ -58,6 +58,21 @@ bool ZipFile::unlink(void) {
     return result==0;
 }
 
+string ZipFile::getComment(void) const {
+    int length = 0;
+    const char* comment = zip_get_archive_comment(zipHandle, &length, ZIP_FL_ENC_GUESS);
+    string result(comment, length);
+    delete comment;
+    return result;
+}
+
+bool ZipFile::setComment(const string& comment) const {
+    if (!isOpen()) { return false; }
+    
+    int result = zip_set_archive_comment(zipHandle, comment.c_str(), comment.size());
+    return result==0;
+}
+
 int ZipFile::getNbEntries(void) const {
     if (!isOpen()) { return -1; }
     return zip_get_num_entries(zipHandle, openflag);
