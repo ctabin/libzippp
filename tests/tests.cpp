@@ -1,8 +1,8 @@
 
-#include <iostream>
-#include <stdlib.h>
 #include <assert.h>
-#include <string.h>
+#include <iostream>
+#include <cstdlib>
+#include <string>
 
 #include "libzippp.h"
 

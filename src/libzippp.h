@@ -267,6 +267,10 @@ namespace libzippp {
         zip* zipHandle;
         OpenMode mode;
         int openflag;
+        
+        //prevent copy across functions
+        ZipFile(const ZipFile& zf);
+        ZipFile& operator=(const ZipFile&);
     };
 }
 
