@@ -5,9 +5,9 @@
 
 libzippp is a simple basic C++ wrapper around the libzip library.
 
-= ====== =
-= Usage  =
-= ====== =
+= ============ =
+= Compilation  =
+= ============ =
 
 1) download and compile de libzip library with the following command:
 	make libzip
@@ -24,10 +24,80 @@ libzippp is a simple basic C++ wrapper around the libzip library.
    An example of compilation with g++ (note also the -lz at the end) :
    	g++ -I./lib/libzip-0.11.1/lib -I./src main.cpp libzippp.a lib/libzip-0.11.1/lib/.libs/libzip.a -lz
 
+= ===== =
+= Usage =
+= ===== =
+
+The API is meant to be very straight forward. Some french explanations
+can be found here: http://www.astorm.ch/blog/index.php?post/2013/07/23/Gérer-des-archives-ZIP-en-C
+
+How to list files in an archive:
+
+	#include "libzippp.h"
+	using namespace libzippp;
+
+	ZipFile zf("archive.zip");
+	zf.open(ZipFile::READ_ONLY);
+
+	vector<ZipEntry> entries = zf.getEntries();
+	vector<ZipEntry>::iterator it;
+	for(it=entries.begin() ; it!=entries.end(); ++it) {
+		ZipEntry entry = *it;
+		string name = entry.getName();
+		int size = entry.getSize();
+		//...
+	}
+
+	zf.close();
+
+
+How to read a specific entry from an archive:
+
+	#include "libzippp.h"
+	using namespace libzippp;
+
+	ZipFile zf("archive.zip");
+	zf.open(ZipFile::READ_ONLY);
+
+	ZipEntry entry = zf.getEntry("myFile.txt");
+	char* data = (char*)zf.readEntry(entry);
+	string str(data, entry.getSize());
+
+	zf.close();
+
+
+How to add data to an archive:
+
+	#include "libzippp.h"
+	using namespace libzippp;
+
+	ZipFile zf("archive.zip");
+	zf.open(ZipFile::WRITE);
+	zf.addDirectory("folder/subdir/");
+
+	const char* textData = "Hello,World!";
+	zf.addData("helloworld.txt", textData, 12);
+
+	zf.close();
+
+
+How to remove data from an archive:
+
+	#include "libzippp.h"
+	using namespace libzippp;
+
+	ZipFile zf("archive.zip");
+	zf.open(ZipFile::WRITE);
+	zf.deleteEntry("myFile.txt");
+	zf.deleteEntry("myDir/subDir/");
+	zf.close();
+
+
+
 = ====== =
 = TODO   =
 = ====== =
 
-- Encryption support
 - Windows version
-- Error reporting
+- Extra field handling
+- Entry comment write
