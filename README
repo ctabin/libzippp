@@ -9,6 +9,8 @@ libzippp is a simple basic C++ wrapper around the libzip library.
 = Compilation  =
 = ============ =
 
+0) make sure you have the following commands: g++ make tar wget
+
 1) download and compile de libzip library with the following command:
 	make libzip
 
@@ -101,6 +103,5 @@ How to remove data from an archive:
 = TODO   =
 = ====== =
 
-- Windows version
 - Extra field handling
 - Entry comment write

@@ -1,0 +1,32 @@
+diff -ur libzip-0.11.1/lib/zipconf.h libzip-0.11.1-modified/lib/zipconf.h
+--- libzip-0.11.1/lib/zipconf.h	2013-04-27 22:35:44.000000000 +0200
++++ libzip-0.11.1-modified/lib/zipconf.h	2013-07-26 23:26:45.473406265 +0200
+@@ -13,7 +13,7 @@
+ #define LIBZIP_VERSION_MINOR 11
+ #define LIBZIP_VERSION_MICRO 0
+ 
+-#include <inttypes.h>
++#include <stdint.h>
+ 
+ typedef int8_t zip_int8_t;
+ #define ZIP_INT8_MIN INT8_MIN
+diff -ur libzip-0.11.1/lib/zip_set_file_compression.c libzip-0.11.1-modified/lib/zip_set_file_compression.c
+--- libzip-0.11.1/lib/zip_set_file_compression.c	2013-04-27 11:26:58.000000000 +0200
++++ libzip-0.11.1-modified/lib/zip_set_file_compression.c	2013-07-26 23:27:23.885405303 +0200
+@@ -42,6 +42,7 @@
+ 			 zip_int32_t method, zip_uint32_t flags)
+ {
+     struct zip_entry *e;
++    zip_int32_t old_method;
+ 
+     if (idx >= za->nentry) {
+ 	_zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+@@ -60,7 +61,7 @@
+ 
+     e = za->entry+idx;
+     
+-    zip_int32_t old_method = (e->orig == NULL ? ZIP_CM_DEFAULT : e->orig->comp_method);
++    old_method = (e->orig == NULL ? ZIP_CM_DEFAULT : e->orig->comp_method);
+     
+     /* XXX: revisit this when flags are supported, since they may require a recompression */
+     
