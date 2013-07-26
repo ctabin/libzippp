@@ -42,10 +42,13 @@ libzip-download: libzip-init
 libzip-unzip: libzip-download
 	cd $(LIB) && tar -xf libzip-0.11.1.tar.gz
 
-libzip-patch: libzip-unzip
+libzip-configure: libzip-unzip
+	cd $(LIB)/libzip-0.11.1 && ./configure
+
+libzip-patch: libzip-configure
 	cd $(LIB)/libzip-0.11.1 && patch -p1 < ../../patch/libzip-windows.patch
 
-libzip-compile: libzip-patch libzip-unzip
-	cd $(LIB)/libzip-0.11.1 && ./configure && make
+libzip-compile: libzip-patch
+	cd $(LIB)/libzip-0.11.1 && make
 
 libzip: libzip-compile
