@@ -93,7 +93,7 @@ void test2() {
     ZipEntry entry = z2.getEntry("somedata");
     assert(!entry.isNull());
     
-    char* data = (char*)z2.readEntry(entry);
+    char* data = (char*)z2.readEntry(entry, true);
     int clen = strlen(data);
     assert(clen==len);
     assert(strncmp(txtFile, data, len)==0);
@@ -126,7 +126,7 @@ void test3() {
     ZipEntry entry = z2.getEntry("somedata/in/subfolder/data.txt");
     assert(!entry.isNull());
     
-    char* data = (char*)z2.readEntry(entry);
+    char* data = (char*)z2.readEntry(entry, true);
     int clen = strlen(data);
     assert(clen==len);
     assert(strncmp(txtFile, data, len)==0);

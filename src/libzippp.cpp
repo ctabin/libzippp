@@ -211,7 +211,7 @@ ZipEntry ZipFile::getEntry(int index) const {
     return ZipEntry();
 }
 
-void* ZipFile::readEntry(const ZipEntry& zipEntry) const {
+void* ZipFile::readEntry(const ZipEntry& zipEntry, bool asText) const {
     if (!isOpen()) { return NULL; }
     if (zipEntry.zipFile!=this) { return NULL; }
     
@@ -219,9 +219,12 @@ void* ZipFile::readEntry(const ZipEntry& zipEntry) const {
     if (zipFile) {
         int size = zipEntry.getSize();
         
-        char* data = new char[size];
+        char* data = new char[size+(asText ? 1 : 0)];
         int result = zip_fread(zipFile, data, size);
         zip_fclose(zipFile);
+        
+        //avoid buffer copy
+        if (asText) { data[size] = '\0'; }
         
         if (result==size) {
             return data;

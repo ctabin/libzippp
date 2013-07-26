@@ -230,7 +230,7 @@ namespace libzippp {
          * Removes the comment of the archive, if any. The archive must have been open
          * in WRITE or NEW mode.
          */
-        bool removeComment(void) const { setComment(string()); }
+        bool removeComment(void) const { return setComment(string()); }
         
         /**
          * Returns the number of entries in this zip file (folders are included).
@@ -269,11 +269,13 @@ namespace libzippp {
         /**
          * Read the specified ZipEntry of the ZipFile and returns its content within
          * a char array. If there is an error while reading the entry, then null will be returned.
-         * The data must be deleted by the developer once not used anymore.
+         * The data must be deleted by the developer once not used anymore. If the asText
+         * is set to true, then the returned void* will be ended by a \0 (hence the size of
+         * the returned array will be zipEntry.getSize()+1).
          * The zip file must be open otherwise null will be returned. If the ZipEntry was not
          * created by this ZipFile, null will be returned.
          */
-        void* readEntry(const ZipEntry& zipEntry) const;
+        void* readEntry(const ZipEntry& zipEntry, bool asText=false) const;
         
         /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
