@@ -52,6 +52,19 @@
 
 using namespace std;
 
+/*
+ * Special definition for windows, otherwise uint is not understood.
+ */
+#ifdef WIN32
+        typedef unsigned int uint;
+        typedef long long libzippp_int64;
+        typedef unsigned long long libzippp_uint64;
+#else
+        //standard ISO c++ does not suport long long
+        typedef long int libzippp_int64;
+        typedef unsigned long int libzippp_uint64;
+#endif
+
 namespace libzippp {
     class ZipFile;
     
@@ -77,7 +90,7 @@ namespace libzippp {
         /**
          * Returns the index of the file in the zip.
          */
-        int getIndex(void) const { return index; }
+        libzippp_uint64 getIndex(void) const { return index; }
         
         /**
          * Returns the timestamp of the entry.
@@ -92,12 +105,12 @@ namespace libzippp {
         /**
          * Returns the size of the file (not deflated).
          */
-        int getSize(void) const { return size; }
+        libzippp_uint64 getSize(void) const { return size; }
         
         /**
-         * Returns the size of the deflated file.
+         * Returns the size of the inflated file.
          */
-        int getDeflatedSize(void) const { return sizeComp; }
+        libzippp_uint64 getInflatedSize(void) const { return sizeComp; }
         
         /**
          * Returns the CRC of the file.
@@ -127,15 +140,15 @@ namespace libzippp {
     private:
         const ZipFile* zipFile;
         string name;
-        int index;
+        libzippp_uint64 index;
         time_t time;
         int method;
-        int size;
-        int sizeComp;
+        libzippp_uint64 size;
+        libzippp_uint64 sizeComp;
         int crc;
         string comment;
         
-        ZipEntry(const ZipFile* zipFile, const string& name, int index, time_t time, int method, int size, int sizeComp, int crc, const string& comment) : 
+        ZipEntry(const ZipFile* zipFile, const string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc, const string& comment) : 
                 zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc), comment(comment) {}
     };
     
@@ -236,7 +249,7 @@ namespace libzippp {
          * Returns the number of entries in this zip file (folders are included).
          * The zip file must be open otherwise -1 will be returned.
          */
-        int getNbEntries(void) const;
+        libzippp_int64 getNbEntries(void) const;
         
         /**
          * Returns all the entries of the ZipFile.
@@ -264,7 +277,7 @@ namespace libzippp {
          * then a null-ZipEntry will be returned.
          * The zip file must be open otherwise a null-ZipEntry will be returned.
          */
-        ZipEntry getEntry(int index) const;
+        ZipEntry getEntry(libzippp_int64 index) const;
         
         /**
          * Read the specified ZipEntry of the ZipFile and returns its content within

@@ -126,17 +126,17 @@ bool ZipFile::setComment(const string& comment) const {
     return result==0;
 }
 
-int ZipFile::getNbEntries(void) const {
+libzippp_int64 ZipFile::getNbEntries(void) const {
     if (!isOpen()) { return -1; }
     return zip_get_num_entries(zipHandle, openflag);
 }
 
 ZipEntry ZipFile::createEntry(struct zip_stat* stat) const {
     string name(stat->name);
-    int index = stat->index;
-    int size = stat->size;
+    libzippp_uint64 index = stat->index;
+    libzippp_uint64 size = stat->size;
     int method = stat->comp_method;
-    int sizeComp = stat->comp_size;
+    libzippp_uint64 sizeComp = stat->comp_size;
     int crc = stat->crc;
     time_t time = stat->mtime;
 
@@ -154,8 +154,8 @@ vector<ZipEntry> ZipFile::getEntries(void) const {
     zip_stat_init(&stat);
 
     vector<ZipEntry> entries;
-    int nbEntries = getNbEntries();
-    for(int i=0 ; i<nbEntries ; ++i) {
+    libzippp_int64 nbEntries = getNbEntries();
+    for(libzippp_int64 i=0 ; i<nbEntries ; ++i) {
         int result = zip_stat_index(zipHandle, i, openflag, &stat);
         if (result==0) {
             ZipEntry entry = createEntry(&stat);
@@ -174,7 +174,7 @@ bool ZipFile::hasEntry(const string& name, bool excludeDirectories, bool caseSen
     if (excludeDirectories) { flags = flags | ZIP_FL_NODIR; }
     if (!caseSensitive) { flags = flags | ZIP_FL_NOCASE; }
     
-    int index = zip_name_locate(zipHandle, name.c_str(), flags);
+    libzippp_int64 index = zip_name_locate(zipHandle, name.c_str(), flags);
     if (index>=0) {
         return true;
     }
@@ -187,7 +187,7 @@ ZipEntry ZipFile::getEntry(const string& name, bool excludeDirectories, bool cas
         if (excludeDirectories) { flags = flags | ZIP_FL_NODIR; }
         if (!caseSensitive) { flags = flags | ZIP_FL_NOCASE; }
 
-        int index = zip_name_locate(zipHandle, name.c_str(), flags);
+        libzippp_int64 index = zip_name_locate(zipHandle, name.c_str(), flags);
         if (index>=0) {
             return getEntry(index);
         } else {
@@ -197,7 +197,7 @@ ZipEntry ZipFile::getEntry(const string& name, bool excludeDirectories, bool cas
     return ZipEntry();
 }
         
-ZipEntry ZipFile::getEntry(int index) const {
+ZipEntry ZipFile::getEntry(libzippp_int64 index) const {
     if (isOpen()) {
         struct zip_stat stat;
         zip_stat_init(&stat);
@@ -217,20 +217,20 @@ void* ZipFile::readEntry(const ZipEntry& zipEntry, bool asText) const {
     
     struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), openflag);
     if (zipFile) {
-        int size = zipEntry.getSize();
+        libzippp_uint64 size = zipEntry.getSize();
+        libzippp_int64 isize = (libzippp_int64)size; //there will be a warning here, but unavoidable...
         
-        char* data = new char[size+(asText ? 1 : 0)];
-        int result = zip_fread(zipFile, data, size);
+        char* data = new char[isize+(asText ? 1 : 0)];
+        libzippp_int64 result = zip_fread(zipFile, data, size);
         zip_fclose(zipFile);
         
         //avoid buffer copy
-        if (asText) { data[size] = '\0'; }
+        if (asText) { data[isize] = '\0'; }
         
-        if (result==size) {
+        if (result==isize) {
             return data;
-        } else {
+        } else { //unexpected number of bytes read => crash ?
             delete data;
-            //unexpected number of bytes read => crash ?
         }
     } else {
         //unable to read the entry => crash ?
@@ -347,7 +347,7 @@ bool ZipFile::addFile(const string& entryName, const string& file) const {
     
     zip_source* source = zip_source_file(zipHandle, file.c_str(), 0, file.size());
     if (source!=NULL) {
-        int result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
+        libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
         if (result>=0) { return true; } 
         else { zip_source_free(source); } //unable to add the file
     } else {
@@ -370,7 +370,7 @@ bool ZipFile::addData(const string& entryName, const void* data, uint length, bo
     
     zip_source* source = zip_source_buffer(zipHandle, data, length, freeData);
     if (source!=NULL) {
-        int result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
+        libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
         if (result>=0) { return true; } 
         else { zip_source_free(source); } //unable to add the file
     } else {
@@ -388,7 +388,7 @@ bool ZipFile::addDirectory(const string& entryName) const {
     while(nextSlash!=-1) {
         string pathToCreate = entryName.substr(0, nextSlash+1);
         if (!hasEntry(pathToCreate)) {
-            int result = zip_dir_add(zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
+            libzippp_int64 result = zip_dir_add(zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
             if (result==-1) { return false; }
         }
         nextSlash = entryName.find(DIRECTORY_SEPARATOR, nextSlash+1);
