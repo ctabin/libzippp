@@ -55,7 +55,7 @@ How to list files in an archive:
 		void* binaryData = zf.readEntry(entry);
 
 		//the length of textData will be size+1 (last char is \0)
-		char* textData = zf.readEntry(entry, true);
+		char* textData = (char*)zf.readEntry(entry, true);
 
 		//...
 	}
