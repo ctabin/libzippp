@@ -246,7 +246,7 @@ namespace libzippp {
          * must have been open in WRITE or NEW mode. If the archive is not open, the getComment
          * method will return an empty string.
          */
-        string getComment(void) const;
+        string getComment(State state=CURRENT) const;
         bool setComment(const string& comment) const;
         
         /**

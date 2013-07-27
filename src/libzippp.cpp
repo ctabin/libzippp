@@ -108,11 +108,14 @@ bool ZipArchive::unlink(void) {
     return result==0;
 }
 
-string ZipArchive::getComment(void) const {
+string ZipArchive::getComment(State state) const {
     if (!isOpen()) { return string(); }
     
+    int flag = ZIP_FL_ENC_GUESS;
+    if (state==ORIGINAL) { flag = flag | ZIP_FL_UNCHANGED; }
+    
     int length = 0;
-    const char* comment = zip_get_archive_comment(zipHandle, &length, ZIP_FL_ENC_GUESS);
+    const char* comment = zip_get_archive_comment(zipHandle, &length, flag);
     if (comment==NULL) { return string(); }
     return string(comment, length);
 }
