@@ -358,6 +358,29 @@ void test11() {
     cout << " done." << endl;
 }
 
+void test12() {
+    cout << "Running test 12...";
+    
+    string c = "a basic comment";
+    
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
+    z1.addDirectory("test/");
+    z1.addData("file/data.txt", c.c_str(), c.length());
+    z1.close();
+    
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::WRITE);
+    z2.addDirectory("content/new/");
+    z2.addData("newfile.txt", c.c_str(), c.length());
+    assert(z2.getNbEntries(ZipArchive::CURRENT)==6);
+    assert(z2.getNbEntries(ZipArchive::ORIGINAL)==3);
+    z2.close();
+    z2.unlink();
+    
+    cout << " done." << endl;
+}
+
 int main(int argc, char** argv) {
     test1();
     test2();
@@ -370,5 +393,6 @@ int main(int argc, char** argv) {
     test9();
     test10();
     test11();
+    test12();
 }
 

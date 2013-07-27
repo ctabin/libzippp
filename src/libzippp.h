@@ -163,14 +163,24 @@ namespace libzippp {
          * Defines how the zip file must be open.
          * NOT_OPEN is a special mode where the file is not open.
          * READ_ONLY is the basic mode to only read the archive.
-         * WRITE will append to an existing archive or create a new one if it does not exist
-         * NEW will create a new archive or erase all the data if a previous one exists
+         * WRITE will append to an existing archive or create a new one if it does not exist.
+         * NEW will create a new archive or erase all the data if a previous one exists.
          */
         enum OpenMode {
             NOT_OPEN,
             READ_ONLY,
             WRITE,
             NEW
+        };
+        
+        /**
+         * Defines how the reading of the data should be made in the archive.
+         * ORIGINAL will read the data of the original archive file, without any change.
+         * CURRENT will read the current content of the archive.
+         */
+        enum State {
+            ORIGINAL,
+            CURRENT
         };
         
         /**
@@ -247,22 +257,25 @@ namespace libzippp {
         
         /**
          * Returns the number of entries in this zip file (folders are included).
-         * The zip file must be open otherwise -1 will be returned.
+         * The zip file must be open otherwise -1 will be returned. If the state
+         * is ORIGINAL, then the number entries of the original archive are returned.
+         * Any change will not be considered.
          */
-        libzippp_int64 getNbEntries(void) const;
+        libzippp_int64 getNbEntries(State state=CURRENT) const;
         
         /**
-         * Returns all the entries of the ZipArchive.
+         * Returns all the entries of the ZipArchive. If the state is ORIGINAL, then
+         * returns the entries in the original archive, any change will not be considered.
          * The zip file must be open otherwise an empty vector will be returned.
          */
-        vector<ZipEntry> getEntries(void) const;
+        vector<ZipEntry> getEntries(State state=CURRENT) const;
         
         /**
          * Return true if an entry with the specified name exists. If no such entry exists,
          * then false will be returned. If a directory is searched, the name must end with a '/' !
          * The zip file must be open otherwise false will be returned.
          */
-        bool hasEntry(const string& name, bool excludeDirectories=false, bool caseSensitive=true) const;
+        bool hasEntry(const string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=CURRENT) const;
         
         /**
          * Return the ZipEntry for the specified entry name. If no such entry exists,
@@ -270,14 +283,14 @@ namespace libzippp {
          * must end with a '/' !
          * The zip file must be open otherwise a null-ZipEntry will be returned.
          */
-        ZipEntry getEntry(const string& name, bool excludeDirectories=false, bool caseSensitive=true) const;
+        ZipEntry getEntry(const string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=CURRENT) const;
         
         /**
          * Return the ZipEntry for the specified index. If the index is out of range,
          * then a null-ZipEntry will be returned.
          * The zip file must be open otherwise a null-ZipEntry will be returned.
          */
-        ZipEntry getEntry(libzippp_int64 index) const;
+        ZipEntry getEntry(libzippp_int64 index, State state=CURRENT) const;
         
         /**
          * Read the specified ZipEntry of the ZipArchive and returns its content within
@@ -288,7 +301,7 @@ namespace libzippp {
          * The zip file must be open otherwise null will be returned. If the ZipEntry was not
          * created by this ZipArchive, null will be returned.
          */
-        void* readEntry(const ZipEntry& zipEntry, bool asText=false) const;
+        void* readEntry(const ZipEntry& zipEntry, bool asText=false, State state=CURRENT) const;
         
         /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
@@ -346,7 +359,6 @@ namespace libzippp {
         string path;
         zip* zipHandle;
         OpenMode mode;
-        int openflag;
         string password;
         
         //generic method to create ZipEntry
