@@ -47,10 +47,10 @@ using namespace libzippp;
 void test1() {
     cout << "Running test 1...";
     
-    ZipFile z1("test.zip");
+    ZipArchive z1("test.zip");
     assert(!z1.isOpen());
     assert(!z1.isMutable());
-    z1.open(ZipFile::WRITE);
+    z1.open(ZipArchive::WRITE);
     assert(z1.isOpen());
     assert(z1.isMutable());
     bool result = z1.addDirectory("folder/subfolder/finalfolder/");
@@ -59,8 +59,8 @@ void test1() {
     assert(!z1.isOpen());
     assert(!z1.isMutable());
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::READ_ONLY);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::READ_ONLY);
     assert(z2.isOpen());
     assert(!z2.isMutable());
     int nbEntries = z2.getNbEntries();
@@ -80,13 +80,13 @@ void test2() {
     const char* txtFile = "this is some data";
     int len = strlen(txtFile);
     
-    ZipFile z1("test.zip");
-    z1.open(ZipFile::WRITE);
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
     z1.addData("somedata", txtFile, len);
     z1.close();
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::READ_ONLY);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::READ_ONLY);
     assert(z2.getNbEntries()==1);
     assert(z2.hasEntry("somedata"));
     
@@ -110,16 +110,16 @@ void test3() {
     const char* txtFile = "this is some data";
     int len = strlen(txtFile);
     
-    ZipFile z1("test.zip");
-    z1.open(ZipFile::WRITE);
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
     z1.addData("somedata/in/subfolder/data.txt", txtFile, len);
     assert(z1.addDirectory("somedata/"));
     assert(z1.addDirectory("in/"));
     assert(z1.addDirectory("in/subfolder/"));
     z1.close();
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::READ_ONLY);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::READ_ONLY);
     assert(z2.getNbEntries()==6);
     assert(z2.hasEntry("somedata/in/subfolder/data.txt"));
     
@@ -143,13 +143,13 @@ void test4() {
     const char* txtFile = "this is some data";
     int len = strlen(txtFile);
     
-    ZipFile z1("test.zip");
-    z1.open(ZipFile::WRITE);
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
     z1.addData("somedata/test.txt", txtFile, len);
     z1.close();
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::WRITE);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::WRITE);
     assert(z2.getNbEntries()==2);
     
     ZipEntry d = z2.getEntry("somedata/test.txt");
@@ -167,13 +167,13 @@ void test5() {
     const char* txtFile = "this is some data";
     int len = strlen(txtFile);
     
-    ZipFile z1("test.zip");
-    z1.open(ZipFile::WRITE);
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.close();
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::WRITE);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::WRITE);
     assert(z2.getNbEntries()==4);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -191,13 +191,13 @@ void test6() {
     const char* txtFile = "this is some data";
     int len = strlen(txtFile);
     
-    ZipFile z1("test.zip");
-    z1.open(ZipFile::WRITE);
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.close();
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::WRITE);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::WRITE);
     assert(z2.getNbEntries()==4);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -215,13 +215,13 @@ void test7() {
     const char* txtFile = "this is some data";
     int len = strlen(txtFile);
     
-    ZipFile z1("test.zip");
-    z1.open(ZipFile::WRITE);
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.close();
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::WRITE);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::WRITE);
     assert(z2.getNbEntries()==4);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -229,8 +229,8 @@ void test7() {
     assert(z2.renameEntry(d, "somedata/in/subfolder/")==3);
     z2.close();
     
-    ZipFile z3("test.zip");
-    z3.open(ZipFile::READ_ONLY);
+    ZipArchive z3("test.zip");
+    z3.open(ZipArchive::READ_ONLY);
     assert(z3.getNbEntries()==5);
     z3.close();
     z3.unlink();
@@ -244,13 +244,13 @@ void test8() {
     const char* txtFile = "this is some data";
     int len = strlen(txtFile);
     
-    ZipFile z1("test.zip");
-    z1.open(ZipFile::WRITE);
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.close();
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::WRITE);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::WRITE);
     assert(z2.getNbEntries()==4);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -258,8 +258,8 @@ void test8() {
     assert(z2.renameEntry(d, "newdata/out/subfolders/")==3);
     z2.close();
     
-    ZipFile z3("test.zip");
-    z3.open(ZipFile::READ_ONLY);
+    ZipArchive z3("test.zip");
+    z3.open(ZipArchive::READ_ONLY);
     assert(z3.getNbEntries()==6);
     z3.close();
     z3.unlink();
@@ -273,14 +273,14 @@ void test9() {
     const char* txtFile = "this is some data";
     int len = strlen(txtFile);
     
-    ZipFile z1("test.zip");
-    z1.open(ZipFile::WRITE);
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.addData("somedata/out/subfolders/other.txt", txtFile, len);
     z1.close();
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::WRITE);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::WRITE);
     assert(z2.getNbEntries()==7);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -288,8 +288,8 @@ void test9() {
     assert(z2.renameEntry(d, "root/")==3);
     z2.close();
     
-    ZipFile z3("test.zip");
-    z3.open(ZipFile::READ_ONLY);
+    ZipArchive z3("test.zip");
+    z3.open(ZipArchive::READ_ONLY);
     assert(z3.getNbEntries()==7);
     z3.close();
     z3.unlink();
@@ -303,13 +303,13 @@ void test10() {
     const char* txtFile = "this is some data";
     int len = strlen(txtFile);
     
-    ZipFile z1("test.zip");
-    z1.open(ZipFile::WRITE);
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.close();
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::WRITE);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::WRITE);
     assert(z2.getNbEntries()==4);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -317,8 +317,8 @@ void test10() {
     assert(z2.renameEntry(d, "newdata/out/subfolders/")==3);
     z2.discard();
     
-    ZipFile z3("test.zip");
-    z3.open(ZipFile::READ_ONLY);
+    ZipArchive z3("test.zip");
+    z3.open(ZipArchive::READ_ONLY);
     assert(z3.getNbEntries()==4);
     z3.close();
     z3.unlink();
@@ -331,25 +331,25 @@ void test11() {
     
     string c = "a basic comment";
     
-    ZipFile z1("test.zip");
-    z1.open(ZipFile::WRITE);
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
     z1.addDirectory("test/");
     z1.setComment(c);
     z1.close();
     
-    ZipFile z2("test.zip");
-    z2.open(ZipFile::READ_ONLY);
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::READ_ONLY);
     string str = z2.getComment();
     assert(str == c);
     z2.close();
     
-    ZipFile z3("test.zip");
-    z3.open(ZipFile::WRITE);
+    ZipArchive z3("test.zip");
+    z3.open(ZipArchive::WRITE);
     z3.removeComment();
     z3.close();
     
-    ZipFile z4("test.zip");
-    z4.open(ZipFile::READ_ONLY);
+    ZipArchive z4("test.zip");
+    z4.open(ZipArchive::READ_ONLY);
     string str2 = z4.getComment();
     assert(str2.empty());
     z4.close();

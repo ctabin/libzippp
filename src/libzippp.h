@@ -66,17 +66,17 @@ using namespace std;
 #endif
 
 namespace libzippp {
-    class ZipFile;
+    class ZipArchive;
     
     /**
      * Represents an entry in a zip file.
-     * This class is meant to be used by the ZipFile class.
+     * This class is meant to be used by the ZipArchive class.
      */
     class ZipEntry {
-    friend class ZipFile;
+    friend class ZipArchive;
     public:
         /**
-         * Creates a new null-ZipEntry. Only a ZipFile will create a valid ZipEntry
+         * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
          * usable to read and modify an archive.
          */
         ZipEntry(void) : zipFile(NULL) {}
@@ -138,7 +138,7 @@ namespace libzippp {
         string getComment(void) const { return comment; }
         
     private:
-        const ZipFile* zipFile;
+        const ZipArchive* zipFile;
         string name;
         libzippp_uint64 index;
         time_t time;
@@ -148,15 +148,15 @@ namespace libzippp {
         int crc;
         string comment;
         
-        ZipEntry(const ZipFile* zipFile, const string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc, const string& comment) : 
+        ZipEntry(const ZipArchive* zipFile, const string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc, const string& comment) : 
                 zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc), comment(comment) {}
     };
     
     /**
-     * Represents a ZipFile. This class provides useful methods to handle an archive
+     * Represents a ZIP archive. This class provides useful methods to handle an archive
      * content. It is wrapper around ziplib.
      */
-    class ZipFile {
+    class ZipArchive {
     public:
         
         /**
@@ -174,59 +174,59 @@ namespace libzippp {
         };
         
         /**
-         * Creates a new ZipFile with the given path. If the password is defined, it
+         * Creates a new ZipArchive with the given path. If the password is defined, it
          * will be used to read encrypted archive. It won't affect the files added
          * to the archive.
          * 
          * http://nih.at/listarchive/libzip-discuss/msg00219.html
          */
-        ZipFile(const string& zipPath, const string& password="");
-        virtual ~ZipFile(void); //commit all the changes if open
+        ZipArchive(const string& zipPath, const string& password="");
+        virtual ~ZipArchive(void); //commit all the changes if open
         
         /**
-         * Return the path of the ZipFile.
+         * Return the path of the ZipArchive.
          */
         string getPath(void) const { return path; }
         
         /**
-         * Open the ZipFile in read mode. This method will return true if the operation
+         * Open the ZipArchive in read mode. This method will return true if the operation
          * is successful, false otherwise. If the OpenMode is NOT_OPEN an invalid_argument
          * will be thrown.
          */
         bool open(OpenMode mode=READ_ONLY, bool checkConsistency=false);
         
         /**
-         * Closes the ZipFile and releases all the resources held by it. If the ZipFile was
+         * Closes the ZipArchive and releases all the resources held by it. If the ZipArchive was
          * not open previously, this method does nothing. If the archive was open in modification
          * and some were done, they will be committed.
          */
         void close(void);
         
         /**
-         * Closes the ZipFile and releases all the resources held by it. If the ZipFile was
+         * Closes the ZipArchive and releases all the resources held by it. If the ZipArchive was
          * not open previously, this method does nothing. If the archive was open in modification
          * and some were done, they will be rollbacked.
          */
         void discard(void);
         
         /**
-         * Deletes the file denoted by the path. If the ZipFile is open, all the changes will
+         * Deletes the file denoted by the path. If the ZipArchive is open, all the changes will
          * be discarded and the file removed.
          */
         bool unlink(void);
         
         /**
-         * Returns true if the ZipFile is currently open.
+         * Returns true if the ZipArchive is currently open.
          */
         bool isOpen(void) const { return zipHandle!=NULL; }
         
         /**
-         * Returns true if the ZipFile is open and mutable.
+         * Returns true if the ZipArchive is open and mutable.
          */
         bool isMutable(void) const { return isOpen() && mode!=NOT_OPEN && mode!=READ_ONLY; }
         
         /**
-         * Returns true if the ZipFile is encrypted. This method returns true only if
+         * Returns true if the ZipArchive is encrypted. This method returns true only if
          * a password has been set in the constructor.
          */
         bool isEncrypted(void) const { return !password.empty(); }
@@ -252,7 +252,7 @@ namespace libzippp {
         libzippp_int64 getNbEntries(void) const;
         
         /**
-         * Returns all the entries of the ZipFile.
+         * Returns all the entries of the ZipArchive.
          * The zip file must be open otherwise an empty vector will be returned.
          */
         vector<ZipEntry> getEntries(void) const;
@@ -280,13 +280,13 @@ namespace libzippp {
         ZipEntry getEntry(libzippp_int64 index) const;
         
         /**
-         * Read the specified ZipEntry of the ZipFile and returns its content within
+         * Read the specified ZipEntry of the ZipArchive and returns its content within
          * a char array. If there is an error while reading the entry, then null will be returned.
          * The data must be deleted by the developer once not used anymore. If the asText
          * is set to true, then the returned void* will be ended by a \0 (hence the size of
          * the returned array will be zipEntry.getSize()+1).
          * The zip file must be open otherwise null will be returned. If the ZipEntry was not
-         * created by this ZipFile, null will be returned.
+         * created by this ZipArchive, null will be returned.
          */
         void* readEntry(const ZipEntry& zipEntry, bool asText=false) const;
         
@@ -295,7 +295,7 @@ namespace libzippp {
          * subentries will be removed. This method returns the number of entries removed.
          * If the open mode does not allow a deletion, this method will return  -1. If an
          * error occurs during deletion, this method will return -2.
-         * If the ZipFile is not open or the entry was not edited by this ZipFile or is a null-ZipEntry,
+         * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
          * then -3 will be returned.
          */
         int deleteEntry(const ZipEntry& entry) const;
@@ -306,7 +306,7 @@ namespace libzippp {
          * or -2 if an error occurred. 
          * If the entry is a directory, a '/' will automatically be append at the end of newName if the 
          * latter hasn't it already. All the files in the folder will be moved.
-         * If the ZipFile is not open or the entry was not edited by this ZipFile or is a null-ZipEntry,
+         * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
          * then -3 will be returned.
          */
         int renameEntry(const ZipEntry& entry, const string& newName) const;
@@ -330,8 +330,8 @@ namespace libzippp {
         bool addData(const string& entryName, const void* data, uint length, bool freeData=false) const;
         
         /**
-         * Add the specified directory to the ZipFile. All the hierarchy will be created.
-         * If the ZipFile is not open or the entryName is not a directory, this method will
+         * Add the specified directory to the ZipArchive. All the hierarchy will be created.
+         * If the ZipArchive is not open or the entryName is not a directory, this method will
          * returns false. If the entry already exists, this method returns also true.
          */
         bool addDirectory(const string& entryName) const;
@@ -353,8 +353,8 @@ namespace libzippp {
         ZipEntry createEntry(struct zip_stat* stat) const;
         
         //prevent copy across functions
-        ZipFile(const ZipFile& zf);
-        ZipFile& operator=(const ZipFile&);
+        ZipArchive(const ZipArchive& zf);
+        ZipArchive& operator=(const ZipArchive&);
     };
 }
 

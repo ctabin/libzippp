@@ -41,8 +41,8 @@ How to list files in an archive:
 	#include "libzippp.h"
 	using namespace libzippp;
 
-	ZipFile zf("archive.zip");
-	zf.open(ZipFile::READ_ONLY);
+	ZipArchive zf("archive.zip");
+	zf.open(ZipArchive::READ_ONLY);
 
 	vector<ZipEntry> entries = zf.getEntries();
 	vector<ZipEntry>::iterator it;
@@ -50,6 +50,13 @@ How to list files in an archive:
 		ZipEntry entry = *it;
 		string name = entry.getName();
 		int size = entry.getSize();
+
+		//the length of binaryData will be size
+		void* binaryData = zf.readEntry(entry);
+
+		//the length of textData will be size+1 (last char is \0)
+		char* textData = zf.readEntry(entry, true);
+
 		//...
 	}
 
@@ -61,8 +68,8 @@ How to read a specific entry from an archive:
 	#include "libzippp.h"
 	using namespace libzippp;
 
-	ZipFile zf("archive.zip");
-	zf.open(ZipFile::READ_ONLY);
+	ZipArchive zf("archive.zip");
+	zf.open(ZipArchive::READ_ONLY);
 
 	ZipEntry entry = zf.getEntry("myFile.txt");
 	char* data = (char*)zf.readEntry(entry);
@@ -76,8 +83,8 @@ How to add data to an archive:
 	#include "libzippp.h"
 	using namespace libzippp;
 
-	ZipFile zf("archive.zip");
-	zf.open(ZipFile::WRITE);
+	ZipArchive zf("archive.zip");
+	zf.open(ZipArchive::WRITE);
 	zf.addDirectory("folder/subdir/");
 
 	const char* textData = "Hello,World!";
@@ -91,8 +98,8 @@ How to remove data from an archive:
 	#include "libzippp.h"
 	using namespace libzippp;
 
-	ZipFile zf("archive.zip");
-	zf.open(ZipFile::WRITE);
+	ZipArchive zf("archive.zip");
+	zf.open(ZipArchive::WRITE);
 	zf.deleteEntry("myFile.txt");
 	zf.deleteEntry("myDir/subDir/");
 	zf.close();

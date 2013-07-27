@@ -38,14 +38,14 @@
 using namespace libzippp;
 using namespace std;
 
-ZipFile::ZipFile(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), mode(NOT_OPEN), openflag(ZIP_FL_UNCHANGED), password(password) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), mode(NOT_OPEN), openflag(ZIP_FL_UNCHANGED), password(password) {
 }
 
-ZipFile::~ZipFile(void) { 
+ZipArchive::~ZipArchive(void) { 
     close(); /* discard ??? */ 
 }
 
-bool ZipFile::open(OpenMode om, bool checkConsistency) {
+bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     int zipFlag = 0;
     if (om==READ_ONLY) { zipFlag = 0; }
     else if (om==WRITE) { zipFlag = ZIP_CREATE; }
@@ -86,7 +86,7 @@ bool ZipFile::open(OpenMode om, bool checkConsistency) {
     return false;
 }
 
-void ZipFile::close(void) {
+void ZipArchive::close(void) {
     if (zipHandle) {
         zip_close(zipHandle);
         zipHandle = NULL;
@@ -94,7 +94,7 @@ void ZipFile::close(void) {
     }
 }
 
-void ZipFile::discard(void) {
+void ZipArchive::discard(void) {
     if (zipHandle) {
         zip_discard(zipHandle);
         zipHandle = NULL;
@@ -102,13 +102,13 @@ void ZipFile::discard(void) {
     }
 }
 
-bool ZipFile::unlink(void) {
+bool ZipArchive::unlink(void) {
     if (isOpen()) { discard(); }
     int result = remove(path.c_str());
     return result==0;
 }
 
-string ZipFile::getComment(void) const {
+string ZipArchive::getComment(void) const {
     if (!isOpen()) { return string(); }
     
     int length = 0;
@@ -117,7 +117,7 @@ string ZipFile::getComment(void) const {
     return string(comment, length);
 }
 
-bool ZipFile::setComment(const string& comment) const {
+bool ZipArchive::setComment(const string& comment) const {
     if (!isOpen()) { return false; }
     
     int size = comment.size();
@@ -126,12 +126,12 @@ bool ZipFile::setComment(const string& comment) const {
     return result==0;
 }
 
-libzippp_int64 ZipFile::getNbEntries(void) const {
+libzippp_int64 ZipArchive::getNbEntries(void) const {
     if (!isOpen()) { return -1; }
     return zip_get_num_entries(zipHandle, openflag);
 }
 
-ZipEntry ZipFile::createEntry(struct zip_stat* stat) const {
+ZipEntry ZipArchive::createEntry(struct zip_stat* stat) const {
     string name(stat->name);
     libzippp_uint64 index = stat->index;
     libzippp_uint64 size = stat->size;
@@ -147,7 +147,7 @@ ZipEntry ZipFile::createEntry(struct zip_stat* stat) const {
     return ZipEntry(this, name, index, time, method, size, sizeComp, crc, comment);
 }
 
-vector<ZipEntry> ZipFile::getEntries(void) const {
+vector<ZipEntry> ZipArchive::getEntries(void) const {
     if (!isOpen()) { return vector<ZipEntry>(); }
     
     struct zip_stat stat;
@@ -167,7 +167,7 @@ vector<ZipEntry> ZipFile::getEntries(void) const {
     return entries;
 }
 
-bool ZipFile::hasEntry(const string& name, bool excludeDirectories, bool caseSensitive) const {
+bool ZipArchive::hasEntry(const string& name, bool excludeDirectories, bool caseSensitive) const {
     if (!isOpen()) { return false; }
     
     int flags = ZIP_FL_ENC_GUESS;
@@ -181,7 +181,7 @@ bool ZipFile::hasEntry(const string& name, bool excludeDirectories, bool caseSen
     return false;
 }
 
-ZipEntry ZipFile::getEntry(const string& name, bool excludeDirectories, bool caseSensitive) const {
+ZipEntry ZipArchive::getEntry(const string& name, bool excludeDirectories, bool caseSensitive) const {
     if (isOpen()) {
         int flags = ZIP_FL_ENC_GUESS;
         if (excludeDirectories) { flags = flags | ZIP_FL_NODIR; }
@@ -197,7 +197,7 @@ ZipEntry ZipFile::getEntry(const string& name, bool excludeDirectories, bool cas
     return ZipEntry();
 }
         
-ZipEntry ZipFile::getEntry(libzippp_int64 index) const {
+ZipEntry ZipArchive::getEntry(libzippp_int64 index) const {
     if (isOpen()) {
         struct zip_stat stat;
         zip_stat_init(&stat);
@@ -211,7 +211,7 @@ ZipEntry ZipFile::getEntry(libzippp_int64 index) const {
     return ZipEntry();
 }
 
-void* ZipFile::readEntry(const ZipEntry& zipEntry, bool asText) const {
+void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText) const {
     if (!isOpen()) { return NULL; }
     if (zipEntry.zipFile!=this) { return NULL; }
     
@@ -239,7 +239,7 @@ void* ZipFile::readEntry(const ZipEntry& zipEntry, bool asText) const {
     return NULL;
 }
 
-int ZipFile::deleteEntry(const ZipEntry& entry) const {
+int ZipArchive::deleteEntry(const ZipEntry& entry) const {
     if (!isOpen()) { return -3; }
     if (entry.zipFile!=this) { return -3; }
     if (mode==READ_ONLY) { return -1; } //deletion not allowed
@@ -265,7 +265,7 @@ int ZipFile::deleteEntry(const ZipEntry& entry) const {
     }
 }
 
-int ZipFile::renameEntry(const ZipEntry& entry, const string& newName) const {
+int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const {
     if (!isOpen()) { return -3; }
     if (entry.zipFile!=this) { return -3; }
     if (mode==READ_ONLY) { return -1; } //renaming not allowed
@@ -333,7 +333,7 @@ int ZipFile::renameEntry(const ZipEntry& entry, const string& newName) const {
     }
 }
 
-bool ZipFile::addFile(const string& entryName, const string& file) const {
+bool ZipArchive::addFile(const string& entryName, const string& file) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
     if (IS_DIRECTORY(entryName)) { return false; }
@@ -356,7 +356,7 @@ bool ZipFile::addFile(const string& entryName, const string& file) const {
     return false;
 }
 
-bool ZipFile::addData(const string& entryName, const void* data, uint length, bool freeData) const {
+bool ZipArchive::addData(const string& entryName, const void* data, uint length, bool freeData) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
     if (IS_DIRECTORY(entryName)) { return false; }
@@ -379,7 +379,7 @@ bool ZipFile::addData(const string& entryName, const void* data, uint length, bo
     return false;
 }
 
-bool ZipFile::addDirectory(const string& entryName) const {
+bool ZipArchive::addDirectory(const string& entryName) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
     if (!IS_DIRECTORY(entryName)) { return false; }
