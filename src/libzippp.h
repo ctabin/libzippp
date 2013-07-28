@@ -260,6 +260,12 @@ namespace libzippp {
          * The zip file must be open otherwise -1 will be returned. If the state
          * is ORIGINAL, then the number entries of the original archive are returned.
          * Any change will not be considered.
+         * Note also that the deleted entries does not affect the result of this method
+         * with the CURRENT state. For instance, if there are 3 entries and you delete one,
+         * this method will still return 3. However, if you add one entry, it will return
+         * 4 with the state CURRENT and 3 with the state ORIGINAL.
+         * If you wanna know the "real" entries effectively in the archive, you might use
+         * the getEntries method.
          */
         libzippp_int64 getNbEntries(State state=CURRENT) const;
         
@@ -310,6 +316,7 @@ namespace libzippp {
          * error occurs during deletion, this method will return -2.
          * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
          * then -3 will be returned.
+         * Note that this method does not affect the result returned by getNbEntries !
          */
         int deleteEntry(const ZipEntry& entry) const;
         

@@ -381,18 +381,53 @@ void test12() {
     cout << " done." << endl;
 }
 
+void test13() {
+    cout << "Running test 13...";
+    
+    string c = "some example of text";
+    
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
+    z1.addDirectory("test/");
+    z1.addData("file/data.txt", c.c_str(), c.length());
+    z1.close();
+    
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::WRITE);
+    z2.renameEntry(z2.getEntry("file/data.txt"), "file/subdir/data.txt");
+    assert(z2.getNbEntries(ZipArchive::CURRENT)==4);
+    assert(z2.getNbEntries(ZipArchive::ORIGINAL)==3);
+    z2.close();
+    z2.unlink();
+    
+    cout << " done." << endl;
+}
+
+void test14() {
+    cout << "Running test 14...";
+    
+    string c = "some example of text";
+    
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
+    z1.addDirectory("test/");
+    z1.addData("file/data.txt", c.c_str(), c.length());
+    z1.close();
+    
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::WRITE);
+    z2.renameEntry(z2.getEntry("file/data.txt"), "content/data/file.txt");
+    assert(z2.getNbEntries(ZipArchive::CURRENT)==5);
+    assert(z2.getNbEntries(ZipArchive::ORIGINAL)==3);
+    z2.close();
+    z2.unlink();
+    
+    cout << " done." << endl;
+}
+
 int main(int argc, char** argv) {
-    test1();
-    test2();
-    test3();
-    test4();
-    test5();
-    test6();
-    test7();
-    test8();
-    test9();
-    test10();
-    test11();
-    test12();
+    test1();  test2();  test3();  test4();  test5();
+    test6();  test7();  test8();  test9();  test10();
+    test11(); test12(); test13(); test14();
 }
 
