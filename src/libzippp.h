@@ -66,91 +66,7 @@ using namespace std;
 #endif
 
 namespace libzippp {
-    class ZipArchive;
-    
-    /**
-     * Represents an entry in a zip file.
-     * This class is meant to be used by the ZipArchive class.
-     */
-    class ZipEntry {
-    friend class ZipArchive;
-    public:
-        /**
-         * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
-         * usable to read and modify an archive.
-         */
-        ZipEntry(void) : zipFile(NULL) {}
-        virtual ~ZipEntry(void) {}
-        
-        /**
-         * Returns the name of the entry.
-         */
-        string getName(void) const { return name; }
-        
-        /**
-         * Returns the index of the file in the zip.
-         */
-        libzippp_uint64 getIndex(void) const { return index; }
-        
-        /**
-         * Returns the timestamp of the entry.
-         */
-        time_t getDate(void) const { return time; }
-        
-        /**
-         * Returns the compression method.
-         */
-        int getMethod(void) const { return method; }
-        
-        /**
-         * Returns the size of the file (not deflated).
-         */
-        libzippp_uint64 getSize(void) const { return size; }
-        
-        /**
-         * Returns the size of the inflated file.
-         */
-        libzippp_uint64 getInflatedSize(void) const { return sizeComp; }
-        
-        /**
-         * Returns the CRC of the file.
-         */
-        int getCRC(void) const { return crc; }
-        
-        /**
-         * Returns true if the entry is a directory.
-         */
-        bool isDirectory(void) const { return IS_DIRECTORY(name); }
-        
-        /**
-         * Returns true if the entry is a file.
-         */
-        bool isFile(void) const { return !isDirectory(); }
-        
-        /**
-         * Returns true if this entry is null (means no more entry is available).
-         */
-        bool isNull(void) const { return zipFile==NULL; }
-        
-        /**
-         * Returns the comment of the entry.
-         */
-        string getComment(void) const { return comment; }
-        
-    private:
-        const ZipArchive* zipFile;
-        string name;
-        libzippp_uint64 index;
-        time_t time;
-        int method;
-        libzippp_uint64 size;
-        libzippp_uint64 sizeComp;
-        int crc;
-        string comment;
-        
-        ZipEntry(const ZipArchive* zipFile, const string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc, const string& comment) : 
-                zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc), comment(comment) {}
-    };
+    class ZipEntry;
     
     /**
      * Represents a ZIP archive. This class provides useful methods to handle an archive
@@ -374,6 +290,104 @@ namespace libzippp {
         //prevent copy across functions
         ZipArchive(const ZipArchive& zf);
         ZipArchive& operator=(const ZipArchive&);
+    };
+    
+    /**
+     * Represents an entry in a zip file.
+     * This class is meant to be used by the ZipArchive class.
+     */
+    class ZipEntry {
+    friend class ZipArchive;
+    public:
+        /**
+         * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
+         * usable to read and modify an archive.
+         */
+        ZipEntry(void) : zipFile(NULL) {}
+        virtual ~ZipEntry(void) {}
+        
+        /**
+         * Returns the name of the entry.
+         */
+        string getName(void) const { return name; }
+        
+        /**
+         * Returns the index of the file in the zip.
+         */
+        libzippp_uint64 getIndex(void) const { return index; }
+        
+        /**
+         * Returns the timestamp of the entry.
+         */
+        time_t getDate(void) const { return time; }
+        
+        /**
+         * Returns the compression method.
+         */
+        int getMethod(void) const { return method; }
+        
+        /**
+         * Returns the size of the file (not deflated).
+         */
+        libzippp_uint64 getSize(void) const { return size; }
+        
+        /**
+         * Returns the size of the inflated file.
+         */
+        libzippp_uint64 getInflatedSize(void) const { return sizeComp; }
+        
+        /**
+         * Returns the CRC of the file.
+         */
+        int getCRC(void) const { return crc; }
+        
+        /**
+         * Returns true if the entry is a directory.
+         */
+        bool isDirectory(void) const { return IS_DIRECTORY(name); }
+        
+        /**
+         * Returns true if the entry is a file.
+         */
+        bool isFile(void) const { return !isDirectory(); }
+        
+        /**
+         * Returns true if this entry is null (means no more entry is available).
+         */
+        bool isNull(void) const { return zipFile==NULL; }
+        
+        /**
+         * Returns the comment of the entry.
+         */
+        string getComment(void) const { return comment; }
+        
+        /**
+         * Read the content of this ZipEntry as text. The returned char* will be
+         * of getSize()+1, the last char being a \0. If the ZipArchive is not open,
+         * this method returns NULL. This method is a wrapper around ZipArchive::readEntry(...).
+         */
+        char* readAsText(ZipArchive::State state=ZipArchive::CURRENT) const;
+        
+        /**
+         * Read the content of this ZipEntry as binary. The returned char* will be
+         * of getSize(). If the ZipArchive is not open, this method returns NULL. 
+         * This method is a wrapper around ZipArchive::readEntry(...).
+         */
+        void* readAsBinary(ZipArchive::State state=ZipArchive::CURRENT) const;
+        
+    private:
+        const ZipArchive* zipFile;
+        string name;
+        libzippp_uint64 index;
+        time_t time;
+        int method;
+        libzippp_uint64 size;
+        libzippp_uint64 sizeComp;
+        int crc;
+        string comment;
+        
+        ZipEntry(const ZipArchive* zipFile, const string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc, const string& comment) : 
+                zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc), comment(comment) {}
     };
 }
 

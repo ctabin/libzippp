@@ -38,6 +38,14 @@
 using namespace libzippp;
 using namespace std;
 
+char* ZipEntry::readAsText(ZipArchive::State state) const { 
+    return (char*)zipFile->readEntry(*this, true, state); 
+}
+
+void* ZipEntry::readAsBinary(ZipArchive::State state) const {
+    return zipFile->readEntry(*this, false, state); 
+}
+
 ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), mode(NOT_OPEN), password(password) {
 }
 
