@@ -226,6 +226,18 @@ namespace libzippp {
         void* readEntry(const ZipEntry& zipEntry, bool asText=false, State state=CURRENT) const;
         
         /**
+         * Read the specified ZipEntry of the ZipArchive and returns its content within
+         * a char array. If there is an error while reading the entry, then null will be returned.
+         * The data must be deleted by the developer once not used anymore. If the asText
+         * is set to true, then the returned void* will be ended by a \0 (hence the size of
+         * the returned array will be zipEntry.getSize()+1).
+         * The zip file must be open otherwise null will be returned. If the ZipEntry was not
+         * created by this ZipArchive, null will be returned. If the zipEntry does not exist,
+         * this method returns NULL:
+         */
+        void* readEntry(const string& zipEntry, bool asText=false, State state=CURRENT) const;
+        
+        /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
          * subentries will be removed. This method returns the number of entries removed.
          * If the open mode does not allow a deletion, this method will return  -1. If an
@@ -237,6 +249,17 @@ namespace libzippp {
         int deleteEntry(const ZipEntry& entry) const;
         
         /**
+         * Deletes the specified entry from the zip file. If the entry is a folder, all its
+         * subentries will be removed. This method returns the number of entries removed.
+         * If the open mode does not allow a deletion, this method will return  -1. If an
+         * error occurs during deletion, this method will return -2.
+         * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
+         * then -3 will be returned. If the entry does not exist, this method returns -4.
+         * Note that this method does not affect the result returned by getNbEntries !
+         */
+        int deleteEntry(const string& entry) const;
+        
+        /**
          * Renames the entry with the specified newName. The method returns the number of entries
          * that have been renamed, 0 if the new name is invalid, -1 if the mode doesn't allow modification 
          * or -2 if an error occurred. 
@@ -246,6 +269,17 @@ namespace libzippp {
          * then -3 will be returned.
          */
         int renameEntry(const ZipEntry& entry, const string& newName) const;
+        
+        /**
+         * Renames the entry with the specified newName. The method returns the number of entries
+         * that have been renamed, 0 if the new name is invalid, -1 if the mode doesn't allow modification 
+         * or -2 if an error occurred. 
+         * If the entry is a directory, a '/' will automatically be append at the end of newName if the 
+         * latter hasn't it already. All the files in the folder will be moved.
+         * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
+         * then -3 will be returned. If the entry does not exist, this method returns -4.
+         */
+        int renameEntry(const string& entry, const string& newName) const;
         
         /**
          * Add the specified file in the archive with the given entry. If the entry already exists,

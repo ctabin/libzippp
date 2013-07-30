@@ -425,9 +425,39 @@ void test14() {
     cout << " done." << endl;
 }
 
+void test15() {
+    cout << "Running test 15...";
+    
+    const char* txtFile = "this is some data";
+    int len = strlen(txtFile);
+    
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
+    z1.addData("somedata/in/subfolder/data.txt", txtFile, len);
+    assert(z1.addDirectory("somedata/"));
+    assert(z1.addDirectory("in/"));
+    assert(z1.addDirectory("in/subfolder/"));
+    z1.close();
+    
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::READ_ONLY);
+    assert(z2.getNbEntries()==6);
+    assert(z2.hasEntry("somedata/in/subfolder/data.txt"));
+    
+    char* data = (char*)z2.readEntry("somedata/in/subfolder/data.txt", true);
+    int clen = strlen(data);
+    assert(clen==len);
+    assert(strncmp(txtFile, data, len)==0);
+    
+    z2.close();
+    z2.unlink();
+    
+    cout << " done." << endl;
+}
+
 int main(int argc, char** argv) {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
-    test11(); test12(); test13(); test14();
+    test11(); test12(); test13(); test14(); test15();
 }
 

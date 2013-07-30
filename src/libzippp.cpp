@@ -257,6 +257,12 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state) 
     return NULL;
 }
 
+void* ZipArchive::readEntry(const string& zipEntry, bool asText, State state) const {
+    ZipEntry entry = getEntry(zipEntry);
+    if (entry.isNull()) { return NULL; }
+    return readEntry(entry, asText, state);
+}
+
 int ZipArchive::deleteEntry(const ZipEntry& entry) const {
     if (!isOpen()) { return -3; }
     if (entry.zipFile!=this) { return -3; }
@@ -281,6 +287,12 @@ int ZipArchive::deleteEntry(const ZipEntry& entry) const {
         }
         return counter;
     }
+}
+
+int ZipArchive::deleteEntry(const string& e) const {
+    ZipEntry entry = getEntry(e);
+    if (entry.isNull()) { return -4; }
+    return deleteEntry(entry);
 }
 
 int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const {
@@ -349,6 +361,12 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
         
         return counter;
     }
+}
+
+int ZipArchive::renameEntry(const string& e, const string& newName) const {
+    ZipEntry entry = getEntry(e);
+    if (entry.isNull()) { return -4; }
+    return renameEntry(entry, newName);
 }
 
 bool ZipArchive::addFile(const string& entryName, const string& file) const {
