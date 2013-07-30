@@ -215,6 +215,14 @@ namespace libzippp {
         ZipEntry getEntry(libzippp_int64 index, State state=CURRENT) const;
         
         /**
+         * Defines the comment of the entry. If the ZipArchive is not open or the
+         * entry is not linked to this archive, then an empty string or false will 
+         * be returned.
+         */
+        string getEntryComment(const ZipEntry& entry, State state=CURRENT) const;
+        bool setEntryComment(const ZipEntry& entry, const string& comment) const;
+        
+        /**
          * Read the specified ZipEntry of the ZipArchive and returns its content within
          * a char array. If there is an error while reading the entry, then null will be returned.
          * The data must be deleted by the developer once not used anymore. If the asText
@@ -391,9 +399,13 @@ namespace libzippp {
         bool isNull(void) const { return zipFile==NULL; }
         
         /**
-         * Returns the comment of the entry.
+         * Defines the comment of the entry. In order to call either one of those
+         * methods, the corresponding ZipArchive must be open otherwise an empty string
+         * or false will be returned. Those methods are wrappers around ZipArchive::getEntryComment
+         * and ZipArchive::setEntryComment.
          */
-        string getComment(void) const { return comment; }
+        string getComment(void) const;
+        bool setComment(const string& str) const;
         
         /**
          * Read the content of this ZipEntry as text. The returned char* will be
@@ -418,10 +430,9 @@ namespace libzippp {
         libzippp_uint64 size;
         libzippp_uint64 sizeComp;
         int crc;
-        string comment;
         
-        ZipEntry(const ZipArchive* zipFile, const string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc, const string& comment) : 
-                zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc), comment(comment) {}
+        ZipEntry(const ZipArchive* zipFile, const string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
+                zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc) {}
     };
 }
 

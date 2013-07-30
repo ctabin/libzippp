@@ -455,9 +455,38 @@ void test15() {
     cout << " done." << endl;
 }
 
+void test16() {
+    cout << "Running test 16...";
+    
+    string c = "some example of text";
+    
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
+    z1.addDirectory("dir/");
+    z1.addData("file.txt", c.c_str(), c.length());
+    
+    ZipEntry e1 = z1.getEntry("dir/");
+    ZipEntry e2 = z1.getEntry("file.txt");
+    assert(e1.setComment("commentDir"));
+    assert(e2.setComment("commentFile"));
+    z1.close();
+    
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::READ_ONLY);
+    ZipEntry e12 = z2.getEntry("dir/");
+    ZipEntry e22 = z2.getEntry("file.txt");
+    assert(e12.getComment() == "commentDir");
+    assert(e22.getComment() == "commentFile");
+    z2.close();
+    z2.unlink();
+    
+    cout << " done." << endl;
+}
+
 int main(int argc, char** argv) {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();
+    test16();
 }
 

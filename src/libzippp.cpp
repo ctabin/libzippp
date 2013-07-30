@@ -38,6 +38,14 @@
 using namespace libzippp;
 using namespace std;
 
+string ZipEntry::getComment(void) const {
+    return zipFile->getEntryComment(*this);
+}
+
+bool ZipEntry::setComment(const string& str) const {
+    return zipFile->setEntryComment(*this, str);
+}
+
 char* ZipEntry::readAsText(ZipArchive::State state) const { 
     return (char*)zipFile->readEntry(*this, true, state); 
 }
@@ -153,11 +161,7 @@ ZipEntry ZipArchive::createEntry(struct zip_stat* stat) const {
     int crc = stat->crc;
     time_t time = stat->mtime;
 
-    uint clen;
-    const char* com = zip_file_get_comment(zipHandle, index, &clen, ZIP_FL_ENC_GUESS);
-    string comment = com==NULL ? string() : string(com, clen);
-    
-    return ZipEntry(this, name, index, time, method, size, sizeComp, crc, comment);
+    return ZipEntry(this, name, index, time, method, size, sizeComp, crc);
 }
 
 vector<ZipEntry> ZipArchive::getEntries(State state) const {
@@ -226,6 +230,29 @@ ZipEntry ZipArchive::getEntry(libzippp_int64 index, State state) const {
         }
     }
     return ZipEntry();
+}
+
+string ZipArchive::getEntryComment(const ZipEntry& entry, State state) const {
+    if (!isOpen()) { return string(); }
+    if (entry.zipFile!=this) { return string(); }
+    
+    int flag = ZIP_FL_ENC_GUESS;
+    if (state==ORIGINAL) { flag = flag | ZIP_FL_UNCHANGED; }
+    
+    uint clen;
+    const char* com = zip_file_get_comment(zipHandle, entry.getIndex(), &clen, flag);
+    string comment = com==NULL ? string() : string(com, clen);
+    delete com;
+    
+    return comment;
+}
+
+bool ZipArchive::setEntryComment(const ZipEntry& entry, const string& comment) const {
+    if (!isOpen()) { return false; }
+    if (entry.zipFile!=this) { return false; }
+    
+    bool result = zip_file_set_comment(zipHandle, entry.getIndex(), comment.c_str(), comment.size(), ZIP_FL_ENC_GUESS);
+    return result==0;
 }
 
 void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state) const {
