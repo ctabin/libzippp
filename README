@@ -54,7 +54,7 @@ How to list and read files in an archive:
 		//the length of binaryData will be size
 		void* binaryData = entry.readAsBinary();
 
-		//the length of textData will be size+1 (last char is \0)
+		//the length of textData will be size
 		string textData = entry.readAsText();
 
 		//...
@@ -72,7 +72,7 @@ How to read a specific entry from an archive:
 	zf.open(ZipArchive::READ_ONLY);
 
         //direct way
-	char* data = (char*)zf.readEntry("myFile.txt");
+	char* data = (char*)zf.readEntry("myFile.txt", true);
 	string str1(data, entry.getSize());
 
         //indirect way
