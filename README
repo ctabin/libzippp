@@ -36,7 +36,7 @@ libzippp is a simple basic C++ wrapper around the libzip library.
 The API is meant to be very straight forward. Some french explanations
 can be found here: http://www.astorm.ch/blog
 
-How to list files in an archive:
+How to list and read files in an archive:
 
 	#include "libzippp.h"
 	using namespace libzippp;
@@ -52,10 +52,10 @@ How to list files in an archive:
 		int size = entry.getSize();
 
 		//the length of binaryData will be size
-		void* binaryData = zf.readEntry(entry);
+		void* binaryData = entry.readAsBinary();
 
 		//the length of textData will be size+1 (last char is \0)
-		char* textData = (char*)zf.readEntry(entry, true);
+		string textData = entry.readAsText();
 
 		//...
 	}
@@ -71,8 +71,13 @@ How to read a specific entry from an archive:
 	ZipArchive zf("archive.zip");
 	zf.open(ZipArchive::READ_ONLY);
 
+        //direct way
 	char* data = (char*)zf.readEntry("myFile.txt");
-	string str(data, entry.getSize());
+	string str1(data, entry.getSize());
+
+        //indirect way
+	ZipEntry entry = zf.getEntry("myFile.txt");
+	string str2 = entry.readAsText();
 
 	zf.close();
 
@@ -102,7 +107,6 @@ How to remove data from an archive:
 	zf.deleteEntry("myFile.txt");
 	zf.deleteEntry("myDir/subDir/");
 	zf.close();
-
 
 
 = ====== =

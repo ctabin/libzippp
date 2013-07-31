@@ -46,8 +46,13 @@ bool ZipEntry::setComment(const string& str) const {
     return zipFile->setEntryComment(*this, str);
 }
 
-char* ZipEntry::readAsText(ZipArchive::State state) const { 
-    return (char*)zipFile->readEntry(*this, true, state); 
+string ZipEntry::readAsText(ZipArchive::State state) const {
+    char* content = (char*)zipFile->readEntry(*this, true, state);
+    if (content==NULL) { return string(); } //happen if the ZipArchive has been closed
+    
+    string str(content, size);
+    delete content;
+    return str;
 }
 
 void* ZipEntry::readAsBinary(ZipArchive::State state) const {

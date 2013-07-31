@@ -348,7 +348,7 @@ namespace libzippp {
          * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
          * usable to read and modify an archive.
          */
-        ZipEntry(void) : zipFile(NULL) {}
+        ZipEntry(void) : zipFile(NULL), index(0), time(0), method(-1), size(0), sizeComp(0), crc(0)  {}
         virtual ~ZipEntry(void) {}
         
         /**
@@ -411,11 +411,11 @@ namespace libzippp {
         bool setComment(const string& str) const;
         
         /**
-         * Read the content of this ZipEntry as text. The returned char* will be
-         * of getSize()+1, the last char being a \0. If the ZipArchive is not open,
-         * this method returns NULL. This method is a wrapper around ZipArchive::readEntry(...).
+         * Read the content of this ZipEntry as text. The returned string will be
+         * of size getSize(). If the ZipArchive is not open, this method returns an
+         * empty string. This method is a wrapper around ZipArchive::readEntry(...).
          */
-        char* readAsText(ZipArchive::State state=ZipArchive::CURRENT) const;
+        string readAsText(ZipArchive::State state=ZipArchive::CURRENT) const;
         
         /**
          * Read the content of this ZipEntry as binary. The returned char* will be

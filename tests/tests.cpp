@@ -93,10 +93,10 @@ void test2() {
     ZipEntry entry = z2.getEntry("somedata");
     assert(!entry.isNull());
     
-    char* data = entry.readAsText();
-    int clen = strlen(data);
+    string data = entry.readAsText();
+    int clen = data.size();
     assert(clen==len);
-    assert(strncmp(txtFile, data, len)==0);
+    assert(strncmp(txtFile, data.c_str(), len)==0);
     
     z2.close();
     z2.unlink();
@@ -126,10 +126,10 @@ void test3() {
     ZipEntry entry = z2.getEntry("somedata/in/subfolder/data.txt");
     assert(!entry.isNull());
     
-    char* data = entry.readAsText();
-    int clen = strlen(data);
+    string data = entry.readAsText();
+    int clen = data.size();
     assert(clen==len);
-    assert(strncmp(txtFile, data, len)==0);
+    assert(strncmp(txtFile, data.c_str(), len)==0);
     
     z2.close();
     z2.unlink();
@@ -483,10 +483,24 @@ void test16() {
     cout << " done." << endl;
 }
 
+void test17() {
+    cout << "Running test 17...";
+    
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::READ_ONLY);
+    void* nil1 = z1.readEntry("an/absent/file.txt", true);
+    void* nil2 = z1.readEntry("an/absent/file.txt", true);
+    assert(nil1 == NULL);
+    assert(nil2 == NULL);
+    z1.close();
+    
+    cout << " done." << endl;
+}
+
 int main(int argc, char** argv) {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();
-    test16();
+    test16(); test17();
 }
 
