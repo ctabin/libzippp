@@ -53,7 +53,7 @@ void test1() {
     z1.open(ZipArchive::WRITE);
     assert(z1.isOpen());
     assert(z1.isMutable());
-    bool result = z1.addDirectory("folder/subfolder/finalfolder/");
+    bool result = z1.addEntry("folder/subfolder/finalfolder/");
     assert(result);
     z1.close();
     assert(!z1.isOpen());
@@ -113,9 +113,9 @@ void test3() {
     ZipArchive z1("test.zip");
     z1.open(ZipArchive::WRITE);
     z1.addData("somedata/in/subfolder/data.txt", txtFile, len);
-    assert(z1.addDirectory("somedata/"));
-    assert(z1.addDirectory("in/"));
-    assert(z1.addDirectory("in/subfolder/"));
+    assert(z1.addEntry("somedata/"));
+    assert(z1.addEntry("in/"));
+    assert(z1.addEntry("in/subfolder/"));
     z1.close();
     
     ZipArchive z2("test.zip");
@@ -333,7 +333,7 @@ void test11() {
     
     ZipArchive z1("test.zip");
     z1.open(ZipArchive::WRITE);
-    z1.addDirectory("test/");
+    z1.addEntry("test/");
     z1.setComment(c);
     z1.close();
     
@@ -365,13 +365,13 @@ void test12() {
     
     ZipArchive z1("test.zip");
     z1.open(ZipArchive::WRITE);
-    z1.addDirectory("test/");
+    z1.addEntry("test/");
     z1.addData("file/data.txt", c.c_str(), c.length());
     z1.close();
     
     ZipArchive z2("test.zip");
     z2.open(ZipArchive::WRITE);
-    z2.addDirectory("content/new/");
+    z2.addEntry("content/new/");
     z2.addData("newfile.txt", c.c_str(), c.length());
     assert(z2.getNbEntries(ZipArchive::CURRENT)==6);
     assert(z2.getNbEntries(ZipArchive::ORIGINAL)==3);
@@ -388,7 +388,7 @@ void test13() {
     
     ZipArchive z1("test.zip");
     z1.open(ZipArchive::WRITE);
-    z1.addDirectory("test/");
+    z1.addEntry("test/");
     z1.addData("file/data.txt", c.c_str(), c.length());
     z1.close();
     
@@ -410,7 +410,7 @@ void test14() {
     
     ZipArchive z1("test.zip");
     z1.open(ZipArchive::WRITE);
-    z1.addDirectory("test/");
+    z1.addEntry("test/");
     z1.addData("file/data.txt", c.c_str(), c.length());
     z1.close();
     
@@ -434,9 +434,9 @@ void test15() {
     ZipArchive z1("test.zip");
     z1.open(ZipArchive::WRITE);
     z1.addData("somedata/in/subfolder/data.txt", txtFile, len);
-    assert(z1.addDirectory("somedata/"));
-    assert(z1.addDirectory("in/"));
-    assert(z1.addDirectory("in/subfolder/"));
+    assert(z1.addEntry("somedata/"));
+    assert(z1.addEntry("in/"));
+    assert(z1.addEntry("in/subfolder/"));
     z1.close();
     
     ZipArchive z2("test.zip");
@@ -462,7 +462,7 @@ void test16() {
     
     ZipArchive z1("test.zip");
     z1.open(ZipArchive::WRITE);
-    z1.addDirectory("dir/");
+    z1.addEntry("dir/");
     z1.addData("file.txt", c.c_str(), c.length());
     
     ZipEntry e1 = z1.getEntry("dir/");

@@ -71,8 +71,7 @@ How to read a specific entry from an archive:
 	ZipArchive zf("archive.zip");
 	zf.open(ZipArchive::READ_ONLY);
 
-	ZipEntry entry = zf.getEntry("myFile.txt");
-	char* data = (char*)zf.readEntry(entry);
+	char* data = (char*)zf.readEntry("myFile.txt");
 	string str(data, entry.getSize());
 
 	zf.close();
@@ -85,7 +84,7 @@ How to add data to an archive:
 
 	ZipArchive zf("archive.zip");
 	zf.open(ZipArchive::WRITE);
-	zf.addDirectory("folder/subdir/");
+	zf.addEntry("folder/subdir/");
 
 	const char* textData = "Hello,World!";
 	zf.addData("helloworld.txt", textData, 12);

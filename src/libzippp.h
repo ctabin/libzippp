@@ -308,11 +308,14 @@ namespace libzippp {
         bool addData(const string& entryName, const void* data, uint length, bool freeData=false) const;
         
         /**
-         * Add the specified directory to the ZipArchive. All the hierarchy will be created.
+         * Add the specified entry to the ZipArchive. All the needed hierarchy will be created.
+         * The entryName must be a directory (end with '/').
          * If the ZipArchive is not open or the entryName is not a directory, this method will
-         * returns false. If the entry already exists, this method returns also true.
+         * returns false. If the entry already exists, this method returns true.
+         * This method will only add the specified entry. The 'real' directory may exist or not.
+         * If the directory exists, the files in it won't be added to the archive.
          */
-        bool addDirectory(const string& entryName) const;
+        bool addEntry(const string& entryName) const;
         
         /**
          * Returns the mode in which the file has been open.

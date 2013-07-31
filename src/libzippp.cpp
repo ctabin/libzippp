@@ -334,7 +334,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
         
         int lastSlash = newName.rfind(DIRECTORY_SEPARATOR);
         if (lastSlash!=1) { 
-            bool dadded = addDirectory(newName.substr(0, lastSlash+1)); 
+            bool dadded = addEntry(newName.substr(0, lastSlash+1)); 
             if (!dadded) { return 0; } //the hierarchy hasn't been created
         }
         
@@ -347,7 +347,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
         int parentSlash = newName.rfind(DIRECTORY_SEPARATOR, newName.length()-2);
         if (parentSlash!=-1) { //updates the dir hierarchy
             string parent = newName.substr(0, parentSlash+1);
-            bool dadded = addDirectory(parent);
+            bool dadded = addEntry(parent);
             if (!dadded) { return 0; }
         }
         
@@ -382,7 +382,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
          */
         bool newNameIsInsideCurrent = (newName.find(entry.getName())==0);
         if (newNameIsInsideCurrent) {
-            bool dadded = addDirectory(newName);
+            bool dadded = addEntry(newName);
             if (!dadded) { return 0; }
         }
         
@@ -404,7 +404,7 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
     int lastSlash = entryName.rfind(DIRECTORY_SEPARATOR);
     if (lastSlash!=-1) { //creates the needed parent directories
         string dirEntry = entryName.substr(0, lastSlash+1);
-        bool dadded = addDirectory(dirEntry);
+        bool dadded = addEntry(dirEntry);
         if (!dadded) { return false; }
     }
     
@@ -427,7 +427,7 @@ bool ZipArchive::addData(const string& entryName, const void* data, uint length,
     int lastSlash = entryName.rfind(DIRECTORY_SEPARATOR);
     if (lastSlash!=-1) { //creates the needed parent directories
         string dirEntry = entryName.substr(0, lastSlash+1);
-        bool dadded = addDirectory(dirEntry);
+        bool dadded = addEntry(dirEntry);
         if (!dadded) { return false; }
     }
     
@@ -442,7 +442,7 @@ bool ZipArchive::addData(const string& entryName, const void* data, uint length,
     return false;
 }
 
-bool ZipArchive::addDirectory(const string& entryName) const {
+bool ZipArchive::addEntry(const string& entryName) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
     if (!IS_DIRECTORY(entryName)) { return false; }
