@@ -487,12 +487,43 @@ void test17() {
     cout << "Running test 17...";
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::READ_ONLY);
+    assert(z1.open(ZipArchive::READ_ONLY) == false);
     void* nil1 = z1.readEntry("an/absent/file.txt", true);
     void* nil2 = z1.readEntry("an/absent/file.txt", true);
     assert(nil1 == NULL);
     assert(nil2 == NULL);
     z1.close();
+    z1.unlink();
+    
+    cout << " done." << endl;
+}
+
+void test18() {
+    cout << "Running test 18...";
+    
+    string entry1("a/földér/with/sûbâènts/");
+    string entry2("fïle/iñ/sûbfôlder/dàtÄ.txt");
+    string text("File wiôth sömè tîxt");
+    
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
+    assert(z1.addEntry(entry1));
+    assert(z1.addData(entry2, text.c_str(), text.length()));
+    z1.close();
+    
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::READ_ONLY);
+    ZipEntry e1 = z2.getEntry(entry1);
+    assert(!e1.isNull());
+    assert(e1.getName() == entry1);
+    
+    ZipEntry e2 = z2.getEntry(entry2);
+    assert(!e2.isNull());
+    assert(e2.getName() == entry2);
+    assert(e2.readAsText() == text);
+    
+    z2.close();
+    z2.unlink();
     
     cout << " done." << endl;
 }
@@ -501,6 +532,6 @@ int main(int argc, char** argv) {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();
-    test16(); test17();
+    test16(); test17(); test18();
 }
 
