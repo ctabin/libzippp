@@ -199,10 +199,7 @@ bool ZipArchive::hasEntry(const string& name, bool excludeDirectories, bool case
     if (state==ORIGINAL) { flags = flags | ZIP_FL_UNCHANGED; }
     
     libzippp_int64 index = zip_name_locate(zipHandle, name.c_str(), flags);
-    if (index>=0) {
-        return true;
-    }
-    return false;
+    return index>=0;
 }
 
 ZipEntry ZipArchive::getEntry(const string& name, bool excludeDirectories, bool caseSensitive, State state) const {
@@ -247,8 +244,6 @@ string ZipArchive::getEntryComment(const ZipEntry& entry, State state) const {
     uint clen;
     const char* com = zip_file_get_comment(zipHandle, entry.getIndex(), &clen, flag);
     string comment = com==NULL ? string() : string(com, clen);
-    delete com;
-    
     return comment;
 }
 
