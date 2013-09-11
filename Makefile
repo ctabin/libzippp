@@ -2,13 +2,14 @@ CC=g++
 CFLAGS=-W -Wall -Wextra -ansi -pedantic
 OBJ=obj
 LIB=lib
+LIBZIP=$(LIB)/libzip-0.11.1
 
 all: libzippp-static libzippp-shared
 
 libzippp-compile:
 	rm -rf $(OBJ)
 	mkdir $(OBJ)
-	$(CC) -fPIC -c -I./$(LIB)/libzip-0.11.1/lib -o $(OBJ)/libzippp.o $(CFLAGS) src/libzippp.cpp
+	$(CC) -fPIC -c -I$(LIBZIP)/lib -o $(OBJ)/libzippp.o $(CFLAGS) src/libzippp.cpp
 
 libzippp-static: libzippp-compile
 	ar rvs libzippp.a $(OBJ)/libzippp.o
@@ -17,7 +18,7 @@ libzippp-shared: libzippp-compile
 	$(CC) -shared -o libzippp.so $(OBJ)/libzippp.o
 
 libzippp-tests: libzippp-static
-	$(CC) -o test -I./$(LIB)/libzip-0.11.1/lib -I./src $(CFLAGS) tests/tests.cpp libzippp.a $(LIB)/libzip-0.11.1/lib/.libs/libzip.a -lz
+	$(CC) -o test -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/lib/.libs/libzip.a -lz
 
 clean-tests:
 	@rm -rf *.zip
@@ -43,12 +44,12 @@ libzip-unzip: libzip-download
 	cd $(LIB) && tar -xf libzip-0.11.1.tar.gz
 
 libzip-configure: libzip-unzip
-	cd $(LIB)/libzip-0.11.1 && ./configure
+	cd $(LIBZIP) && ./configure
 
 libzip-patch: libzip-configure
-	cd $(LIB)/libzip-0.11.1 && patch -p1 < ../../patch/libzip-windows.patch
+	cd $(LIBZIP) && patch -p1 < ../../patch/libzip-windows.patch
 
 libzip-compile: libzip-patch
-	cd $(LIB)/libzip-0.11.1 && make
+	cd $(LIBZIP) && make
 
 libzip: libzip-compile

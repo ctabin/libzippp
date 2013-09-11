@@ -114,3 +114,13 @@ How to remove data from an archive:
 = ====== =
 
 - Extra field handling
+
+= ====== =
+= ISSUES =
+= ====== =
+
+You might already have libzip compiled elsewhere on your system. Hence, you
+don't need to run 'make libzip'. Instead, just put the libzip location when
+you compile libzipp:
+	make LIBZIP=path/to/libzip
+
