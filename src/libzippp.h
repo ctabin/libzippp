@@ -40,9 +40,6 @@
 #include <string>
 #include <vector>
 
-#include <zip.h>
-#include <errno.h>
-
 #define DIRECTORY_SEPARATOR '/'
 #define IS_DIRECTORY(str) (str.length()>0 && str[str.length()-1]==DIRECTORY_SEPARATOR)
 

@@ -32,7 +32,9 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <iostream>
+#include <zip.h>
+#include <errno.h>
+
 #include "libzippp.h"
 
 using namespace libzippp;
