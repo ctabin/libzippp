@@ -40,6 +40,8 @@
 #include <string>
 #include <vector>
 
+struct zip;
+
 #define DIRECTORY_SEPARATOR '/'
 #define IS_DIRECTORY(str) (str.length()>0 && str[str.length()-1]==DIRECTORY_SEPARATOR)
 
