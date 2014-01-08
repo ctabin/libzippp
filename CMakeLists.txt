@@ -16,8 +16,10 @@ IF(ZLIB_VERSION_STRING VERSION_LESS "1.1.2")
 ENDIF(ZLIB_VERSION_STRING VERSION_LESS "1.1.2")
 
 INCLUDE_DIRECTORIES(${LIBZIP_PATH}/lib)
+INCLUDE_DIRECTORIES(${LIBZIP_PATH}/build)
 INCLUDE_DIRECTORIES("src")
 
+add_definitions(-DLIBZIPPP_EXPORTS)
 ADD_LIBRARY(libzippp_shared SHARED "src/libzippp.cpp")
 SET_TARGET_PROPERTIES(libzippp_shared PROPERTIES OUTPUT_NAME libzippp)
 TARGET_LINK_LIBRARIES(libzippp_shared 
@@ -25,9 +27,9 @@ TARGET_LINK_LIBRARIES(libzippp_shared
 						optimized ../${LIBZIP_PATH}/build/lib/Release/zip
 						${ZLIB_LIBRARY})
 
-
+add_definitions(-DLIBZIPPP_EXPORTS)
 ADD_LIBRARY(libzippp_static STATIC "src/libzippp.cpp")
-SET_TARGET_PROPERTIES(libzippp_static PROPERTIES OUTPUT_NAME libzippp)
+#SET_TARGET_PROPERTIES(libzippp_static PROPERTIES OUTPUT_NAME libzippp)
 TARGET_LINK_LIBRARIES(libzippp_static 
 						debug ../${LIBZIP_PATH}/build/lib/Debug/zip
 						optimized ../${LIBZIP_PATH}/build/lib/Release/zip
