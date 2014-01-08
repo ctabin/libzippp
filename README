@@ -27,11 +27,11 @@ LINUX
 
 4) now you just have to include the src folder in your include path and
    link against libzippp.a or libzippp.so (do not forget to also link 
-   against libzip libraries in lib/libzip-0.11.1/lib/.libs/).
+   against libzip libraries in lib/libzip-0.11.2/lib/.libs/).
    An example of compilation with g++ (note also the -lz at the end) :
-   	g++ -I./lib/libzip-0.11.1/lib -I./src \
+   	g++ -I./lib/libzip-0.11.2/lib -I./src \
 		main.cpp libzippp.a \
-		lib/libzip-0.11.1/lib/.libs/libzip.a \
+		lib/libzip-0.11.2/lib/.libs/libzip.a \
 		-lz
 
 -------
