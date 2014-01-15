@@ -449,6 +449,8 @@ void test15() {
     assert(clen==len);
     assert(strncmp(txtFile, data, len)==0);
     
+    delete[] data;
+    
     z2.close();
     z2.unlink();
     
@@ -534,4 +536,5 @@ int main(int argc, char** argv) {
     test11(); test12(); test13(); test14(); test15();
     test16(); test17(); test18();
 }
+
 

@@ -53,7 +53,7 @@ string ZipEntry::readAsText(ZipArchive::State state) const {
     if (content==NULL) { return string(); } //happen if the ZipArchive has been closed
     
     string str(content, size);
-    delete content;
+    delete[] content;
     return str;
 }
 
@@ -277,7 +277,7 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state) 
         if (result==isize) {
             return data;
         } else { //unexpected number of bytes read => crash ?
-            delete data;
+            delete[] data;
         }
     } else {
         //unable to read the entry => crash ?
