@@ -24,7 +24,7 @@ clean-tests:
 	@rm -rf *.zip
 
 tests: libzippp-tests clean-tests
-	./test
+	valgrind --suppressions=ld.supp ./test
 
 clean:
 	@rm -rf libzippp.a libzippp.so
