@@ -51,14 +51,14 @@ struct zip;
 
 using namespace std;
 
-/*
- * Special definition for windows, otherwise uint is not understood.
- */
+//standard unsigned int
+typedef unsigned int uint;
+
 #ifdef WIN32
-        typedef unsigned int uint;
         typedef long long libzippp_int64;
         typedef unsigned long long libzippp_uint64;
         
+        //special declarations for windows to use libzippp from a DLL
         #define SHARED_LIBRARY_EXPORT __declspec(dllexport)
         #define SHARED_LIBRARY_IMPORT __declspec(dllimport)
 #else
