@@ -4,7 +4,11 @@
 = ======== =
 
 libzippp is a simple basic C++ wrapper around the libzip library.
+It is meant to be a portable and easy-to-use library for Zip handling.
 
+Compilation works with:
+- g++ 4.7.3
+- MSVS 11
 
 = ============ =
 = Compilation  =
@@ -38,9 +42,10 @@ LINUX
 WINDOWS
 -------
 
-0) make sure you have cmake (cmake.exe must be in the PATH) and MS Visual Studio 2012 (the dev command
-   prompt should be at C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Tools\VsDevCmd.bat).
-   it is possible to change this path at the top of the compile.bat file.
+0) make sure you have cmake (cmake.exe must be in the PATH) and MS Visual 
+   Studio 2012. The dev command prompt path should be (defined in compile.bat):
+
+   C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Tools\VsDevCmd.bat
 
 1) download libzip and zlib and extract them in a folder called 'lib'.
    you should have the following structure:
@@ -48,14 +53,15 @@ WINDOWS
      libzippp/lib/zlib-1.2.8
      libzippp/lib/libzip-0.11.2
 
-2) execute the compile.bat (simple double-click on it). the compilation should go without error.
+2) execute the compile.bat (simple double-click on it). the compilation should go 
+   without error.
 
-3) you'll have a 'dist' folder containing the 'release' and 'debug' folders where you can now execute
-   the libzippp tests.
+3) you'll have a 'dist' folder containing the 'release' and 'debug' folders where 
+   you can now execute the libzippp tests.
 
-4) you can either use libzippp.dll and libzippp.lib to link dynamically the library or simply use libzippp_static.lib
-   to link it statically. Unless you also link zlib and libzippp statically, you'll need the dll packaged with 
-   your executable.
+4) you can either use libzippp.dll and libzippp.lib to link dynamically the library 
+   or simply use libzippp_static.lib to link it statically. Unless you also link zlib 
+   and libzippp statically, you'll need the dll packaged with your executable.
 
 
 = ===== =
