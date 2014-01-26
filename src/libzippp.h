@@ -283,7 +283,7 @@ namespace libzippp {
          * Renames the entry with the specified newName. The method returns the number of entries
          * that have been renamed, 0 if the new name is invalid, -1 if the mode doesn't allow modification 
          * or -2 if an error occurred. 
-         * If the entry is a directory, a '/' will automatically be append at the end of newName if the 
+         * If the entry is a directory, a '/' will automatically be appended at the end of newName if the 
          * latter hasn't it already. All the files in the folder will be moved.
          * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
          * then -3 will be returned.
@@ -294,7 +294,7 @@ namespace libzippp {
          * Renames the entry with the specified newName. The method returns the number of entries
          * that have been renamed, 0 if the new name is invalid, -1 if the mode doesn't allow modification 
          * or -2 if an error occurred. 
-         * If the entry is a directory, a '/' will automatically be append at the end of newName if the 
+         * If the entry is a directory, a '/' will automatically be appended at the end of newName if the 
          * latter hasn't it already. All the files in the folder will be moved.
          * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
          * then -3 will be returned. If the entry does not exist, this method returns -4.
@@ -430,8 +430,9 @@ namespace libzippp {
         string readAsText(ZipArchive::State state=ZipArchive::CURRENT) const;
         
         /**
-         * Read the content of this ZipEntry as binary. The returned char* will be
+         * Read the content of this ZipEntry as binary. The returned void* will be
          * of getSize(). If the ZipArchive is not open, this method returns NULL. 
+         * The data must be deleted by the developer once not used anymore.
          * This method is a wrapper around ZipArchive::readEntry(...).
          */
         void* readAsBinary(ZipArchive::State state=ZipArchive::CURRENT) const;

@@ -52,7 +52,7 @@ WINDOWS
      libzippp/lib/zlib-1.2.8
      libzippp/lib/libzip-0.11.2
 
-2) execute the compile.bat (simple double-click on it). the compilation should 
+2) execute the compile.bat (simply double-click on it). the compilation should 
    go without error.
 
 3) you'll have a 'dist' folder containing the 'release' and 'debug' folders 
