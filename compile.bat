@@ -23,7 +23,7 @@ msbuild /P:Configuration=Release INSTALL.vcxproj
 cd "..\..\.."
 
 :compile_libzip
-if exist "lib\libzip-0.11.2\build" goto compile_libzippp
+if exist "lib\libzip-0.11.2\build" goto prepare_libzippp
 echo Compiling libzip...
 cd "lib\libzip-0.11.2"
 mkdir build
@@ -33,20 +33,25 @@ msbuild /P:Configuration=Debug ALL_BUILD.vcxproj
 msbuild /P:Configuration=Release ALL_BUILD.vcxproj
 cd "..\..\.."
 
-:compile_libzippp
-if exist "build" goto package_libzippp
+:prepare_libzippp
+if exist "build" goto compile_libzippp
 echo Compiling lizippp...
 mkdir build
 cd "build"
 cmake .. -G"Visual Studio 11" -DCMAKE_PREFIX_PATH="lib/zlib-1.2.8/build/install"
+cd ".."
+
+:compile_libzippp
+cd "build"
+if exist "libzippp_static.lib" goto package_libzippp
 msbuild /P:Configuration=Debug ALL_BUILD.vcxproj
 msbuild /P:Configuration=Release ALL_BUILD.vcxproj
 cd ".."
 
 :package_libzippp
-if exist "dist" goto end
-mkdir dist
-cd dist
+if exist "dist\libzippp_static.lib" goto end
+mkdir "dist"
+cd "dist"
 mkdir release
 copy ..\build\Release\libzippp_test.exe release
 copy ..\build\Release\libzippp.dll release
