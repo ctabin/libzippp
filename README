@@ -108,11 +108,12 @@ How to read a specific entry from an archive:
 
         //direct way
 	char* data = (char*)zf.readEntry("myFile.txt", true);
-	string str1(data, entry.getSize());
+	ZipEntry entry1 = zf.getEntry("myFile.txt");
+	string str1(data, entry1.getSize());
 
         //indirect way
-	ZipEntry entry = zf.getEntry("myFile.txt");
-	string str2 = entry.readAsText();
+	ZipEntry entry2 = zf.getEntry("myFile.txt");
+	string str2 = entry2.readAsText();
 
 	zf.close();
 
