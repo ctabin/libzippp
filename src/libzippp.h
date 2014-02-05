@@ -49,8 +49,6 @@ struct zip;
 // http://www.nih.at/libzip/libzip.html
 // http://slash.developpez.com/tutoriels/c/utilisation-libzip/
 
-using namespace std;
-
 //standard unsigned int
 typedef unsigned int uint;
 
@@ -118,13 +116,13 @@ namespace libzippp {
          * 
          * http://nih.at/listarchive/libzip-discuss/msg00219.html
          */
-        ZipArchive(const string& zipPath, const string& password="");
+        ZipArchive(const std::string& zipPath, const std::string& password="");
         virtual ~ZipArchive(void); //commit all the changes if open
         
         /**
          * Return the path of the ZipArchive.
          */
-        string getPath(void) const { return path; }
+        std::string getPath(void) const { return path; }
         
         /**
          * Open the ZipArchive in read mode. This method will return true if the operation
@@ -174,14 +172,14 @@ namespace libzippp {
          * must have been open in WRITE or NEW mode. If the archive is not open, the getComment
          * method will return an empty string.
          */
-        string getComment(State state=CURRENT) const;
-        bool setComment(const string& comment) const;
+        std::string getComment(State state=CURRENT) const;
+        bool setComment(const std::string& comment) const;
         
         /**
          * Removes the comment of the archive, if any. The archive must have been open
          * in WRITE or NEW mode.
          */
-        bool removeComment(void) const { return setComment(string()); }
+        bool removeComment(void) const { return setComment(std::string()); }
         
         /**
          * Returns the number of entries in this zip file (folders are included).
@@ -202,14 +200,14 @@ namespace libzippp {
          * returns the entries in the original archive, any change will not be considered.
          * The zip file must be open otherwise an empty vector will be returned.
          */
-        vector<ZipEntry> getEntries(State state=CURRENT) const;
+        std::vector<ZipEntry> getEntries(State state=CURRENT) const;
         
         /**
          * Return true if an entry with the specified name exists. If no such entry exists,
          * then false will be returned. If a directory is searched, the name must end with a '/' !
          * The zip file must be open otherwise false will be returned.
          */
-        bool hasEntry(const string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=CURRENT) const;
+        bool hasEntry(const std::string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=CURRENT) const;
         
         /**
          * Return the ZipEntry for the specified entry name. If no such entry exists,
@@ -217,7 +215,7 @@ namespace libzippp {
          * must end with a '/' !
          * The zip file must be open otherwise a null-ZipEntry will be returned.
          */
-        ZipEntry getEntry(const string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=CURRENT) const;
+        ZipEntry getEntry(const std::string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=CURRENT) const;
         
         /**
          * Return the ZipEntry for the specified index. If the index is out of range,
@@ -231,8 +229,8 @@ namespace libzippp {
          * entry is not linked to this archive, then an empty string or false will 
          * be returned.
          */
-        string getEntryComment(const ZipEntry& entry, State state=CURRENT) const;
-        bool setEntryComment(const ZipEntry& entry, const string& comment) const;
+        std::string getEntryComment(const ZipEntry& entry, State state=CURRENT) const;
+        bool setEntryComment(const ZipEntry& entry, const std::string& comment) const;
         
         /**
          * Read the specified ZipEntry of the ZipArchive and returns its content within
@@ -255,7 +253,7 @@ namespace libzippp {
          * created by this ZipArchive, null will be returned. If the zipEntry does not exist,
          * this method returns NULL:
          */
-        void* readEntry(const string& zipEntry, bool asText=false, State state=CURRENT) const;
+        void* readEntry(const std::string& zipEntry, bool asText=false, State state=CURRENT) const;
         
         /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
@@ -277,7 +275,7 @@ namespace libzippp {
          * then -3 will be returned. If the entry does not exist, this method returns -4.
          * Note that this method does not affect the result returned by getNbEntries !
          */
-        int deleteEntry(const string& entry) const;
+        int deleteEntry(const std::string& entry) const;
         
         /**
          * Renames the entry with the specified newName. The method returns the number of entries
@@ -288,7 +286,7 @@ namespace libzippp {
          * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
          * then -3 will be returned.
          */
-        int renameEntry(const ZipEntry& entry, const string& newName) const;
+        int renameEntry(const ZipEntry& entry, const std::string& newName) const;
         
         /**
          * Renames the entry with the specified newName. The method returns the number of entries
@@ -299,7 +297,7 @@ namespace libzippp {
          * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
          * then -3 will be returned. If the entry does not exist, this method returns -4.
          */
-        int renameEntry(const string& entry, const string& newName) const;
+        int renameEntry(const std::string& entry, const std::string& newName) const;
         
         /**
          * Add the specified file in the archive with the given entry. If the entry already exists,
@@ -308,7 +306,7 @@ namespace libzippp {
          * If the entryName denotes a directory, this method returns false.
          * The zip file must be open otherwise false will be returned.
          */
-        bool addFile(const string& entryName, const string& file) const;
+        bool addFile(const std::string& entryName, const std::string& file) const;
         
         /**
          * Add the given data to the specified entry name in the archive. If the entry already exists,
@@ -317,7 +315,7 @@ namespace libzippp {
          * If the entryName denotes a directory, this method returns false.
          * If the zip file is not open, this method returns false.
          */
-        bool addData(const string& entryName, const void* data, uint length, bool freeData=false) const;
+        bool addData(const std::string& entryName, const void* data, uint length, bool freeData=false) const;
         
         /**
          * Add the specified entry to the ZipArchive. All the needed hierarchy will be created.
@@ -327,7 +325,7 @@ namespace libzippp {
          * This method will only add the specified entry. The 'real' directory may exist or not.
          * If the directory exists, the files in it won't be added to the archive.
          */
-        bool addEntry(const string& entryName) const;
+        bool addEntry(const std::string& entryName) const;
         
         /**
          * Returns the mode in which the file has been open.
@@ -336,10 +334,10 @@ namespace libzippp {
         OpenMode getMode(void) const { return mode; }
         
     private:
-        string path;
+        std::string path;
         zip* zipHandle;
         OpenMode mode;
-        string password;
+        std::string password;
         
         //generic method to create ZipEntry
         ZipEntry createEntry(struct zip_stat* stat) const;
@@ -366,7 +364,7 @@ namespace libzippp {
         /**
          * Returns the name of the entry.
          */
-        string getName(void) const { return name; }
+        std::string getName(void) const { return name; }
         
         /**
          * Returns the index of the file in the zip.
@@ -419,15 +417,15 @@ namespace libzippp {
          * or false will be returned. Those methods are wrappers around ZipArchive::getEntryComment
          * and ZipArchive::setEntryComment.
          */
-        string getComment(void) const;
-        bool setComment(const string& str) const;
+        std::string getComment(void) const;
+        bool setComment(const std::string& str) const;
         
         /**
          * Read the content of this ZipEntry as text. The returned string will be
          * of size getSize(). If the ZipArchive is not open, this method returns an
          * empty string. This method is a wrapper around ZipArchive::readEntry(...).
          */
-        string readAsText(ZipArchive::State state=ZipArchive::CURRENT) const;
+        std::string readAsText(ZipArchive::State state=ZipArchive::CURRENT) const;
         
         /**
          * Read the content of this ZipEntry as binary. The returned void* will be
@@ -439,7 +437,7 @@ namespace libzippp {
         
     private:
         const ZipArchive* zipFile;
-        string name;
+        std::string name;
         libzippp_uint64 index;
         time_t time;
         int method;
@@ -447,7 +445,7 @@ namespace libzippp {
         libzippp_uint64 sizeComp;
         int crc;
         
-        ZipEntry(const ZipArchive* zipFile, const string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
+        ZipEntry(const ZipArchive* zipFile, const std::string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
                 zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc) {}
     };
 }
