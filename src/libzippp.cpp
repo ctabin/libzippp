@@ -34,6 +34,7 @@
 
 #include <zip.h>
 #include <errno.h>
+#include <fstream>
 
 #include "libzippp.h"
 
@@ -410,7 +411,14 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
         if (!dadded) { return false; }
     }
     
-    zip_source* source = zip_source_file(zipHandle, file.c_str(), 0, file.size());
+    //retrieves the length of the file
+    //http://stackoverflow.com/questions/5840148/how-can-i-get-a-files-size-in-c
+    const char* filepath = file.c_str();
+    ifstream in(filepath, ifstream::in | ifstream::binary);
+    in.seekg(0, ifstream::end);
+    streampos end = in.tellg();
+    
+    zip_source* source = zip_source_file(zipHandle, filepath, 0, end);
     if (source!=NULL) {
         libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
         if (result>=0) { return true; } 
