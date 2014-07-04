@@ -17,19 +17,21 @@ libzippp-static: libzippp-compile
 libzippp-shared: libzippp-compile
 	$(CC) -shared -o libzippp.so $(OBJ)/libzippp.o
 
-libzippp-tests: libzippp-static
-	$(CC) -o test -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/lib/.libs/libzip.a -lz
+libzippp-tests: libzippp-static libzippp-shared
+	$(CC) -o test_static -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/lib/.libs/libzip.a -lz
+	$(CC) -o test_shared -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/lib/.libs -lzippp -lzip -lz -Wl,-rpath=.
 
 clean-tests:
 	@rm -rf *.zip
 
 tests: libzippp-tests clean-tests
-	valgrind --suppressions=ld.supp ./test
+	LD_LIBRARY_PATH="$(LIBZIP)/lib/.libs" valgrind --suppressions=ld.supp ./test_shared
+	valgrind --suppressions=ld.supp ./test_static
 
 clean:
 	@rm -rf libzippp.a libzippp.so
 	@rm -rf $(OBJ)
-	@rm -rf test
+	@rm -rf test_shared test_static
 
 mrproper: clean
 	@rm -rf $(LIB)
