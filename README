@@ -46,7 +46,7 @@ WINDOWS
    Studio 2012. The dev command prompt path should be (defined in compile.bat):
      <MSVS11>\Common7\Tools\VsDevCmd.bat
 
-1) download libzip and zlib and extract them in a folder called 'lib'.
+1) download libzip and zlib and extract them in the 'lib' folder.
    You should end up with the following structure:
      libzippp/compile.bat
      libzippp/lib/zlib-1.2.8
