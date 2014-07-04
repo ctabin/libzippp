@@ -1,7 +1,7 @@
 nbproject
 libzippp-Makefile.mk
-lib
 obj
-test
+test_static
+test_shared
 *.a
 *.so

@@ -53,19 +53,22 @@ if exist "dist\libzippp_static.lib" goto end
 mkdir "dist"
 cd "dist"
 mkdir release
-copy ..\build\Release\libzippp_test.exe release
+copy ..\build\Release\libzippp_shared_test.exe release
+copy ..\build\Release\libzippp_static_test.exe release
 copy ..\build\Release\libzippp.dll release
 copy ..\build\Release\libzippp.lib release
 copy ..\build\Release\libzippp_static.lib release
 copy ..\lib\zlib-1.2.8\build\Release\zlib.dll release
 copy ..\lib\libzip-0.11.2\build\lib\Release\zip.dll release
 mkdir debug
-copy ..\build\Debug\libzippp_test.exe debug
+copy ..\build\Debug\libzippp_shared_test.exe debug
+copy ..\build\Debug\libzippp_static_test.exe debug
 copy ..\build\Debug\libzippp.dll debug
 copy ..\build\Debug\libzippp.lib debug
 copy ..\build\Debug\libzippp_static.lib debug
 copy ..\lib\zlib-1.2.8\build\Release\zlib.dll debug
 copy ..\lib\libzip-0.11.2\build\lib\Debug\zip.dll debug
+cd ..
 
 goto end
 

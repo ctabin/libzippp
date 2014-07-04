@@ -52,13 +52,17 @@ WINDOWS
      libzippp/lib/zlib-1.2.8
      libzippp/lib/libzip-0.11.2
 
-2) execute the compile.bat (simply double-click on it). The compilation should 
+2) extract the file lib/libzip-0.11.2-patch.zip. This file contains changes to be
+   done in libzip in order to compile successfully with the static libraries.
+   Simply accept the erasing of the files.
+
+3) execute the compile.bat (simply double-click on it). The compilation should 
    go without error.
 
-3) you'll have a 'dist' folder containing the 'release' and 'debug' folders 
+4) you'll have a 'dist' folder containing the 'release' and 'debug' folders 
    where you can now execute the libzippp tests.
 
-4) you can either use libzippp.dll and libzippp.lib to link dynamically the 
+5) you can either use libzippp.dll and libzippp.lib to link dynamically the 
    library or simply use libzippp_static.lib to link it statically. Unless you 
    also link zlib and libzippp statically, you'll need the dll packaged with 
    your executable.
