@@ -7,8 +7,8 @@ libzippp is a simple basic C++ wrapper around the libzip library.
 It is meant to be a portable and easy-to-use library for Zip handling.
 
 Compilation works with:
-- gcc 4.8.4 under Linux Gentoo)
-- MS Visual Studio 2012 under Windows 7
+- gcc 4.8.4 under (GNU/Linux Gentoo)
+- MS Visual Studio 2012 (Windows 7)
 
 = ============ =
 = Compilation  =
@@ -52,9 +52,9 @@ WINDOWS
      libzippp/lib/zlib-1.2.8
      libzippp/lib/libzip-1.0.1
 
-2) extract the file lib/libzip-1.0.1-windows-patch.zip. This file contains changes 
-   to be done in libzip in order to compile successfully with Visual Studio 2012.
-   Simply accept the erasing of the files.
+2) extract the file lib/libzip-1.0.1-windows-patch.zip. This file contains 
+   changes to be done in libzip in order to compile successfully with Visual 
+   Studio 2012. Simply accept the erasing of the files.
 
 3) execute the compile.bat (simply double-click on it). The compilation should 
    go without error.
