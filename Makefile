@@ -2,7 +2,8 @@ CC=g++
 CFLAGS=-W -Wall -Wextra -ansi -pedantic
 OBJ=obj
 LIB=lib
-LIBZIP=$(LIB)/libzip-0.11.2
+LIBZIP_VERSION=1.0.1
+LIBZIP=$(LIB)/libzip-$(LIBZIP_VERSION)
 
 all: libzippp-static libzippp-shared
 
@@ -40,10 +41,10 @@ libzip-init:
 	mkdir -p $(LIB)
 
 libzip-download: libzip-init
-	wget -c -O "$(LIB)/libzip-0.11.2.tar.gz" "http://www.nih.at/libzip/libzip-0.11.2.tar.gz"
+	wget -c -O "$(LIB)/libzip-$(LIBZIP_VERSION).tar.gz" "http://www.nih.at/libzip/libzip-$(LIBZIP_VERSION).tar.gz"
 
 libzip-unzip: libzip-download
-	cd $(LIB) && tar -xf libzip-0.11.2.tar.gz
+	cd $(LIB) && tar -xf libzip-$(LIBZIP_VERSION).tar.gz
 
 libzip-configure: libzip-unzip
 	cd $(LIBZIP) && ./configure

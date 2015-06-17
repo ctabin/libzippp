@@ -3,7 +3,7 @@
 
 SET vs2012devprompt=C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Tools\VsDevCmd.bat
 SET zlib=lib\zlib-1.2.8
-SET libzip=lib\libzip-0.11.2
+SET libzip=lib\libzip-1.0.1
 
 if not exist "%zlib%" goto error_zlib_not_found
 if not exist "%libzip%" goto error_libzip_not_found
@@ -23,9 +23,9 @@ msbuild /P:Configuration=Release INSTALL.vcxproj
 cd "..\..\.."
 
 :compile_libzip
-if exist "lib\libzip-0.11.2\build" goto prepare_libzippp
+if exist "lib\libzip-1.0.1\build" goto prepare_libzippp
 echo Compiling libzip...
-cd "lib\libzip-0.11.2"
+cd "lib\libzip-1.0.1"
 mkdir build
 cd "build"
 cmake .. -G"Visual Studio 11" -DCMAKE_PREFIX_PATH="../zlib-1.2.8/build/install"
@@ -59,7 +59,7 @@ copy ..\build\Release\libzippp.dll release
 copy ..\build\Release\libzippp.lib release
 copy ..\build\Release\libzippp_static.lib release
 copy ..\lib\zlib-1.2.8\build\Release\zlib.dll release
-copy ..\lib\libzip-0.11.2\build\lib\Release\zip.dll release
+copy ..\lib\libzip-1.0.1\build\lib\Release\zip.dll release
 mkdir debug
 copy ..\build\Debug\libzippp_shared_test.exe debug
 copy ..\build\Debug\libzippp_static_test.exe debug
@@ -67,7 +67,7 @@ copy ..\build\Debug\libzippp.dll debug
 copy ..\build\Debug\libzippp.lib debug
 copy ..\build\Debug\libzippp_static.lib debug
 copy ..\lib\zlib-1.2.8\build\Release\zlib.dll debug
-copy ..\lib\libzip-0.11.2\build\lib\Debug\zip.dll debug
+copy ..\lib\libzip-1.0.1\build\lib\Debug\zip.dll debug
 cd ..
 
 goto end
@@ -79,7 +79,7 @@ goto end
 
 :error_libzip_not_found
 echo [ERROR] The path was not found: %libzip%.
-echo         You have to download libzip 0.11.2 and put it in the folder %libzip%.
+echo         You have to download libzip 1.0.1 and put it in the folder %libzip%.
 goto end
 
 :error_vs2012_not_found

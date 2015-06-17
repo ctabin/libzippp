@@ -1,0 +1,92 @@
+diff -u libzip-1.0.1-source/regress/fread.c libzip-1.0.1/regress/fread.c
+--- libzip-1.0.1-source/regress/fread.c	2014-12-02 16:18:14.000000000 +0100
++++ libzip-1.0.1/regress/fread.c	2015-06-17 21:21:48.889387000 +0200
+@@ -180,6 +180,7 @@
+     int err;
+     char b[8192];
+     zip_int64_t n;
++    zip_error_t *zf_error;
+ 
+     when_got = WHEN_NEVER;
+     zip_error_init(&error_got);
+@@ -188,7 +189,7 @@
+     
+     if ((zf=zip_fopen(z, name, flags)) == NULL) {
+ 	when_got = WHEN_OPEN;
+-	zip_error_t *zf_error = zip_get_error(z);
++	zf_error = zip_get_error(z);
+ 	zip_error_set(&error_got, zip_error_code_zip(zf_error), zip_error_code_system(zf_error));
+     }
+     else {
+@@ -196,7 +197,7 @@
+ 	    ;
+ 	if (n < 0) {
+ 	    when_got = WHEN_READ;
+-	    zip_error_t *zf_error = zip_file_get_error(zf);
++	    zf_error = zip_file_get_error(zf);
+ 	    zip_error_set(&error_got, zip_error_code_zip(zf_error), zip_error_code_system(zf_error));
+ 	}
+ 	err = zip_fclose(zf);
+diff -u libzip-1.0.1-source/regress/modify.c libzip-1.0.1/regress/modify.c
+--- libzip-1.0.1-source/regress/modify.c	2015-04-29 18:04:30.000000000 +0200
++++ libzip-1.0.1/regress/modify.c	2015-06-17 21:39:46.712478000 +0200
+@@ -40,7 +40,8 @@
+ #ifdef HAVE_UNISTD_H
+ #include <unistd.h>
+ #endif
+-#include <inttypes.h>
++
++#include "inttypes.h"
+ 
+ #ifndef HAVE_GETOPT
+ #include "getopt.h"
+@@ -48,6 +49,9 @@
+ 
+ #include "zip.h"
+ 
++#define strtoll _strtoi64
++#define strtoull _strtoui64
++
+ zip_source_t *source_hole_create(const char *, int flags, zip_error_t *);
+ 
+ typedef enum {
+@@ -132,12 +136,16 @@
+     zip_uint64_t idx;
+     int err;
+     zip_source_t *zs;
++    zip_uint64_t start;
++    zip_int64_t len;
++    zip_error_t error;
++    
+     /* add from another zip file */
+     idx = strtoull(argv[2], NULL, 10);
+-    zip_uint64_t start = strtoull(argv[3], NULL, 10);
+-    zip_int64_t len = strtoll(argv[4], NULL, 10);
++    start = strtoull(argv[3], NULL, 10);
++    len = strtoll(argv[4], NULL, 10);
+     if ((z_in[z_in_count]=zip_open(argv[1], ZIP_CHECKCONS, &err)) == NULL) {
+-	zip_error_t error;
++	
+ 	zip_error_init_with_code(&error, err);
+ 	fprintf(stderr, "can't open zip archive '%s': %s\n", argv[1], zip_error_strerror(&error));
+ 	zip_error_fini(&error);
+diff -u libzip-1.0.1-source/regress/source_hole.c libzip-1.0.1/regress/source_hole.c
+--- libzip-1.0.1-source/regress/source_hole.c	2015-04-29 17:51:23.000000000 +0200
++++ libzip-1.0.1/regress/source_hole.c	2015-06-17 21:19:59.730208000 +0200
+@@ -347,6 +347,7 @@
+         zip_uint64_t needed_fragments = (buffer->offset + length + buffer->fragment_size - 1) / buffer->fragment_size;
+         zip_uint64_t new_capacity = buffer->nfragments;
+         zip_uint64_t i;
++        zip_uint8_t **fragment;
+         
+         if (new_capacity == 0) {
+             new_capacity = 4;
+@@ -355,7 +356,7 @@
+             new_capacity *= 2;
+         }
+         
+-        zip_uint8_t **fragment = realloc(buffer->fragment, new_capacity * sizeof(*fragment));
++        fragment = realloc(buffer->fragment, new_capacity * sizeof(*fragment));
+         
+         if (fragment == NULL) {
+             zip_error_set(error, ZIP_ER_MEMORY, 0);

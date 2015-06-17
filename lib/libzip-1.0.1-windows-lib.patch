@@ -1,0 +1,132 @@
+diff -u libzip-1.0.1-source/lib/zip_dirent.c libzip-1.0.1/lib/zip_dirent.c
+--- libzip-1.0.1-source/lib/zip_dirent.c	2015-04-29 17:43:29.000000000 +0200
++++ libzip-1.0.1/lib/zip_dirent.c	2015-06-17 20:55:31.860241000 +0200
+@@ -614,11 +614,13 @@
+     zip_uint16_t dostime, dosdate;
+     zip_encoding_type_t com_enc, name_enc;
+     zip_extra_field_t *ef;
++    zip_extra_field_t *ef64;
+     bool is_zip64;
+     bool is_really_zip64;
+     zip_uint8_t buf[CDENTRYSIZE];
+     zip_buffer_t *buffer;
+-
++	zip_uint32_t ef_total_size;
++	
+     ef = NULL;
+ 
+     is_zip64 = false;
+@@ -687,7 +689,7 @@
+             return -1;
+         }
+ 
+-        zip_extra_field_t *ef64 = _zip_ef_new(ZIP_EF_ZIP64, (zip_uint16_t)(_zip_buffer_offset(ef_buffer)), ef_zip64, ZIP_EF_BOTH);
++        ef64 = _zip_ef_new(ZIP_EF_ZIP64, (zip_uint16_t)(_zip_buffer_offset(ef_buffer)), ef_zip64, ZIP_EF_BOTH);
+         _zip_buffer_free(ef_buffer);
+         ef64->next = ef;
+         ef = ef64;
+@@ -740,7 +742,7 @@
+ 
+     _zip_buffer_put_16(buffer, _zip_string_length(de->filename));
+     /* TODO: check for overflow */
+-    zip_uint32_t ef_total_size = (zip_uint32_t)_zip_ef_size(de->extra_fields, flags) + (zip_uint32_t)_zip_ef_size(ef, ZIP_EF_BOTH);
++    ef_total_size = (zip_uint32_t)_zip_ef_size(de->extra_fields, flags) + (zip_uint32_t)_zip_ef_size(ef, ZIP_EF_BOTH);
+     _zip_buffer_put_16(buffer, (zip_uint16_t)ef_total_size);
+     
+     if ((flags & ZIP_FL_LOCAL) == 0) {
+diff -u libzip-1.0.1-source/lib/zip_source_buffer.c libzip-1.0.1/lib/zip_source_buffer.c
+--- libzip-1.0.1-source/lib/zip_source_buffer.c	2014-11-04 15:47:37.000000000 +0100
++++ libzip-1.0.1/lib/zip_source_buffer.c	2015-06-17 20:56:53.089734000 +0200
+@@ -376,6 +376,7 @@
+ buffer_write(buffer_t *buffer, const zip_uint8_t *data, zip_uint64_t length, zip_error_t *error)
+ {
+     zip_uint64_t n, i, fragment_offset;
++    zip_uint8_t **fragments;
+ 
+     if (buffer->offset + length + buffer->fragment_size - 1 < length) {
+ 	zip_error_set(error, ZIP_ER_INVAL, 0);
+@@ -393,7 +394,7 @@
+ 		new_capacity *= 2;
+ 	    }
+ 
+-	    zip_uint8_t **fragments = realloc(buffer->fragments, new_capacity * sizeof(*fragments));
++	    fragments = realloc(buffer->fragments, new_capacity * sizeof(*fragments));
+ 
+ 	    if (fragments == NULL) {
+ 		zip_error_set(error, ZIP_ER_MEMORY, 0);
+diff -u libzip-1.0.1-source/lib/zip_source_filep.c libzip-1.0.1/lib/zip_source_filep.c
+--- libzip-1.0.1-source/lib/zip_source_filep.c	2015-05-04 22:49:13.000000000 +0200
++++ libzip-1.0.1/lib/zip_source_filep.c	2015-06-17 21:07:51.225325000 +0200
+@@ -46,6 +46,12 @@
+ #endif
+ 
+ /* Windows sys/types.h does not provide these */
++#ifndef S_IXUSR
++#define S_IXUSR 0000100
++#endif
++#ifndef S_IRWXU
++#define S_IRWXU 0000700
++#endif
+ #ifndef S_ISREG
+ #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+ #endif
+diff -u libzip-1.0.1-source/lib/zip_source_win32a.c libzip-1.0.1/lib/zip_source_win32a.c
+--- libzip-1.0.1-source/lib/zip_source_win32a.c	2015-04-29 17:43:29.000000000 +0200
++++ libzip-1.0.1/lib/zip_source_win32a.c	2015-06-17 21:16:28.902083000 +0200
+@@ -45,11 +45,11 @@
+ static int _win32_remove_a(const void *fname);
+ 
+ static _zip_source_win32_file_ops_t win32_ops_a = {
+-    .op_strdup         = _win32_strdup_a,
+-    .op_open           = _win32_open_a,
+-    .op_create_temp    = _win32_create_temp_a,
+-    .op_rename_temp    = _win32_rename_temp_a,
+-    .op_remove         = _win32_remove_a
++    _win32_strdup_a,
++    _win32_open_a,
++    _win32_create_temp_a,
++    _win32_rename_temp_a,
++    _win32_remove_a
+ };
+ 
+ ZIP_EXTERN zip_source_t *
+diff -u libzip-1.0.1-source/lib/zip_source_win32handle.c libzip-1.0.1/lib/zip_source_win32handle.c
+--- libzip-1.0.1-source/lib/zip_source_win32handle.c	2015-04-29 17:43:29.000000000 +0200
++++ libzip-1.0.1/lib/zip_source_win32handle.c	2015-06-17 21:00:26.661848000 +0200
+@@ -423,6 +423,7 @@
+     PSECURITY_ATTRIBUTES psa = NULL;
+     DWORD len;
+     BOOL success;
++    zip_uint32_t value;
+ 
+     /*
+     Read the DACL from the original file, so we can copy it to the temp file.
+@@ -448,7 +449,7 @@
+ 	}
+     }
+ 
+-    zip_uint32_t value = GetTickCount();
++    value = GetTickCount();
+     for (i = 0; i < 1024 && th == INVALID_HANDLE_VALUE; i++) {
+ 	th = ctx->ops->op_create_temp(ctx, &temp, value + i, psa);
+ 	if (th == INVALID_HANDLE_VALUE && GetLastError() != ERROR_FILE_EXISTS)
+diff -u libzip-1.0.1-source/lib/zip_source_win32w.c libzip-1.0.1/lib/zip_source_win32w.c
+--- libzip-1.0.1-source/lib/zip_source_win32w.c	2015-04-29 17:43:29.000000000 +0200
++++ libzip-1.0.1/lib/zip_source_win32w.c	2015-06-17 21:16:13.277083000 +0200
+@@ -45,11 +45,11 @@
+ static int _win32_remove_w(const void *fname);
+ 
+ static _zip_source_win32_file_ops_t win32_ops_w = {
+-    .op_strdup       = _win32_strdup_w,
+-    .op_open         = _win32_open_w,
+-    .op_create_temp  = _win32_create_temp_w,
+-    .op_rename_temp  = _win32_rename_temp_w,
+-    .op_remove       = _win32_remove_w
++    _win32_strdup_w,
++    _win32_open_w,
++    _win32_create_temp_w,
++    _win32_rename_temp_w,
++    _win32_remove_w
+ };
+ 
+ ZIP_EXTERN zip_source_t *

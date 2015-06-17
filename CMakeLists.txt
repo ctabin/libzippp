@@ -7,7 +7,7 @@ SET(PACKAGE "libzippp")
 SET(VERSION "0.1")
 
 SET(ZLIB_PATH "lib/zlib-1.2.8" CACHE STRING "Path to zlib")
-SET(LIBZIP_PATH "lib/libzip-0.11.2" CACHE STRING "Path to libzip")
+SET(LIBZIP_PATH "lib/libzip-1.0.1" CACHE STRING "Path to libzip")
 
 FIND_PACKAGE(ZLIB REQUIRED)
 INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
@@ -39,7 +39,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd" FORCE)
 ADD_EXECUTABLE(libzippp_static_test "tests/tests.cpp")
 TARGET_LINK_LIBRARIES(libzippp_static_test 
                         libzippp_static
-                        debug ../${LIBZIP_PATH}/build/lib/Debug/zipstatic
-			optimized ../${LIBZIP_PATH}/build/lib/Release/zipstatic
+                        debug ../${LIBZIP_PATH}/build/lib/Debug/zip
+			optimized ../${LIBZIP_PATH}/build/lib/Release/zip
 			debug ../${ZLIB_PATH}/build/Debug/zlibstaticd
 			optimized ../${ZLIB_PATH}/build/Release/zlibstatic)
