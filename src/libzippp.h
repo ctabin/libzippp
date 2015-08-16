@@ -150,6 +150,7 @@ namespace libzippp {
          * be discarded and the file removed.
          */
         bool unlink(void);
+        bool delete(void) { return unlink(); }
         
         /**
          * Returns true if the ZipArchive is currently open.
@@ -195,7 +196,7 @@ namespace libzippp {
          */
         libzippp_int64 getNbEntries(State state=CURRENT) const;
         libzippp_int64 getEntriesCount(State state=CURRENT) const { return getNbEntries(state); }
-	libzippp_int64 size(State state=CURRENT) const { return getNbEntries(state); }
+        //libzippp_int64 size(State state=CURRENT) const { return getNbEntries(state); } //not clear enough => could be the size of the file instead...
 
         /**
          * Returns all the entries of the ZipArchive. If the state is ORIGINAL, then
