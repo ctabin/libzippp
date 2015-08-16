@@ -60,7 +60,7 @@ typedef unsigned int uint;
         #define SHARED_LIBRARY_EXPORT __declspec(dllexport)
         #define SHARED_LIBRARY_IMPORT __declspec(dllimport)
 #else
-        //standard ISO c++ does not suport long long
+        //standard ISO c++ does not support long long
         typedef long int libzippp_int64;
         typedef unsigned long int libzippp_uint64;
         
@@ -80,7 +80,7 @@ namespace libzippp {
     
     /**
      * Represents a ZIP archive. This class provides useful methods to handle an archive
-     * content. It is wrapper around ziplib.
+     * content. It is simply a wrapper around libzip.
      */
     class LIBZIPPP_API ZipArchive {
     public:
@@ -194,7 +194,9 @@ namespace libzippp {
          * the getEntries method.
          */
         libzippp_int64 getNbEntries(State state=CURRENT) const;
-        
+        libzippp_int64 getEntriesCount(State state=CURRENT) const { return getNbEntries(state); }
+	libzippp_int64 size(State state=CURRENT) const { return getNbEntries(state); }
+
         /**
          * Returns all the entries of the ZipArchive. If the state is ORIGINAL, then
          * returns the entries in the original archive, any change will not be considered.
