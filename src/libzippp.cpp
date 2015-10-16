@@ -269,7 +269,10 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state) 
         libzippp_int64 isize = (libzippp_int64)size; //there will be a warning here, but unavoidable...
         
         char* data = new char[isize+(asText ? 1 : 0)];
-	if(!data) { return NULL; } //allocation error
+	if(!data) { //allocation error
+	    zip_fclose(zipFile);
+	    return NULL; 
+	}
 
         libzippp_int64 result = zip_fread(zipFile, data, size);
         zip_fclose(zipFile);
