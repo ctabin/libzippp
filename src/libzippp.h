@@ -150,7 +150,7 @@ namespace libzippp {
          * be discarded and the file removed.
          */
         bool unlink(void);
-        bool delete(void) { return unlink(); }
+        //bool delete(void) { return unlink(); } //delete is a reserved keyword
         
         /**
          * Returns true if the ZipArchive is currently open.
