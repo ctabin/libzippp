@@ -38,7 +38,8 @@ clean:
 	@rm -rf test_shared test_static
 
 mrproper: clean
-	@rm -rf $(LIB)
+	@rm -rf $(LIB)/libzip-1.1
+	@rm -rf $(LIB)/libzip-1.1.tar.gz
 
 libzip-init:
 	mkdir -p $(LIB)
