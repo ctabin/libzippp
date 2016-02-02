@@ -1,0 +1,12 @@
+diff -ru libzip-1.1/src/ziptool.c libzip-1.1.modified/src/ziptool.c
+--- libzip-1.1/src/ziptool.c	2016-01-22 20:17:02.000000000 +0100
++++ libzip-1.1.modified/src/ziptool.c	2016-02-02 22:26:53.502087222 +0100
+@@ -1010,7 +1010,7 @@
+ 	default:
+ 	{
+ 	    char reason[128];
+-	    snprintf(reason, sizeof(reason), "invalid option -%c", optopt);
++	    snprintf(reason, sizeof(reason), "invalid option -%c", c);
+ 	    usage(prg, reason);
+ 	}
+ 	}
