@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-W -Wall -Wextra -ansi -pedantic
 OBJ=obj
 LIB=lib
-LIBZIP_VERSION=1.1
+LIBZIP_VERSION=1.1.2
 LIBZIP=$(LIB)/libzip-$(LIBZIP_VERSION)
 
 # for optimal compilation speed, should be <nb_proc>+1
@@ -51,7 +51,9 @@ libzip-unzip: libzip-download
 	cd $(LIB) && tar -xf libzip-$(LIBZIP_VERSION).tar.gz
 
 libzip-patch: libzip-unzip
-	cd $(LIB)/libzip-$(LIBZIP_VERSION) && patch -p1 < ../libzip-$(LIBZIP_VERSION)-linux.patch
+	if [ -f $(LIB)/libzip-$(LIBZIP_VERSION)-linux.patch ]; then \
+		cd $(LIB)/libzip-$(LIBZIP_VERSION) && patch -p1 < ../libzip-$(LIBZIP_VERSION)-linux.patch; \
+	fi;
 
 libzip-configure: libzip-patch
 	cd $(LIBZIP) && ./configure
