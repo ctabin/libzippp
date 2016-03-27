@@ -7,7 +7,7 @@ SET(PACKAGE "libzippp")
 SET(VERSION "0.2")
 
 SET(ZLIB_PATH "lib/zlib-1.2.8" CACHE STRING "Path to zlib")
-SET(LIBZIP_PATH "lib/libzip-1.1" CACHE STRING "Path to libzip")
+SET(LIBZIP_PATH "lib/libzip-1.1.2" CACHE STRING "Path to libzip")
 
 FIND_PACKAGE(ZLIB REQUIRED)
 INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
