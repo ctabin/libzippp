@@ -31,11 +31,11 @@ LINUX
 
 4) now you just have to include the src folder in your include path and
    link against libzippp.a or libzippp.so (do not forget to also link 
-   against libzip libraries in lib/libzip-1.1/lib/.libs/).
+   against libzip libraries in lib/libzip-1.1.2/lib/.libs/).
    An example of compilation with g++ (notice the -lz at the end):
-   	g++ -I./lib/libzip-1.1/lib -I./src \
+   	g++ -I./lib/libzip-1.1.2/lib -I./src \
 		main.cpp libzippp.a \
-		lib/libzip-1.1/lib/.libs/libzip.a \
+		lib/libzip-1.1.2/lib/.libs/libzip.a \
 		-lz
 
 -------
@@ -50,9 +50,12 @@ WINDOWS
    You should end up with the following structure:
      libzippp/compile.bat
      libzippp/lib/zlib-1.2.8
-     libzippp/lib/libzip-1.1
+     libzippp/lib/libzip-1.1.2
 
-2) extract the file lib/libzip-1.1-windows-patch.zip. This file contains 
+   zlib: http://zlib.net/zlib128.zip
+   libzip: http://www.nih.at/libzip/libzip-1.1.2.tar.gz
+
+2) extract the file lib/libzip-1.1.2-windows-VS2012-patch.zip. This file contains 
    changes to be done in libzip in order to compile successfully with Visual 
    Studio 2012. Simply accept the erasing of the files.
 
@@ -147,13 +150,6 @@ How to remove data from an archive:
 	zf.deleteEntry("myFile.txt");
 	zf.deleteEntry("myDir/subDir/");
 	zf.close();
-
-
-= ====== =
-= TODO   =
-= ====== =
-
-- Extra field handling
 
 
 = ====== =
