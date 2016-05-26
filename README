@@ -10,6 +10,10 @@ Compilation has been tested with:
 - gcc 4.9.3 (GNU/Linux Gentoo)
 - MS Visual Studio 2012 (Windows 7)
 
+Underlying libraries:
+- ZLib (http://zlib.net)
+- libzip (http://www.nih.at/libzip)
+
 = ============ =
 = Compilation  =
 = ============ =
@@ -20,23 +24,23 @@ LINUX
 
 0) make sure you have the following commands: g++ make tar wget
 
-1) download and compile de libzip library with the following command:
-	make libzip
+1) download and compile the libraries (zlib,libzip) with the command:
+	make libraries
 
 2) then create the static and shared libraries of libzippp:
 	make
 
-3) you may want to run the tests:
+3) you may want to run the tests (optional):
 	make tests
 
 4) now you just have to include the src folder in your include path and
    link against libzippp.a or libzippp.so (do not forget to also link 
    against libzip libraries in lib/libzip-1.1.2/lib/.libs/).
-   An example of compilation with g++ (notice the -lz at the end):
+   An example of compilation with g++:
    	g++ -I./lib/libzip-1.1.2/lib -I./src \
 		main.cpp libzippp.a \
 		lib/libzip-1.1.2/lib/.libs/libzip.a \
-		-lz
+		lib/zlib-1.2.8/libz.a
 
 -------
 WINDOWS
