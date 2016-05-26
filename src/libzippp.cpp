@@ -49,17 +49,18 @@ bool ZipEntry::setComment(const string& str) const {
     return zipFile->setEntryComment(*this, str);
 }
 
-string ZipEntry::readAsText(ZipArchive::State state) const {
-    char* content = (char*)zipFile->readEntry(*this, true, state);
+string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const {
+    char* content = (char*)zipFile->readEntry(*this, true, state, size);
     if (content==NULL) { return string(); } //happen if the ZipArchive has been closed
     
-    string str(content, size);
+    libzippp_uint64 maxSize = getSize();
+    string str(content, (size==0 || size>maxSize ? maxSize : size));
     delete[] content;
     return str;
 }
 
-void* ZipEntry::readAsBinary(ZipArchive::State state) const {
-    return zipFile->readEntry(*this, false, state); 
+void* ZipEntry::readAsBinary(ZipArchive::State state, libzippp_uint64 size) const {
+    return zipFile->readEntry(*this, false, state, size); 
 }
 
 ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), mode(NOT_OPEN), password(password) {
@@ -258,23 +259,23 @@ bool ZipArchive::setEntryComment(const ZipEntry& entry, const string& comment) c
     return result==0;
 }
 
-void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state) const {
+void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state, libzippp_uint64 size) const {
     if (!isOpen()) { return NULL; }
     if (zipEntry.zipFile!=this) { return NULL; }
     
     int flag = state==ORIGINAL ? ZIP_FL_UNCHANGED : 0;
     struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
     if (zipFile) {
-        libzippp_uint64 size = zipEntry.getSize();
-        libzippp_int64 isize = (libzippp_int64)size; //there will be a warning here, but unavoidable...
+        libzippp_uint64 maxSize = zipEntry.getSize();
+        libzippp_uint64 isize = size==0 || size>maxSize ? maxSize : size;
         
         char* data = new char[isize+(asText ? 1 : 0)];
-	if(!data) { //allocation error
-	    zip_fclose(zipFile);
-	    return NULL; 
-	}
+        if(!data) { //allocation error
+            zip_fclose(zipFile);
+            return NULL; 
+        }
 
-        libzippp_int64 result = zip_fread(zipFile, data, size);
+        libzippp_int64 result = zip_fread(zipFile, data, isize);
         zip_fclose(zipFile);
         
         //avoid buffer copy
@@ -292,10 +293,10 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state) 
     return NULL;
 }
 
-void* ZipArchive::readEntry(const string& zipEntry, bool asText, State state) const {
+void* ZipArchive::readEntry(const string& zipEntry, bool asText, State state, libzippp_uint64 size) const {
     ZipEntry entry = getEntry(zipEntry);
     if (entry.isNull()) { return NULL; }
-    return readEntry(entry, asText, state);
+    return readEntry(entry, asText, state, size);
 }
 
 int ZipArchive::deleteEntry(const ZipEntry& entry) const {

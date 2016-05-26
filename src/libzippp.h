@@ -240,23 +240,23 @@ namespace libzippp {
          * a char array. If there is an error while reading the entry, then null will be returned.
          * The data must be deleted by the developer once not used anymore. If the asText
          * is set to true, then the returned void* will be ended by a \0 (hence the size of
-         * the returned array will be zipEntry.getSize()+1).
+         * the returned array will be zipEntry.getSize()+1 or size+1 if the latter is specified).
          * The zip file must be open otherwise null will be returned. If the ZipEntry was not
          * created by this ZipArchive, null will be returned.
          */
-        void* readEntry(const ZipEntry& zipEntry, bool asText=false, State state=CURRENT) const;
+        void* readEntry(const ZipEntry& zipEntry, bool asText=false, State state=CURRENT, libzippp_uint64 size=0) const;
         
         /**
          * Read the specified ZipEntry of the ZipArchive and returns its content within
          * a char array. If there is an error while reading the entry, then null will be returned.
          * The data must be deleted by the developer once not used anymore. If the asText
          * is set to true, then the returned void* will be ended by a \0 (hence the size of
-         * the returned array will be zipEntry.getSize()+1).
+         * the returned array will be zipEntry.getSize()+1 or size+1 if the latter is specified).
          * The zip file must be open otherwise null will be returned. If the ZipEntry was not
          * created by this ZipArchive, null will be returned. If the zipEntry does not exist,
          * this method returns NULL:
          */
-        void* readEntry(const std::string& zipEntry, bool asText=false, State state=CURRENT) const;
+        void* readEntry(const std::string& zipEntry, bool asText=false, State state=CURRENT, libzippp_uint64 size=0) const;
         
         /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
@@ -424,19 +424,21 @@ namespace libzippp {
         bool setComment(const std::string& str) const;
         
         /**
-         * Read the content of this ZipEntry as text. The returned string will be
-         * of size getSize(). If the ZipArchive is not open, this method returns an
+         * Read the content of this ZipEntry as text. 
+         * The returned string will be of size getSize() if the latter is not specified or too big. 
+         * If the ZipArchive is not open, this method returns an
          * empty string. This method is a wrapper around ZipArchive::readEntry(...).
          */
-        std::string readAsText(ZipArchive::State state=ZipArchive::CURRENT) const;
+        std::string readAsText(ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 size=0) const;
         
         /**
-         * Read the content of this ZipEntry as binary. The returned void* will be
-         * of getSize(). If the ZipArchive is not open, this method returns NULL. 
+         * Read the content of this ZipEntry as binary. 
+         * The returned void* will be of size getSize() if the latter is not specified or too big.
+         * If the ZipArchive is not open, this method returns NULL. 
          * The data must be deleted by the developer once not used anymore.
          * This method is a wrapper around ZipArchive::readEntry(...).
          */
-        void* readAsBinary(ZipArchive::State state=ZipArchive::CURRENT) const;
+        void* readAsBinary(ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 size=0) const;
         
     private:
         const ZipArchive* zipFile;

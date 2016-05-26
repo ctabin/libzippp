@@ -530,11 +530,51 @@ void test18() {
     cout << " done." << endl;
 }
 
+void test19() {
+    cout << "Running test 19...";
+    
+    const char* txtFile = "this is some data";
+    int len = strlen(txtFile);
+    
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
+    z1.addData("somedata", txtFile, len);
+    z1.close();
+    
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::READ_ONLY);
+    assert(z2.getNbEntries()==1);
+    assert(z2.hasEntry("somedata"));
+    
+    ZipEntry entry = z2.getEntry("somedata");
+    assert(!entry.isNull());
+    
+    string data = entry.readAsText(ZipArchive::CURRENT, 4);
+    int clen = data.size();
+    assert(clen==4);
+    assert(strncmp("this", data.c_str(), 4)==0);
+    
+    string data2 = entry.readAsText(ZipArchive::CURRENT, 1);
+    int clen2 = data2.size();
+    assert(clen2==1);
+    assert(strncmp("t", data2.c_str(), 1)==0);
+    
+    string data3 = entry.readAsText(ZipArchive::CURRENT, 999);
+    int clen3 = data3.size();
+    assert(clen3==len);
+    assert(strncmp("this is some data", data3.c_str(), len)==0);
+    
+    z2.close();
+    z2.unlink();
+    
+    cout << " done." << endl;
+}
+
 int main(int argc, char** argv) {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();
-    test16(); test17(); test18();
+    test16(); test17(); test18(); test19();
 }
 
 
