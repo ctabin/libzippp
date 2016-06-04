@@ -267,20 +267,21 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state, 
     struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
     if (zipFile) {
         libzippp_uint64 maxSize = zipEntry.getSize();
-        libzippp_uint64 isize = size==0 || size>maxSize ? maxSize : size;
+        libzippp_uint64 uisize = size==0 || size>maxSize ? maxSize : size;
         
-        char* data = new char[isize+(asText ? 1 : 0)];
+        char* data = new char[uisize+(asText ? 1 : 0)];
         if(!data) { //allocation error
             zip_fclose(zipFile);
             return NULL; 
         }
 
-        libzippp_int64 result = zip_fread(zipFile, data, isize);
+        libzippp_int64 result = zip_fread(zipFile, data, uisize);
         zip_fclose(zipFile);
         
         //avoid buffer copy
-        if (asText) { data[isize] = '\0'; }
+        if (asText) { data[uisize] = '\0'; }
         
+        libzippp_int64 isize = (libzippp_int64)uisize;
         if (result==isize) {
             return data;
         } else { //unexpected number of bytes read => crash ?
