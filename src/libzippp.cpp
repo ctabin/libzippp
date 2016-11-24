@@ -511,9 +511,9 @@ bool ZipArchive::writeOfstream(const ZipEntry& zipEntry, std::ofstream& ofOutput
       {
          size_t uWrittenBytes = 0;
          libzippp_int64 result;
+         std::unique_ptr<char[]> data(new char[chunksize]);
          for (unsigned int uiChunk = 0; uiChunk < maxSize / chunksize; ++uiChunk)
          {
-            std::unique_ptr<char[]> data(new char[chunksize]);
             if (data.get() != nullptr)
             {
                result = zip_fread(zipFile, data.get(), chunksize);
