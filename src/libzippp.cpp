@@ -35,6 +35,7 @@
 #include <zip.h>
 #include <errno.h>
 #include <fstream>
+#include <memory>
 
 #include "libzippp.h"
 
@@ -61,6 +62,10 @@ string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const
 
 void* ZipEntry::readAsBinary(ZipArchive::State state, libzippp_uint64 size) const {
     return zipFile->readEntry(*this, false, state, size); 
+}
+
+bool ZipEntry::extractFile(std::ofstream& ofOutput, ZipArchive::State state, libzippp_uint64 chunksize) const {
+   return zipFile->writeOfstream(*this, ofOutput, state, chunksize);
 }
 
 ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), mode(NOT_OPEN), password(password) {
@@ -475,4 +480,66 @@ bool ZipArchive::addEntry(const string& entryName) const {
     }
     
     return true;
+}
+
+bool ZipArchive::writeOfstream(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state, libzippp_uint64 chunksize) const {
+   bool bRes = false;
+   if(!ofOutput.is_open()) { return false; }
+   if (!isOpen()) { return false; }
+   if (zipEntry.zipFile != this) { return false; }
+
+   int flag = state == ORIGINAL ? ZIP_FL_UNCHANGED : 0;
+   struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
+   if (zipFile) {
+      libzippp_uint64 maxSize = zipEntry.getSize();
+      if (!chunksize) chunksize = DEFAULT_CHUNK_SIZE; // 512K is the default size of chunk if this last was not indicated by the user
+
+      if (maxSize < chunksize)
+      {
+         std::unique_ptr<char[]> data(new char[maxSize]);
+         if (data.get() != NULL)
+         {
+            libzippp_int64 result = zip_fread(zipFile, data.get(), maxSize);
+            if (result == maxSize)
+            {
+               ofOutput.write(data.get(), maxSize);
+               bRes = true;
+            }
+         }
+      }
+      else
+      {
+         size_t uWrittenBytes = 0;
+         libzippp_int64 result;
+         for (unsigned int uiChunk = 0; uiChunk < maxSize / chunksize; ++uiChunk)
+         {
+            std::unique_ptr<char[]> data(new char[chunksize]);
+            if (data.get() != nullptr)
+            {
+               result = zip_fread(zipFile, data.get(), chunksize);
+               uWrittenBytes += result;
+               ofOutput.write(data.get(), chunksize);
+
+               if (!ofOutput)
+                  break;
+            }
+         }
+         if (ofOutput && maxSize % chunksize > 0)
+         {
+            std::unique_ptr<char[]> data(new char[maxSize % chunksize]);
+            if (data.get() != nullptr)
+            {
+               result = zip_fread(zipFile, data.get(), maxSize % chunksize);
+               uWrittenBytes += result;
+               ofOutput.write(data.get(), maxSize % chunksize);
+            }
+         }
+         if (uWrittenBytes == maxSize)
+            bRes = true;
+      }
+      if (ofOutput)
+         ofOutput.close();
+      zip_fclose(zipFile);
+   }
+   return bRes;
 }

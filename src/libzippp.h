@@ -44,6 +44,7 @@ struct zip;
 
 #define DIRECTORY_SEPARATOR '/'
 #define IS_DIRECTORY(str) (str.length()>0 && str[str.length()-1]==DIRECTORY_SEPARATOR)
+#define DEFAULT_CHUNK_SIZE 524288
 
 // documentation
 // http://www.nih.at/libzip/libzip.html
@@ -335,7 +336,15 @@ namespace libzippp {
          * If the archive is not open, then NOT_OPEN will be returned.
          */
         OpenMode getMode(void) const { return mode; }
-        
+
+        /**
+        * Writes the content of a ZipEntry as binary through a reference to an already opened std::ofstream,
+        * gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
+        * true should be returned if the extraction has succeeded.
+        * If the chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE.
+        */
+        bool writeOfstream(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state=CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
+
     private:
         std::string path;
         zip* zipHandle;
@@ -439,6 +448,14 @@ namespace libzippp {
          * This method is a wrapper around ZipArchive::readEntry(...).
          */
         void* readAsBinary(ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 size=0) const;
+        
+        /**
+        * Writes the content of this ZipEntry as binary through a reference to an already opened std::ofstream,
+        * gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
+        * true should be returned if the extraction has succeeded.
+        * If the chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE.
+        */
+        bool extractFile(std::ofstream& ofOutput, ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
         
     private:
         const ZipArchive* zipFile;
