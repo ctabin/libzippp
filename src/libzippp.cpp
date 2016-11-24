@@ -500,7 +500,7 @@ bool ZipArchive::writeOfstream(const ZipEntry& zipEntry, std::ofstream& ofOutput
          if (data.get() != NULL)
          {
             libzippp_int64 result = zip_fread(zipFile, data.get(), maxSize);
-            if (result == maxSize)
+            if (result == static_cast<libzippp_int64>(maxSize))
             {
                ofOutput.write(data.get(), maxSize);
                bRes = true;
@@ -509,7 +509,7 @@ bool ZipArchive::writeOfstream(const ZipEntry& zipEntry, std::ofstream& ofOutput
       }
       else
       {
-         size_t uWrittenBytes = 0;
+         libzippp_uint64 uWrittenBytes = 0;
          libzippp_int64 result;
          std::unique_ptr<char[]> data(new char[chunksize]);
          for (unsigned int uiChunk = 0; uiChunk < maxSize / chunksize; ++uiChunk)
@@ -517,21 +517,29 @@ bool ZipArchive::writeOfstream(const ZipEntry& zipEntry, std::ofstream& ofOutput
             if (data.get() != nullptr)
             {
                result = zip_fread(zipFile, data.get(), chunksize);
-               uWrittenBytes += result;
-               ofOutput.write(data.get(), chunksize);
+               if (result > 0)
+               {
+                  uWrittenBytes += result;
+                  ofOutput.write(data.get(), chunksize);
+               }
+               else
+                  break;
 
                if (!ofOutput)
                   break;
             }
          }
-         if (ofOutput && maxSize % chunksize > 0)
+         if (ofOutput && result > 0 && maxSize % chunksize > 0)
          {
             std::unique_ptr<char[]> data(new char[maxSize % chunksize]);
             if (data.get() != nullptr)
             {
                result = zip_fread(zipFile, data.get(), maxSize % chunksize);
-               uWrittenBytes += result;
-               ofOutput.write(data.get(), maxSize % chunksize);
+               if (result > 0)
+               {
+                  uWrittenBytes += result;
+                  ofOutput.write(data.get(), maxSize % chunksize);
+               }
             }
          }
          if (uWrittenBytes == maxSize)
