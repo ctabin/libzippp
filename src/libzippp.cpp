@@ -510,7 +510,7 @@ bool ZipArchive::writeOfstream(const ZipEntry& zipEntry, std::ofstream& ofOutput
       else
       {
          libzippp_uint64 uWrittenBytes = 0;
-         libzippp_int64 result;
+         libzippp_int64 result = 0;
          std::unique_ptr<char[]> data(new char[chunksize]);
          for (unsigned int uiChunk = 0; uiChunk < maxSize / chunksize; ++uiChunk)
          {
