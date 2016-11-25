@@ -602,7 +602,7 @@ void test20() {
     // Extract somedata with chunk of 2 bytes, which is not divisible by the file size (17 Bytes)
     std::ofstream ofUnzippedFile("somedata.txt");
     assert(static_cast<bool>(ofUnzippedFile));
-    assert(entry.extractFile(ofUnzippedFile, ZipArchive::CURRENT, 2));
+    assert(entry.readContent(ofUnzippedFile, ZipArchive::CURRENT, 2) == 0);
     ofUnzippedFile.close();
 
     std::ifstream ifUnzippedFile("somedata.txt");
@@ -617,7 +617,7 @@ void test20() {
     // Extract somedata with chunk of 0 bytes (will be defaulted to 512KB).
     std::ofstream ofUnzippedFile("somedata.txt");
     assert(static_cast<bool>(ofUnzippedFile));
-    assert(entry.extractFile(ofUnzippedFile, ZipArchive::CURRENT, 0));
+    assert(entry.readContent(ofUnzippedFile, ZipArchive::CURRENT, 0) == 0);
     ofUnzippedFile.close();
 
     std::ifstream ifUnzippedFile("somedata.txt");
@@ -633,7 +633,7 @@ void test20() {
     // is not accessed !
     std::ofstream ofUnzippedFile("somedata2.txt");
     assert(static_cast<bool>(ofUnzippedFile));
-    assert(entry2.extractFile(ofUnzippedFile, ZipArchive::CURRENT, 2));
+    assert(entry2.readContent(ofUnzippedFile, ZipArchive::CURRENT, 2) == 0);
     ofUnzippedFile.close();
 
     std::ifstream ifUnzippedFile("somedata2.txt");

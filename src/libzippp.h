@@ -260,6 +260,19 @@ namespace libzippp {
         void* readEntry(const std::string& zipEntry, bool asText=false, State state=CURRENT, libzippp_uint64 size=0) const;
         
         /**
+         * Read the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
+         * opened std::ofstream, gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
+         * The method returns 0 if the extraction has succeeded with no problems, -1 if the ofstream is not opened,
+         * -2 if the archive is not opened, -3 if the zipEntry doesn't belong to the archive, -4 if zip_fopen_index()
+         * has failed, -5 if a memory allocation has failed, -6 if zip_fread didn't succed to read data, -7 if the last
+         * ofstream operation has failed and -8 if fread() didn't return the exact amount of bytes and -9 if the amount
+         * of extracted bytes didn't match the size of the file (unknown error).
+         * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
+         * The method doesn't close the ofstream after the extraction.
+         */
+        int readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state=CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
+
+        /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
          * subentries will be removed. This method returns the number of entries removed.
          * If the open mode does not allow a deletion, this method will return  -1. If an
@@ -336,14 +349,6 @@ namespace libzippp {
          * If the archive is not open, then NOT_OPEN will be returned.
          */
         OpenMode getMode(void) const { return mode; }
-
-        /**
-        * Writes the content of a ZipEntry as binary through a reference to an already opened std::ofstream,
-        * gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
-        * true should be returned if the extraction has succeeded.
-        * If the chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE.
-        */
-        bool writeOfstream(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state=CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
 
     private:
         std::string path;
@@ -450,12 +455,17 @@ namespace libzippp {
         void* readAsBinary(ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 size=0) const;
         
         /**
-        * Writes the content of this ZipEntry as binary through a reference to an already opened std::ofstream,
-        * gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
-        * true should be returned if the extraction has succeeded.
-        * If the chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE.
-        */
-        bool extractFile(std::ofstream& ofOutput, ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
+         * Read the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
+         * opened std::ofstream, gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
+         * The method returns 0 if the extraction has succeeded with no problems, -1 if the ofstream is not opened,
+         * -2 if the archive is not opened, -3 if the zipEntry doesn't belong to the archive, -4 if zip_fopen_index()
+         * has failed, -5 if a memory allocation has failed, -6 if zip_fread didn't succed to read data, -7 if the last
+         * ofstream operation has failed, -8 if fread() didn't return the exact amount of requested bytes and -9 if the amount
+         * of extracted bytes didn't match the size of the file (unknown error).
+         * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
+         * The method doesn't close the ofstream after the extraction.
+         */
+        int readContent(std::ofstream& ofOutput, ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
         
     private:
         const ZipArchive* zipFile;
