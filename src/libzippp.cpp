@@ -496,31 +496,32 @@ bool ZipArchive::writeOfstream(const ZipEntry& zipEntry, std::ofstream& ofOutput
 
       if (maxSize < chunksize)
       {
-         std::unique_ptr<char[]> data(new char[maxSize]);
-         if (data.get() != NULL)
+         char* data = new char[maxSize];
+         if (data != NULL)
          {
-            libzippp_int64 result = zip_fread(zipFile, data.get(), maxSize);
+            libzippp_int64 result = zip_fread(zipFile, data, maxSize);
             if (result == static_cast<libzippp_int64>(maxSize))
             {
-               ofOutput.write(data.get(), maxSize);
+               ofOutput.write(data, maxSize);
                bRes = true;
             }
+            delete[] data;
          }
       }
       else
       {
          libzippp_uint64 uWrittenBytes = 0;
          libzippp_int64 result = 0;
-         std::unique_ptr<char[]> data(new char[chunksize]);
-         for (unsigned int uiChunk = 0; uiChunk < maxSize / chunksize; ++uiChunk)
+         char* data = new char[chunksize];
+         for (unsigned int uiChunk = 0; data && uiChunk < maxSize / chunksize; ++uiChunk)
          {
-            if (data.get() != nullptr)
+            if (data != NULL)
             {
-               result = zip_fread(zipFile, data.get(), chunksize);
+               result = zip_fread(zipFile, data, chunksize);
                if (result > 0)
                {
                   uWrittenBytes += result;
-                  ofOutput.write(data.get(), chunksize);
+                  ofOutput.write(data, chunksize);
                }
                else
                   break;
@@ -529,17 +530,20 @@ bool ZipArchive::writeOfstream(const ZipEntry& zipEntry, std::ofstream& ofOutput
                   break;
             }
          }
+         if (data != NULL)
+            delete[] data;
          if (ofOutput && result > 0 && maxSize % chunksize > 0)
          {
-            std::unique_ptr<char[]> data(new char[maxSize % chunksize]);
-            if (data.get() != nullptr)
+            char* data = new char[maxSize % chunksize];
+            if (data != NULL)
             {
-               result = zip_fread(zipFile, data.get(), maxSize % chunksize);
+               result = zip_fread(zipFile, data, maxSize % chunksize);
                if (result > 0)
                {
                   uWrittenBytes += result;
-                  ofOutput.write(data.get(), maxSize % chunksize);
+                  ofOutput.write(data, maxSize % chunksize);
                }
+               delete[] data;
             }
          }
          if (uWrittenBytes == maxSize)
