@@ -264,8 +264,8 @@ namespace libzippp {
          * opened std::ofstream, gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
          * The method returns 0 if the extraction has succeeded with no problems, -1 if the ofstream is not opened,
          * -2 if the archive is not opened, -3 if the zipEntry doesn't belong to the archive, -4 if zip_fopen_index()
-         * has failed, -5 if a memory allocation has failed, -6 if zip_fread didn't succed to read data, -7 if the last
-         * ofstream operation has failed and -8 if fread() didn't return the exact amount of bytes and -9 if the amount
+         * has failed, -5 if a memory allocation has failed, -6 if zip_fread() didn't succeed to read data, -7 if the last
+         * ofstream operation has failed, -8 if fread() didn't return the exact amount of requested bytes and -9 if the amount
          * of extracted bytes didn't match the size of the file (unknown error).
          * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
          * The method doesn't close the ofstream after the extraction.
@@ -459,7 +459,7 @@ namespace libzippp {
          * opened std::ofstream, gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
          * The method returns 0 if the extraction has succeeded with no problems, -1 if the ofstream is not opened,
          * -2 if the archive is not opened, -3 if the zipEntry doesn't belong to the archive, -4 if zip_fopen_index()
-         * has failed, -5 if a memory allocation has failed, -6 if zip_fread didn't succed to read data, -7 if the last
+         * has failed, -5 if a memory allocation has failed, -6 if zip_fread() didn't succeed to read data, -7 if the last
          * ofstream operation has failed, -8 if fread() didn't return the exact amount of requested bytes and -9 if the amount
          * of extracted bytes didn't match the size of the file (unknown error).
          * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
