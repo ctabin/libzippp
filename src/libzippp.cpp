@@ -492,13 +492,13 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, Sta
     struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
     if (zipFile) {
         libzippp_uint64 maxSize = zipEntry.getSize();
-        if (!chunksize) chunksize = DEFAULT_CHUNK_SIZE; // 512K is the default size of chunk if this last was not indicated by the user
+        if (!chunksize) { chunksize = DEFAULT_CHUNK_SIZE; } // use the default chunk size (512K) if not specified by the user
     
-        if (maxSize < chunksize) {
+        if (maxSize<chunksize) {
             char* data = new char[maxSize];
-            if (data != NULL) {
+            if (data!=NULL) {
                 libzippp_int64 result = zip_fread(zipFile, data, maxSize);
-                if (result > 0) {
+                if (result>0) {
                     if (result != static_cast<libzippp_int64>(maxSize)) {
                         iRes = -8;
                     } else {
@@ -516,50 +516,54 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, Sta
             libzippp_uint64 uWrittenBytes = 0;
             libzippp_int64 result = 0;
             char* data = new char[chunksize];
-            for (size_t uiChunk=0 ; data && uiChunk < maxSize/chunksize ; ++uiChunk) {
-                result = zip_fread(zipFile, data, chunksize);
-                if (result > 0) {
-                    if (result != static_cast<libzippp_int64>(chunksize)) {
-                        iRes = -8;
-                        break;
-                    } else {
-                        ofOutput.write(data, chunksize);
-                        if (!ofOutput) {
-                            iRes = -7;
-                            break;
-                        }
-                        uWrittenBytes += result;
-                    }
-                } else {
-                    iRes = -6;
-                    break;
-               }
-            }
+            if (data!=NULL) {
+				int nbChunks = maxSize/chunksize;
+				for (int uiChunk=0 ; uiChunk<nbChunks ; ++uiChunk) {
+					result = zip_fread(zipFile, data, chunksize);
+					if (result>0) {
+						if (result!=static_cast<libzippp_int64>(chunksize)) {
+							iRes = -8;
+							break;
+						} else {
+							ofOutput.write(data, chunksize);
+							if (!ofOutput) {
+								iRes = -7;
+								break;
+							}
+							uWrittenBytes += result;
+						}
+					} else {
+						iRes = -6;
+						break;
+				   }
+				}
+				delete[] data;
+			} else {
+				iRes = -5;
+			}
             
-            if (data != NULL) { delete[] data; } 
-            else { iRes = -5; }
-            
-            if (iRes == 0 && maxSize % chunksize > 0) {
-                char* data = new char[maxSize % chunksize];
-                if (data != NULL) {
-                    result = zip_fread(zipFile, data, maxSize % chunksize);
-                    if (result > 0) {
-                        if (result != static_cast<libzippp_int64>(maxSize % chunksize)) {
+            int leftOver = maxSize%chunksize;
+            if (iRes==0 && leftOver>0) {
+                char* data = new char[leftOver];
+                if (data!=NULL) {
+                    result = zip_fread(zipFile, data, leftOver);
+                    if (result>0) {
+                        if (result!=static_cast<libzippp_int64>(leftOver)) {
                             iRes = -8;
                         } else {
-                            ofOutput.write(data, maxSize % chunksize);
+                            ofOutput.write(data, leftOver);
                         }
                        
                         if (!ofOutput) {
                             iRes = -7;
                         } else {
                             uWrittenBytes += result;
-                            if (uWrittenBytes != maxSize) {
+                            if (uWrittenBytes!=maxSize) {
                                 iRes = -9; // shouldn't occur but let's be careful
                             }
                         }
                     } else {
-						iRes = -11;
+						iRes = -6;
 					}
                 } else {
                     iRes = -5;
