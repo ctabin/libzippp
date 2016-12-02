@@ -470,7 +470,7 @@ bool ZipArchive::addEntry(const string& entryName) const {
     if (!IS_DIRECTORY(entryName)) { return false; }
     
     int nextSlash = entryName.find(DIRECTORY_SEPARATOR);
-    while(nextSlash!=-1) {
+    while (nextSlash!=-1) {
         string pathToCreate = entryName.substr(0, nextSlash+1);
         if (!hasEntry(pathToCreate)) {
             libzippp_int64 result = zip_dir_add(zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
@@ -483,114 +483,93 @@ bool ZipArchive::addEntry(const string& entryName) const {
 }
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state, libzippp_uint64 chunksize) const {
-   int iRes = 0;
-   if (!ofOutput.is_open()) { return -1; }
-   if (!isOpen()) { return -2; }
-   if (zipEntry.zipFile != this) { return -3; }
-
-   int flag = state == ORIGINAL ? ZIP_FL_UNCHANGED : 0;
-   struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
-   if (zipFile) {
-      libzippp_uint64 maxSize = zipEntry.getSize();
-      if (!chunksize) chunksize = DEFAULT_CHUNK_SIZE; // 512K is the default size of chunk if this last was not indicated by the user
-
-      if (maxSize < chunksize)
-      {
-         char* data = new char[maxSize];
-         if (data != NULL)
-         {
-            libzippp_int64 result = zip_fread(zipFile, data, maxSize);
-            if (result > 0)
-            {
-               if (result != static_cast<libzippp_int64>(maxSize))
-                  iRes = -8;
-               else
-               {
-                  ofOutput.write(data, maxSize);
-                  if (!ofOutput)
-                     iRes = -7;
-               }
+    int iRes = 0;
+    if (!ofOutput.is_open()) { return -1; }
+    if (!isOpen()) { return -2; }
+    if (zipEntry.zipFile != this) { return -3; }
+    
+    int flag = state == ORIGINAL ? ZIP_FL_UNCHANGED : 0;
+    struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
+    if (zipFile) {
+        libzippp_uint64 maxSize = zipEntry.getSize();
+        if (!chunksize) chunksize = DEFAULT_CHUNK_SIZE; // 512K is the default size of chunk if this last was not indicated by the user
+    
+        if (maxSize < chunksize) {
+            char* data = new char[maxSize];
+            if (data != NULL) {
+                libzippp_int64 result = zip_fread(zipFile, data, maxSize);
+                if (result > 0) {
+                    if (result != static_cast<libzippp_int64>(maxSize)) {
+                        iRes = -8;
+                    } else {
+                        ofOutput.write(data, maxSize);
+                        if (!ofOutput) { iRes = -7; }
+                    }
+                } else {
+                    iRes = -6;
+                }
+                delete[] data;
+            } else {
+                iRes = -5;
             }
-            else
-               iRes = -6;
-            delete[] data;
-         }
-         else
-            iRes = -5;
-      }
-      else
-      {
-         libzippp_uint64 uWrittenBytes = 0;
-         libzippp_int64 result = 0;
-         char* data = new char[chunksize];
-         for (size_t uiChunk = 0; data && uiChunk < maxSize / chunksize; ++uiChunk)
-         {
-            result = zip_fread(zipFile, data, chunksize);
-            if (result > 0)
-            {
-               if (result != static_cast<libzippp_int64>(chunksize))
-               {
-                  iRes = -8;
-                  break;
-               }
-               else
-               {
-                  ofOutput.write(data, chunksize);
-                  if (!ofOutput)
-                  {
-                     iRes = -7;
-                     break;
-                  }
-                  uWrittenBytes += result;
-               }
-            }
-            else
-            {
-               iRes = -6;
-               break;
-            }
-         }
-         if (data != NULL)
-            delete[] data;
-         else
-            iRes = -5;
-
-         if (iRes == 0 && maxSize % chunksize > 0)
-         {
-            char* data = new char[maxSize % chunksize];
-            if (data != NULL)
-            {
-               result = zip_fread(zipFile, data, maxSize % chunksize);
-               if (result > 0)
-               {
-                  if (result != static_cast<libzippp_int64>(maxSize % chunksize))
-                     iRes = -8;
-                  else
-                  {
-                     ofOutput.write(data, maxSize % chunksize);
-                     if (!ofOutput)
-                        iRes = -7;
-                     else
-                     {
+        } else {
+            libzippp_uint64 uWrittenBytes = 0;
+            libzippp_int64 result = 0;
+            char* data = new char[chunksize];
+            for (size_t uiChunk=0 ; data && uiChunk < maxSize/chunksize ; ++uiChunk) {
+                result = zip_fread(zipFile, data, chunksize);
+                if (result > 0) {
+                    if (result != static_cast<libzippp_int64>(chunksize)) {
+                        iRes = -8;
+                        break;
+                    } else {
+                        ofOutput.write(data, chunksize);
+                        if (!ofOutput) {
+                            iRes = -7;
+                            break;
+                        }
                         uWrittenBytes += result;
-                        if (uWrittenBytes != maxSize)
-                           iRes = -9; // shouldn't occur but let's be careful
-                     }
-                  }
+                    }
+                } else {
+                    iRes = -6;
+                    break;
                }
-               else
-                  iRes = -6;
-               delete[] data;
             }
-            else
-               iRes = -5;
-         }
-      }
-      
-      zip_fclose(zipFile);
-   }
-   else
-      return -4;
-   
-   return iRes;
+            
+            if (data != NULL) { delete[] data; } 
+            else { iRes = -5; }
+            
+            if (iRes == 0 && maxSize % chunksize > 0) {
+                char* data = new char[maxSize % chunksize];
+                if (data != NULL) {
+                    result = zip_fread(zipFile, data, maxSize % chunksize);
+                    if (result > 0) {
+                        if (result != static_cast<libzippp_int64>(maxSize % chunksize)) {
+                            iRes = -8;
+                        } else {
+                            ofOutput.write(data, maxSize % chunksize);
+                        }
+                       
+                        if (!ofOutput) {
+                            iRes = -7;
+                        } else {
+                            uWrittenBytes += result;
+                            if (uWrittenBytes != maxSize) {
+                                iRes = -9; // shouldn't occur but let's be careful
+                            }
+                        }
+                    } else {
+						iRes = -11;
+					}
+                } else {
+                    iRes = -5;
+                }
+                delete[] data;
+            }
+        }
+        zip_fclose(zipFile);
+    } else {
+       iRes = -4;
+    }
+    return iRes;
 }
