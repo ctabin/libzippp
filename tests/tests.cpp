@@ -36,7 +36,10 @@
 #include <assert.h>
 #include <string.h>
 #include <iostream>
+#include <iterator>
+#include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <string>
 
 #include "libzippp.h"
@@ -570,11 +573,88 @@ void test19() {
     cout << " done." << endl;
 }
 
+void test20() {
+    cout << "Running test 20...";
+
+    const char* txtFile = "this is some data";   // 17 Bytes
+    const char* txtFile2 = "this is some data!"; // 18 Bytes
+    int len = strlen(txtFile);
+    int len2 = strlen(txtFile2);
+    
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
+    z1.addData("somedata", txtFile, len);
+    z1.addData("somedata2", txtFile2, len2);
+    z1.close();
+    
+    ZipArchive z2("test.zip");
+    z2.open(ZipArchive::READ_ONLY);
+    assert(z2.getNbEntries()==2);
+    assert(z2.hasEntry("somedata"));
+    assert(z2.hasEntry("somedata2"));
+    
+    ZipEntry entry = z2.getEntry("somedata");
+    ZipEntry entry2 = z2.getEntry("somedata2");
+    assert(!entry.isNull());
+    assert(!entry2.isNull());
+    
+    {
+    // Extract somedata with chunk of 2 bytes, which is not divisible by the file size (17 Bytes)
+    std::ofstream ofUnzippedFile("somedata.txt");
+    assert(static_cast<bool>(ofUnzippedFile));
+    assert(entry.readContent(ofUnzippedFile, ZipArchive::CURRENT, 2) == 0);
+    ofUnzippedFile.close();
+
+    std::ifstream ifUnzippedFile("somedata.txt");
+    assert(static_cast<bool>(ifUnzippedFile));
+    std::string strSomedataText((std::istreambuf_iterator<char>(ifUnzippedFile)), std::istreambuf_iterator<char>());
+    assert(strSomedataText.compare(txtFile) == 0);
+    ifUnzippedFile.close();
+    assert(remove("somedata.txt") == 0);
+    }
+
+    {
+    // Extract somedata with chunk of 0 bytes (will be defaulted to 512KB).
+    std::ofstream ofUnzippedFile("somedata.txt");
+    assert(static_cast<bool>(ofUnzippedFile));
+    assert(entry.readContent(ofUnzippedFile, ZipArchive::CURRENT, 0) == 0);
+    ofUnzippedFile.close();
+
+    std::ifstream ifUnzippedFile("somedata.txt");
+    assert(static_cast<bool>(ifUnzippedFile));
+    std::string strSomedataText((std::istreambuf_iterator<char>(ifUnzippedFile)), std::istreambuf_iterator<char>());
+    assert(strSomedataText.compare(txtFile) == 0);
+    ifUnzippedFile.close();
+    assert(remove("somedata.txt") == 0);
+    }
+
+    {
+    // Extract somedata2 with a chunk which is divisible by the size of the file (18 Bytes) to check that the modulo branch
+    // is not accessed !
+    std::ofstream ofUnzippedFile("somedata2.txt");
+    assert(static_cast<bool>(ofUnzippedFile));
+    assert(entry2.readContent(ofUnzippedFile, ZipArchive::CURRENT, 2) == 0);
+    ofUnzippedFile.close();
+
+    std::ifstream ifUnzippedFile("somedata2.txt");
+    assert(static_cast<bool>(ifUnzippedFile));
+    std::string strSomedataText((std::istreambuf_iterator<char>(ifUnzippedFile)), std::istreambuf_iterator<char>());
+    assert(strSomedataText.compare(txtFile2) == 0);
+    ifUnzippedFile.close();
+    assert(remove("somedata2.txt") == 0);
+    }
+
+    z2.close();
+    z2.unlink();
+    
+    cout << " done." << endl;
+}
+
 int main(int argc, char** argv) {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();
-    test16(); test17(); test18(); test19();
+    test16(); test17(); test18(); test19(); test20();
 }
 
 

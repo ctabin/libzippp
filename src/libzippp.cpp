@@ -35,6 +35,7 @@
 #include <zip.h>
 #include <errno.h>
 #include <fstream>
+#include <memory>
 
 #include "libzippp.h"
 
@@ -61,6 +62,10 @@ string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const
 
 void* ZipEntry::readAsBinary(ZipArchive::State state, libzippp_uint64 size) const {
     return zipFile->readEntry(*this, false, state, size); 
+}
+
+int ZipEntry::readContent(std::ofstream& ofOutput, ZipArchive::State state, libzippp_uint64 chunksize) const {
+   return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
 ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), mode(NOT_OPEN), password(password) {
@@ -475,4 +480,117 @@ bool ZipArchive::addEntry(const string& entryName) const {
     }
     
     return true;
+}
+
+int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state, libzippp_uint64 chunksize) const {
+   int iRes = 0;
+   if (!ofOutput.is_open()) { return -1; }
+   if (!isOpen()) { return -2; }
+   if (zipEntry.zipFile != this) { return -3; }
+
+   int flag = state == ORIGINAL ? ZIP_FL_UNCHANGED : 0;
+   struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
+   if (zipFile) {
+      libzippp_uint64 maxSize = zipEntry.getSize();
+      if (!chunksize) chunksize = DEFAULT_CHUNK_SIZE; // 512K is the default size of chunk if this last was not indicated by the user
+
+      if (maxSize < chunksize)
+      {
+         char* data = new char[maxSize];
+         if (data != NULL)
+         {
+            libzippp_int64 result = zip_fread(zipFile, data, maxSize);
+            if (result > 0)
+            {
+               if (result != static_cast<libzippp_int64>(maxSize))
+                  iRes = -8;
+               else
+               {
+                  ofOutput.write(data, maxSize);
+                  if (!ofOutput)
+                     iRes = -7;
+               }
+            }
+            else
+               iRes = -6;
+            delete[] data;
+         }
+         else
+            iRes = -5;
+      }
+      else
+      {
+         libzippp_uint64 uWrittenBytes = 0;
+         libzippp_int64 result = 0;
+         char* data = new char[chunksize];
+         for (size_t uiChunk = 0; data && uiChunk < maxSize / chunksize; ++uiChunk)
+         {
+            result = zip_fread(zipFile, data, chunksize);
+            if (result > 0)
+            {
+               if (result != static_cast<libzippp_int64>(chunksize))
+               {
+                  iRes = -8;
+                  break;
+               }
+               else
+               {
+                  ofOutput.write(data, chunksize);
+                  if (!ofOutput)
+                  {
+                     iRes = -7;
+                     break;
+                  }
+                  uWrittenBytes += result;
+               }
+            }
+            else
+            {
+               iRes = -6;
+               break;
+            }
+         }
+         if (data != NULL)
+            delete[] data;
+         else
+            iRes = -5;
+
+         if (iRes == 0 && maxSize % chunksize > 0)
+         {
+            char* data = new char[maxSize % chunksize];
+            if (data != NULL)
+            {
+               result = zip_fread(zipFile, data, maxSize % chunksize);
+               if (result > 0)
+               {
+                  if (result != static_cast<libzippp_int64>(maxSize % chunksize))
+                     iRes = -8;
+                  else
+                  {
+                     ofOutput.write(data, maxSize % chunksize);
+                     if (!ofOutput)
+                        iRes = -7;
+                     else
+                     {
+                        uWrittenBytes += result;
+                        if (uWrittenBytes != maxSize)
+                           iRes = -9; // shouldn't occur but let's be careful
+                     }
+                  }
+               }
+               else
+                  iRes = -6;
+               delete[] data;
+            }
+            else
+               iRes = -5;
+         }
+      }
+      
+      zip_fclose(zipFile);
+   }
+   else
+      return -4;
+   
+   return iRes;
 }
