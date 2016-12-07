@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-W -Wall -Wextra -ansi -pedantic
+CFLAGS=-W -Wall -Wextra -ansi -pedantic -std=c++0x
 OBJ=obj
 LIB=lib
 ZLIB_VERSION=1.2.8
