@@ -126,9 +126,10 @@ namespace libzippp {
         std::string getPath(void) const { return path; }
         
         /**
-         * Open the ZipArchive in read mode. This method will return true if the operation
+         * Open the ZipArchive with the given mode. This method will return true if the operation
          * is successful, false otherwise. If the OpenMode is NOT_OPEN an invalid_argument
-         * will be thrown.
+         * will be thrown. If the archive is already open, this method returns true only if the
+         * mode is the same.
          */
         bool open(OpenMode mode=READ_ONLY, bool checkConsistency=false);
         

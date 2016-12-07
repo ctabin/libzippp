@@ -76,6 +76,8 @@ ZipArchive::~ZipArchive(void) {
 }
 
 bool ZipArchive::open(OpenMode om, bool checkConsistency) {
+    if (isOpen()) { return om==mode; }
+  
     int zipFlag = 0;
     if (om==READ_ONLY) { zipFlag = 0; }
     else if (om==WRITE) { zipFlag = ZIP_CREATE; }
@@ -117,7 +119,7 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
 }
 
 void ZipArchive::close(void) {
-    if (zipHandle) {
+    if (isOpen()) {
         zip_close(zipHandle);
         zipHandle = NULL;
         mode = NOT_OPEN;
@@ -125,7 +127,7 @@ void ZipArchive::close(void) {
 }
 
 void ZipArchive::discard(void) {
-    if (zipHandle) {
+    if (isOpen()) {
         zip_discard(zipHandle);
         zipHandle = NULL;
         mode = NOT_OPEN;
