@@ -117,7 +117,7 @@ namespace libzippp {
          * 
          * http://nih.at/listarchive/libzip-discuss/msg00219.html
          */
-        ZipArchive(const std::string& zipPath, const std::string& password="");
+        explicit ZipArchive(const std::string& zipPath, const std::string& password="");
         virtual ~ZipArchive(void); //commit all the changes if open
         
         /**
@@ -157,18 +157,18 @@ namespace libzippp {
         /**
          * Returns true if the ZipArchive is currently open.
          */
-        bool isOpen(void) const { return zipHandle!=NULL; }
+        inline bool isOpen(void) const { return zipHandle!=NULL; }
         
         /**
          * Returns true if the ZipArchive is open and mutable.
          */
-        bool isMutable(void) const { return isOpen() && mode!=NOT_OPEN && mode!=READ_ONLY; }
+        inline bool isMutable(void) const { return isOpen() && mode!=NOT_OPEN && mode!=READ_ONLY; }
         
         /**
          * Returns true if the ZipArchive is encrypted. This method returns true only if
          * a password has been set in the constructor.
          */
-        bool isEncrypted(void) const { return !password.empty(); }
+        inline bool isEncrypted(void) const { return !password.empty(); }
         
         /**
          * Defines the comment of the archive. In order to set the comment, the archive
@@ -182,7 +182,7 @@ namespace libzippp {
          * Removes the comment of the archive, if any. The archive must have been open
          * in WRITE or NEW mode.
          */
-        bool removeComment(void) const { return setComment(std::string()); }
+        inline bool removeComment(void) const { return setComment(std::string()); }
         
         /**
          * Returns the number of entries in this zip file (folders are included).
@@ -197,7 +197,7 @@ namespace libzippp {
          * the getEntries method.
          */
         libzippp_int64 getNbEntries(State state=CURRENT) const;
-        libzippp_int64 getEntriesCount(State state=CURRENT) const { return getNbEntries(state); }
+        inline libzippp_int64 getEntriesCount(State state=CURRENT) const { return getNbEntries(state); }
         //libzippp_int64 size(State state=CURRENT) const { return getNbEntries(state); } //not clear enough => could be the size of the file instead...
 
         /**
@@ -349,7 +349,7 @@ namespace libzippp {
          * Returns the mode in which the file has been open.
          * If the archive is not open, then NOT_OPEN will be returned.
          */
-        OpenMode getMode(void) const { return mode; }
+        inline OpenMode getMode(void) const { return mode; }
 
     private:
         std::string path;
@@ -376,58 +376,58 @@ namespace libzippp {
          * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
          * usable to read and modify an archive.
          */
-        ZipEntry(void) : zipFile(NULL), index(0), time(0), method(-1), size(0), sizeComp(0), crc(0)  {}
+        explicit ZipEntry(void) : zipFile(NULL), index(0), time(0), method(-1), size(0), sizeComp(0), crc(0)  {}
         virtual ~ZipEntry(void) {}
         
         /**
          * Returns the name of the entry.
          */
-        std::string getName(void) const { return name; }
+        inline std::string getName(void) const { return name; }
         
         /**
          * Returns the index of the file in the zip.
          */
-        libzippp_uint64 getIndex(void) const { return index; }
+        inline libzippp_uint64 getIndex(void) const { return index; }
         
         /**
          * Returns the timestamp of the entry.
          */
-        time_t getDate(void) const { return time; }
+        inline time_t getDate(void) const { return time; }
         
         /**
          * Returns the compression method.
          */
-        int getMethod(void) const { return method; }
+        inline int getMethod(void) const { return method; }
         
         /**
          * Returns the size of the file (not deflated).
          */
-        libzippp_uint64 getSize(void) const { return size; }
+        inline libzippp_uint64 getSize(void) const { return size; }
         
         /**
          * Returns the size of the inflated file.
          */
-        libzippp_uint64 getInflatedSize(void) const { return sizeComp; }
+        inline libzippp_uint64 getInflatedSize(void) const { return sizeComp; }
         
         /**
          * Returns the CRC of the file.
          */
-        int getCRC(void) const { return crc; }
+        inline int getCRC(void) const { return crc; }
         
         /**
          * Returns true if the entry is a directory.
          */
-        bool isDirectory(void) const { return IS_DIRECTORY(name); }
+        inline bool isDirectory(void) const { return IS_DIRECTORY(name); }
         
         /**
          * Returns true if the entry is a file.
          */
-        bool isFile(void) const { return !isDirectory(); }
+        inline bool isFile(void) const { return !isDirectory(); }
         
         /**
          * Returns true if this entry is null (means no more entry is available).
          */
-        bool isNull(void) const { return zipFile==NULL; }
+        inline bool isNull(void) const { return zipFile==NULL; }
         
         /**
          * Defines the comment of the entry. In order to call either one of those
