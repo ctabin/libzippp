@@ -22,8 +22,8 @@ Underlying libraries:
 2. Then create the static and shared libraries of libzippp: ```make```
 3. You may want to run the tests (optional): ```make tests```
 4. Now you just have to include the src folder in your include path and
-  link against libzippp.a or libzippp.so (do not forget to also link 
-  against libzip libraries in lib/libzip-1.1.3/lib/.libs/).
+  link against *libzippp.a* or *libzippp.so* (do not forget to also link 
+  against libzip libraries in *lib/libzip-1.1.3/lib/.libs/*).
   An example of compilation with g++:
   
 ```Shell
@@ -35,10 +35,12 @@ g++ -I./lib/libzip-1.1.3/lib -I./src \
 
 ### WINDOWS
 
-0. Make sure you have cmake (cmake.exe must be in the PATH) and MS Visual 
-  Studio 2012. The dev command prompt path should be (defined in compile.bat):
-     <MSVS11>\Common7\Tools\VsDevCmd.bat
-
+0. Make sure you have cmake (*cmake.exe* must be in the PATH) and MS Visual 
+  Studio 2012. The dev command prompt path (defined in *compile.bat*) should be:
+  ```
+  <MSVS11>\Common7\Tools\VsDevCmd.bat
+  ```
+  
 1. Download [libzip](http://www.nih.at/libzip/libzip-1.1.3.tar.gz) and [zlib](http://zlib.net/zlib128.zip) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
   ```
@@ -47,18 +49,18 @@ g++ -I./lib/libzip-1.1.3/lib -I./src \
   libzippp/lib/libzip-1.1.3
   ```
 
-2. Extract the file lib/libzip-1.1.3-windows-VS2012-patch.zip. This file contains 
+2. Extract the file *lib/libzip-1.1.3-windows-VS2012-patch.zip*. This file contains 
   changes to be done in libzip in order to compile successfully with Visual 
   Studio 2012. Simply accept the erasing of the files.
 
-3. Execute the compile.bat (simply double-click on it). The compilation should 
+3. Execute the *compile.bat* (simply double-click on it). The compilation should 
   go without error.
 
-4. You'll have a 'dist' folder containing the 'release' and 'debug' folders 
+4. You'll have a *dist* folder containing the *release* and *debug* folders 
   where you can now execute the libzippp tests.
 
-5. You can either use libzippp.dll and libzippp.lib to link dynamically the 
-  library or simply use libzippp_static.lib to link it statically. Unless you 
+5. You can either use *libzippp.dll* and *libzippp.lib* to link dynamically the 
+  library or simply use *libzippp_static.lib* to link it statically. Unless you 
   also link zlib and libzippp statically, you'll need the dll packaged with 
   your executable.
 
@@ -158,7 +160,7 @@ you compile libzipp:
 make LIBZIP=path/to/libzip
 ```
 
-Under Debian, you'll have to install the package zlib1g-dev in order to compile
+Under Debian, you'll have to install the package *zlib1g-dev* in order to compile
 if you don't want to install zlib manually.
 
 ### WINDOWS
