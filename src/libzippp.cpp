@@ -162,7 +162,7 @@ bool ZipArchive::setComment(const string& comment) const {
 }
 
 libzippp_int64 ZipArchive::getNbEntries(State state) const {
-    if (!isOpen()) { return -1; }
+    if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
     
     int flag = state==ORIGINAL ? ZIP_FL_UNCHANGED : 0;
     return zip_get_num_entries(zipHandle, flag);
@@ -308,14 +308,14 @@ void* ZipArchive::readEntry(const string& zipEntry, bool asText, State state, li
 }
 
 int ZipArchive::deleteEntry(const ZipEntry& entry) const {
-    if (!isOpen()) { return -3; }
-    if (entry.zipFile!=this) { return -3; }
-    if (mode==READ_ONLY) { return -1; } //deletion not allowed
+    if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
+    if (entry.zipFile!=this) { return LIBZIPPP_ERROR_INVALID_ENTRY; }
+    if (mode==READ_ONLY) { return LIBZIPPP_ERROR_NOT_ALLOWED; } //deletion not allowed
     
     if (entry.isFile()) {
         int result = zip_delete(zipHandle, entry.getIndex());
         if (result==0) { return 1; }
-        return -2; //unable to delete the entry
+        return LIBZIPPP_ERROR_UNKNOWN; //unable to delete the entry
     } else {
         int counter = 0;
         vector<ZipEntry> allEntries = getEntries();
@@ -326,7 +326,7 @@ int ZipArchive::deleteEntry(const ZipEntry& entry) const {
             if (startPosition==0) {
                 int result = zip_delete(zipHandle, ze.getIndex());
                 if (result==0) { ++counter; }
-                else { return -2; } //unable to remove the current entry
+                else { return LIBZIPPP_ERROR_UNKNOWN; } //unable to remove the current entry
             }
         }
         return counter;
@@ -335,37 +335,37 @@ int ZipArchive::deleteEntry(const ZipEntry& entry) const {
 
 int ZipArchive::deleteEntry(const string& e) const {
     ZipEntry entry = getEntry(e);
-    if (entry.isNull()) { return -4; }
+    if (entry.isNull()) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
     return deleteEntry(entry);
 }
 
 int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const {
-    if (!isOpen()) { return -3; }
-    if (entry.zipFile!=this) { return -3; }
-    if (mode==READ_ONLY) { return -1; } //renaming not allowed
-    if (newName.length()==0) { return 0; }
-    if (newName==entry.getName()) { return 0; }
+    if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
+    if (entry.zipFile!=this) { return LIBZIPPP_ERROR_INVALID_ENTRY; }
+    if (mode==READ_ONLY) { return LIBZIPPP_ERROR_NOT_ALLOWED; } //renaming not allowed
+    if (newName.length()==0) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
+    if (newName==entry.getName()) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
     
     if (entry.isFile()) {
-        if (IS_DIRECTORY(newName)) { return 0; } //invalid new name
+        if (IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
         int lastSlash = newName.rfind(DIRECTORY_SEPARATOR);
         if (lastSlash!=1) { 
             bool dadded = addEntry(newName.substr(0, lastSlash+1)); 
-            if (!dadded) { return 0; } //the hierarchy hasn't been created
+            if (!dadded) { return LIBZIPPP_ERROR_UNKNOWN; } //the hierarchy hasn't been created
         }
         
         int result = zip_file_rename(zipHandle, entry.getIndex(), newName.c_str(), ZIP_FL_ENC_GUESS);
         if (result==0) { return 1; }
-        return 0; //renaming was not possible (entry already exists ?)
+        return LIBZIPPP_ERROR_UNKNOWN; //renaming was not possible (entry already exists ?)
     } else {
-        if (!IS_DIRECTORY(newName)) { return 0; } //invalid new name
+        if (!IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
         int parentSlash = newName.rfind(DIRECTORY_SEPARATOR, newName.length()-2);
         if (parentSlash!=-1) { //updates the dir hierarchy
             string parent = newName.substr(0, parentSlash+1);
             bool dadded = addEntry(parent);
-            if (!dadded) { return 0; }
+            if (!dadded) { return LIBZIPPP_ERROR_UNKNOWN; }
         }
         
         int counter = 0;
@@ -381,12 +381,12 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
                 if (currentName == originalName) {
                     int result = zip_file_rename(zipHandle, entry.getIndex(), newName.c_str(), ZIP_FL_ENC_GUESS);
                     if (result==0) { ++counter; }
-                    else { return -2;  } //unable to rename the folder
+                    else { return LIBZIPPP_ERROR_UNKNOWN;  } //unable to rename the folder
                 } else  {
                     string targetName = currentName.replace(0, originalName.length(), newName);
                     int result = zip_file_rename(zipHandle, ze.getIndex(), targetName.c_str(), ZIP_FL_ENC_GUESS);
                     if (result==0) { ++counter; }
-                    else { return -2; } //unable to rename a sub-entry
+                    else { return LIBZIPPP_ERROR_UNKNOWN; } //unable to rename a sub-entry
                 }
             } else {
                 //file not affected by the renaming
@@ -400,7 +400,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
         bool newNameIsInsideCurrent = (newName.find(entry.getName())==0);
         if (newNameIsInsideCurrent) {
             bool dadded = addEntry(newName);
-            if (!dadded) { return 0; }
+            if (!dadded) { return LIBZIPPP_ERROR_UNKNOWN; }
         }
         
         return counter;
@@ -409,7 +409,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
 
 int ZipArchive::renameEntry(const string& e, const string& newName) const {
     ZipEntry entry = getEntry(e);
-    if (entry.isNull()) { return -4; }
+    if (entry.isNull()) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
     return renameEntry(entry, newName);
 }
 
@@ -485,12 +485,12 @@ bool ZipArchive::addEntry(const string& entryName) const {
 }
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state, libzippp_uint64 chunksize) const {
-    int iRes = 0;
-    if (!ofOutput.is_open()) { return -1; }
-    if (!isOpen()) { return -2; }
-    if (zipEntry.zipFile != this) { return -3; }
+    if (!ofOutput.is_open()) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
+    if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
+    if (zipEntry.zipFile!=this) { return LIBZIPPP_ERROR_INVALID_ENTRY; }
     
-    int flag = state == ORIGINAL ? ZIP_FL_UNCHANGED : 0;
+    int iRes = LIBZIPPP_OK;
+    int flag = state==ORIGINAL ? ZIP_FL_UNCHANGED : 0;
     struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
     if (zipFile) {
         libzippp_uint64 maxSize = zipEntry.getSize();
@@ -502,47 +502,47 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, Sta
                 libzippp_int64 result = zip_fread(zipFile, data, maxSize);
                 if (result>0) {
                     if (result != static_cast<libzippp_int64>(maxSize)) {
-                        iRes = -8;
+                        iRes = LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE;
                     } else {
                         ofOutput.write(data, maxSize);
-                        if (!ofOutput) { iRes = -7; }
+                        if (!ofOutput) { iRes = LIBZIPPP_ERROR_OWRITE_FAILURE; }
                     }
                 } else {
-                    iRes = -6;
+                    iRes = LIBZIPPP_ERROR_FREAD_FAILURE;
                 }
                 delete[] data;
             } else {
-                iRes = -5;
+                iRes = LIBZIPPP_ERROR_MEMORY_ALLOCATION;
             }
         } else {
             libzippp_uint64 uWrittenBytes = 0;
             libzippp_int64 result = 0;
             char* data = new char[chunksize];
             if (data!=NULL) {
-				int nbChunks = maxSize/chunksize;
-				for (int uiChunk=0 ; uiChunk<nbChunks ; ++uiChunk) {
-					result = zip_fread(zipFile, data, chunksize);
-					if (result>0) {
-						if (result!=static_cast<libzippp_int64>(chunksize)) {
-							iRes = -8;
-							break;
-						} else {
-							ofOutput.write(data, chunksize);
-							if (!ofOutput) {
-								iRes = -7;
-								break;
-							}
-							uWrittenBytes += result;
-						}
-					} else {
-						iRes = -6;
-						break;
-				   }
-				}
-				delete[] data;
-			} else {
-				iRes = -5;
-			}
+                int nbChunks = maxSize/chunksize;
+                for (int uiChunk=0 ; uiChunk<nbChunks ; ++uiChunk) {
+                    result = zip_fread(zipFile, data, chunksize);
+                    if (result>0) {
+                        if (result!=static_cast<libzippp_int64>(chunksize)) {
+                            iRes = LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE;
+                            break;
+                        } else {
+                            ofOutput.write(data, chunksize);
+                            if (!ofOutput) {
+                                iRes = LIBZIPPP_ERROR_OWRITE_FAILURE;
+                                break;
+                            }
+                            uWrittenBytes += result;
+                        }
+                    } else {
+                        iRes = LIBZIPPP_ERROR_FREAD_FAILURE;
+                        break;
+                    }
+                }
+                delete[] data;
+            } else {
+                iRes = LIBZIPPP_ERROR_MEMORY_ALLOCATION;
+            }
             
             int leftOver = maxSize%chunksize;
             if (iRes==0 && leftOver>0) {
@@ -551,31 +551,30 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, Sta
                     result = zip_fread(zipFile, data, leftOver);
                     if (result>0) {
                         if (result!=static_cast<libzippp_int64>(leftOver)) {
-                            iRes = -8;
+                            iRes = LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE;
                         } else {
                             ofOutput.write(data, leftOver);
-                        }
-                       
-                        if (!ofOutput) {
-                            iRes = -7;
-                        } else {
-                            uWrittenBytes += result;
-                            if (uWrittenBytes!=maxSize) {
-                                iRes = -9; // shouldn't occur but let's be careful
+                            if (!ofOutput) {
+                                iRes = LIBZIPPP_ERROR_OWRITE_FAILURE;
+                            } else {
+                                uWrittenBytes += result;
+                                if (uWrittenBytes!=maxSize) {
+                                    iRes = LIBZIPPP_ERROR_UNKNOWN; // shouldn't occur but let's be careful
+                                }
                             }
                         }
                     } else {
-						iRes = -6;
-					}
+                        iRes = LIBZIPPP_ERROR_FREAD_FAILURE;
+                    }
                 } else {
-                    iRes = -5;
+                    iRes = LIBZIPPP_ERROR_MEMORY_ALLOCATION;
                 }
                 delete[] data;
             }
         }
         zip_fclose(zipFile);
     } else {
-       iRes = -4;
+       iRes = LIBZIPPP_ERROR_FOPEN_FAILURE;
     }
     return iRes;
 }
