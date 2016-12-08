@@ -17,26 +17,10 @@ Underlying libraries:
 
 ### LINUX
 
-0. Make sure you have the following commands: g++ make tar wget
-
-1. Download and compile the libraries (zlib,libzip) with the command:
-
-```Shell
-make libraries
-```
-
-2. Then create the static and shared libraries of libzippp:
-
-```Shell
-make
-```
-
-3. You may want to run the tests (optional):
-
-```Shell
-make tests
-```
-
+0. Make sure you have the following commands: ```g++``` ```make``` ```tar``` ```wget```
+1. Download and compile the libraries (zlib and libzip) with the command: ```make libraries```
+2. Then create the static and shared libraries of libzippp: ```make```
+3. You may want to run the tests (optional): ```make tests```
 4. Now you just have to include the src folder in your include path and
   link against libzippp.a or libzippp.so (do not forget to also link 
   against libzip libraries in lib/libzip-1.1.3/lib/.libs/).
@@ -57,11 +41,11 @@ g++ -I./lib/libzip-1.1.3/lib -I./src \
 
 1. Download [libzip](http://www.nih.at/libzip/libzip-1.1.3.tar.gz) and [zlib](http://zlib.net/zlib128.zip) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
-```
-libzippp/compile.bat
-libzippp/lib/zlib-1.2.8
-libzippp/lib/libzip-1.1.3
-```
+  ```
+  libzippp/compile.bat
+  libzippp/lib/zlib-1.2.8
+  libzippp/lib/libzip-1.1.3
+  ```
 
 2. Extract the file lib/libzip-1.1.3-windows-VS2012-patch.zip. This file contains 
   changes to be done in libzip in order to compile successfully with Visual 
