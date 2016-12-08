@@ -40,15 +40,16 @@
 #include <string>
 #include <vector>
 
+//defined in libzip
 struct zip;
 
 #define DIRECTORY_SEPARATOR '/'
-#define IS_DIRECTORY(str) (str.length()>0 && str[str.length()-1]==DIRECTORY_SEPARATOR)
+#define IS_DIRECTORY(str) ((str).length()>0 && (str)[(str).length()-1]==DIRECTORY_SEPARATOR)
 #define DEFAULT_CHUNK_SIZE 524288
 
-// documentation
-// http://www.nih.at/libzip/libzip.html
-// http://slash.developpez.com/tutoriels/c/utilisation-libzip/
+//libzip documentation
+//- http://www.nih.at/libzip/libzip.html
+//- http://slash.developpez.com/tutoriels/c/utilisation-libzip/
 
 //standard unsigned int
 typedef unsigned int uint;
