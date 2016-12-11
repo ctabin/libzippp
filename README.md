@@ -149,7 +149,7 @@ zf.deleteEntry("myDir/subDir/");
 zf.close();
 ```
 
-# ISSUES
+# Issues
 
 ### LINUX
 
