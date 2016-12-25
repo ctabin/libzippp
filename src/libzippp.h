@@ -40,15 +40,16 @@
 #include <string>
 #include <vector>
 
+//defined in libzip
 struct zip;
 
 #define DIRECTORY_SEPARATOR '/'
-#define IS_DIRECTORY(str) (str.length()>0 && str[str.length()-1]==DIRECTORY_SEPARATOR)
+#define IS_DIRECTORY(str) ((str).length()>0 && (str)[(str).length()-1]==DIRECTORY_SEPARATOR)
 #define DEFAULT_CHUNK_SIZE 524288
 
-// documentation
-// http://www.nih.at/libzip/libzip.html
-// http://slash.developpez.com/tutoriels/c/utilisation-libzip/
+//libzip documentation
+//- http://www.nih.at/libzip/libzip.html
+//- http://slash.developpez.com/tutoriels/c/utilisation-libzip/
 
 //standard unsigned int
 typedef unsigned int uint;
@@ -75,6 +76,19 @@ typedef unsigned int uint;
 #else
         #define LIBZIPPP_API SHARED_LIBRARY_IMPORT
 #endif
+
+// special return code for libzippp
+#define LIBZIPPP_OK 0
+#define LIBZIPPP_ERROR_NOT_OPEN -1
+#define LIBZIPPP_ERROR_NOT_ALLOWED -2
+#define LIBZIPPP_ERROR_INVALID_ENTRY -3
+#define LIBZIPPP_ERROR_INVALID_PARAMETER -4
+#define LIBZIPPP_ERROR_MEMORY_ALLOCATION -16
+#define LIBZIPPP_ERROR_FOPEN_FAILURE -25
+#define LIBZIPPP_ERROR_FREAD_FAILURE -26
+#define LIBZIPPP_ERROR_OWRITE_FAILURE -35
+#define LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE -36
+#define LIBZIPPP_ERROR_UNKNOWN -99
 
 namespace libzippp {
     class ZipEntry;
@@ -117,7 +131,7 @@ namespace libzippp {
          * 
          * http://nih.at/listarchive/libzip-discuss/msg00219.html
          */
-        ZipArchive(const std::string& zipPath, const std::string& password="");
+        explicit ZipArchive(const std::string& zipPath, const std::string& password="");
         virtual ~ZipArchive(void); //commit all the changes if open
         
         /**
@@ -126,9 +140,10 @@ namespace libzippp {
         std::string getPath(void) const { return path; }
         
         /**
-         * Open the ZipArchive in read mode. This method will return true if the operation
+         * Open the ZipArchive with the given mode. This method will return true if the operation
          * is successful, false otherwise. If the OpenMode is NOT_OPEN an invalid_argument
-         * will be thrown.
+         * will be thrown. If the archive is already open, this method returns true only if the
+         * mode is the same.
          */
         bool open(OpenMode mode=READ_ONLY, bool checkConsistency=false);
         
@@ -156,18 +171,18 @@ namespace libzippp {
         /**
          * Returns true if the ZipArchive is currently open.
          */
-        bool isOpen(void) const { return zipHandle!=NULL; }
+        inline bool isOpen(void) const { return zipHandle!=NULL; }
         
         /**
          * Returns true if the ZipArchive is open and mutable.
          */
-        bool isMutable(void) const { return isOpen() && mode!=NOT_OPEN && mode!=READ_ONLY; }
+        inline bool isMutable(void) const { return isOpen() && mode!=NOT_OPEN && mode!=READ_ONLY; }
         
         /**
          * Returns true if the ZipArchive is encrypted. This method returns true only if
          * a password has been set in the constructor.
          */
-        bool isEncrypted(void) const { return !password.empty(); }
+        inline bool isEncrypted(void) const { return !password.empty(); }
         
         /**
          * Defines the comment of the archive. In order to set the comment, the archive
@@ -181,12 +196,12 @@ namespace libzippp {
          * Removes the comment of the archive, if any. The archive must have been open
          * in WRITE or NEW mode.
          */
-        bool removeComment(void) const { return setComment(std::string()); }
+        inline bool removeComment(void) const { return setComment(std::string()); }
         
         /**
          * Returns the number of entries in this zip file (folders are included).
-         * The zip file must be open otherwise -1 will be returned. If the state
-         * is ORIGINAL, then the number entries of the original archive are returned.
+         * The zip file must be open otherwise LIBZIPPP_ERROR_NOT_OPEN will be returned. 
+         * If the state is ORIGINAL, then the number entries of the original archive are returned.
          * Any change will not be considered.
          * Note also that the deleted entries does not affect the result of this method
          * with the CURRENT state. For instance, if there are 3 entries and you delete one,
@@ -196,7 +211,7 @@ namespace libzippp {
          * the getEntries method.
          */
         libzippp_int64 getNbEntries(State state=CURRENT) const;
-        libzippp_int64 getEntriesCount(State state=CURRENT) const { return getNbEntries(state); }
+        inline libzippp_int64 getEntriesCount(State state=CURRENT) const { return getNbEntries(state); }
         //libzippp_int64 size(State state=CURRENT) const { return getNbEntries(state); } //not clear enough => could be the size of the file instead...
 
         /**
@@ -262,11 +277,12 @@ namespace libzippp {
         /**
          * Read the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
          * opened std::ofstream, gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
-         * The method returns 0 if the extraction has succeeded with no problems, -1 if the ofstream is not opened,
-         * -2 if the archive is not opened, -3 if the zipEntry doesn't belong to the archive, -4 if zip_fopen_index()
-         * has failed, -5 if a memory allocation has failed, -6 if zip_fread() didn't succeed to read data, -7 if the last
-         * ofstream operation has failed, -8 if fread() didn't return the exact amount of requested bytes and -9 if the amount
-         * of extracted bytes didn't match the size of the file (unknown error).
+         * The method returns LIBZIPPP_OK if the extraction has succeeded with no problems, LIBZIPPP_ERROR_INVALID_PARAMETER if the 
+         * ofstream is not opened, LIBZIPPP_ERROR_NOT_OPEN if the archive is not opened, LIBZIPPP_ERROR_INVALID_ENTRY if the zipEntry 
+         * doesn't belong to the archive, LIBZIPPP_ERROR_FOPEN_FAILURE if zip_fopen_index() has failed, LIBZIPPP_ERROR_MEMORY_ALLOCATION if 
+         * a memory allocation has failed, LIBZIPPP_ERROR_FREAD_FAILURE if zip_fread() didn't succeed to read data, 
+         * LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE if the last ofstream operation has failed, LIBZIPPP_ERROR_OWRITE_FAILURE if fread() didn't 
+         * return the exact amount of requested bytes and -9 if the amount of extracted bytes didn't match the size of the file (unknown error).
          * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
          * The method doesn't close the ofstream after the extraction.
          */
@@ -275,10 +291,10 @@ namespace libzippp {
         /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
          * subentries will be removed. This method returns the number of entries removed.
-         * If the open mode does not allow a deletion, this method will return  -1. If an
-         * error occurs during deletion, this method will return -2.
-         * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
-         * then -3 will be returned.
+         * If the open mode does not allow a deletion, this method will return LIBZIPPP_ERROR_NOT_ALLOWED. 
+         * If the ZipArchive is not open, LIBZIPPP_ERROR_NOT_OPEN will be returned. If the entry is not handled 
+         * by this ZipArchive or is a null-ZipEntry, then LIBZIPPP_ERROR_INVALID_ENTRY will be returned.
+         * If an error occurs during deletion, this method will return LIBZIPPP_ERROR_UNKNOWN.
          * Note that this method does not affect the result returned by getNbEntries !
          */
         int deleteEntry(const ZipEntry& entry) const;
@@ -286,33 +302,34 @@ namespace libzippp {
         /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
          * subentries will be removed. This method returns the number of entries removed.
-         * If the open mode does not allow a deletion, this method will return  -1. If an
-         * error occurs during deletion, this method will return -2.
-         * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
-         * then -3 will be returned. If the entry does not exist, this method returns -4.
+         * If the open mode does not allow a deletion, this method will return LIBZIPPP_ERROR_NOT_ALLOWED. 
+         * If the ZipArchive is not open, LIBZIPPP_ERROR_NOT_OPEN will be returned. If the entry is not handled 
+         * by this ZipArchive or is a null-ZipEntry, then LIBZIPPP_ERROR_INVALID_ENTRY will be returned.
+         * If an error occurs during deletion, this method will return LIBZIPPP_ERROR_UNKNOWN.
+         * If the entry does not exist, this method returns LIBZIPPP_ERROR_INVALID_PARAMETER.
          * Note that this method does not affect the result returned by getNbEntries !
          */
         int deleteEntry(const std::string& entry) const;
         
         /**
          * Renames the entry with the specified newName. The method returns the number of entries
-         * that have been renamed, 0 if the new name is invalid, -1 if the mode doesn't allow modification 
-         * or -2 if an error occurred. 
-         * If the entry is a directory, a '/' will automatically be appended at the end of newName if the 
+         * that have been renamed, LIBZIPPP_ERROR_INVALID_PARAMETER if the new name is invalid, 
+         * LIBZIPPP_ERROR_NOT_ALLOWED if the mode doesn't allow modification or LIBZIPPP_ERROR_UNKNOWN if an error 
+         * occurred.  If the entry is a directory, a '/' will automatically be appended at the end of newName if the 
          * latter hasn't it already. All the files in the folder will be moved.
          * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
-         * then -3 will be returned.
+         * then LIBZIPPP_ERROR_INVALID_ENTRY will be returned.
          */
         int renameEntry(const ZipEntry& entry, const std::string& newName) const;
         
         /**
-         * Renames the entry with the specified newName. The method returns the number of entries
-         * that have been renamed, 0 if the new name is invalid, -1 if the mode doesn't allow modification 
-         * or -2 if an error occurred. 
-         * If the entry is a directory, a '/' will automatically be appended at the end of newName if the 
+         * RRenames the entry with the specified newName. The method returns the number of entries
+         * that have been renamed, LIBZIPPP_ERROR_INVALID_PARAMETER if the new name is invalid, 
+         * LIBZIPPP_ERROR_NOT_ALLOWED if the mode doesn't allow modification or LIBZIPPP_ERROR_UNKNOWN if an error 
+         * occurred.  If the entry is a directory, a '/' will automatically be appended at the end of newName if the 
          * latter hasn't it already. All the files in the folder will be moved.
          * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
-         * then -3 will be returned. If the entry does not exist, this method returns -4.
+         * then LIBZIPPP_ERROR_INVALID_ENTRY will be returned. If the entry does not exist, this method returns LIBZIPPP_ERROR_INVALID_PARAMETER.
          */
         int renameEntry(const std::string& entry, const std::string& newName) const;
         
@@ -348,7 +365,7 @@ namespace libzippp {
          * Returns the mode in which the file has been open.
          * If the archive is not open, then NOT_OPEN will be returned.
          */
-        OpenMode getMode(void) const { return mode; }
+        inline OpenMode getMode(void) const { return mode; }
 
     private:
         std::string path;
@@ -375,58 +392,58 @@ namespace libzippp {
          * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
          * usable to read and modify an archive.
          */
-        ZipEntry(void) : zipFile(NULL), index(0), time(0), method(-1), size(0), sizeComp(0), crc(0)  {}
+        explicit ZipEntry(void) : zipFile(NULL), index(0), time(0), method(-1), size(0), sizeComp(0), crc(0)  {}
         virtual ~ZipEntry(void) {}
         
         /**
          * Returns the name of the entry.
          */
-        std::string getName(void) const { return name; }
+        inline std::string getName(void) const { return name; }
         
         /**
          * Returns the index of the file in the zip.
          */
-        libzippp_uint64 getIndex(void) const { return index; }
+        inline libzippp_uint64 getIndex(void) const { return index; }
         
         /**
          * Returns the timestamp of the entry.
          */
-        time_t getDate(void) const { return time; }
+        inline time_t getDate(void) const { return time; }
         
         /**
          * Returns the compression method.
          */
-        int getMethod(void) const { return method; }
+        inline int getMethod(void) const { return method; }
         
         /**
          * Returns the size of the file (not deflated).
          */
-        libzippp_uint64 getSize(void) const { return size; }
+        inline libzippp_uint64 getSize(void) const { return size; }
         
         /**
          * Returns the size of the inflated file.
          */
-        libzippp_uint64 getInflatedSize(void) const { return sizeComp; }
+        inline libzippp_uint64 getInflatedSize(void) const { return sizeComp; }
         
         /**
          * Returns the CRC of the file.
          */
-        int getCRC(void) const { return crc; }
+        inline int getCRC(void) const { return crc; }
         
         /**
          * Returns true if the entry is a directory.
          */
-        bool isDirectory(void) const { return IS_DIRECTORY(name); }
+        inline bool isDirectory(void) const { return IS_DIRECTORY(name); }
         
         /**
          * Returns true if the entry is a file.
          */
-        bool isFile(void) const { return !isDirectory(); }
+        inline bool isFile(void) const { return !isDirectory(); }
         
         /**
          * Returns true if this entry is null (means no more entry is available).
          */
-        bool isNull(void) const { return zipFile==NULL; }
+        inline bool isNull(void) const { return zipFile==NULL; }
         
         /**
          * Defines the comment of the entry. In order to call either one of those
@@ -457,11 +474,12 @@ namespace libzippp {
         /**
          * Read the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
          * opened std::ofstream, gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
-         * The method returns 0 if the extraction has succeeded with no problems, -1 if the ofstream is not opened,
-         * -2 if the archive is not opened, -3 if the zipEntry doesn't belong to the archive, -4 if zip_fopen_index()
-         * has failed, -5 if a memory allocation has failed, -6 if zip_fread() didn't succeed to read data, -7 if the last
-         * ofstream operation has failed, -8 if fread() didn't return the exact amount of requested bytes and -9 if the amount
-         * of extracted bytes didn't match the size of the file (unknown error).
+         * The method returns LIBZIPPP_OK if the extraction has succeeded with no problems, LIBZIPPP_ERROR_INVALID_PARAMETER if the 
+         * ofstream is not opened, LIBZIPPP_ERROR_NOT_OPEN if the archive is not opened, LIBZIPPP_ERROR_INVALID_ENTRY if the zipEntry 
+         * doesn't belong to the archive, LIBZIPPP_ERROR_FOPEN_FAILURE if zip_fopen_index() has failed, LIBZIPPP_ERROR_MEMORY_ALLOCATION if 
+         * a memory allocation has failed, LIBZIPPP_ERROR_FREAD_FAILURE if zip_fread() didn't succeed to read data, 
+         * LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE if the last ofstream operation has failed, LIBZIPPP_ERROR_OWRITE_FAILURE if fread() didn't 
+         * return the exact amount of requested bytes and -9 if the amount of extracted bytes didn't match the size of the file (unknown error).
          * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
          * The method doesn't close the ofstream after the extraction.
          */
