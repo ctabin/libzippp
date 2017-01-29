@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-W -Wall -Wextra -ansi -pedantic -std=c++0x
 OBJ=obj
 LIB=lib
-ZLIB_VERSION=1.2.8
+ZLIB_VERSION=1.2.11
 ZLIB=$(LIB)/zlib-$(ZLIB_VERSION)
 LIBZIP_VERSION=1.1.3
 LIBZIP=$(LIB)/libzip-$(LIBZIP_VERSION)
@@ -45,8 +45,8 @@ clean:
 	@rm -rf test_shared test_static
 
 mrproper: clean
-	@rm -rf $(LIB)/libzip-1.1
-	@rm -rf $(LIB)/libzip-1.1.tar.gz
+	@rm -rf $(LIBZIP)
+	@rm -rf $(LIB)/libzip-$(LIBZIP_VERSION).tar.gz
 	
 # ZLIB targets
 	
