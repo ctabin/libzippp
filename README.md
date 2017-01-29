@@ -11,7 +11,7 @@ Compilation has been tested with:
 - MS Visual Studio 2012 (Windows 7)
 
 Underlying libraries:
-- [ZLib](http://zlib.net) 1.2.8
+- [ZLib](http://zlib.net) 1.2.11
 - [libzip](http://www.nih.at/libzip) 1.1.3
 
 # Compilation
@@ -31,7 +31,7 @@ Underlying libraries:
 g++ -I./lib/libzip-1.1.3/lib -I./src \
     main.cpp libzippp.a \
     lib/libzip-1.1.3/lib/.libs/libzip.a \
-    lib/zlib-1.2.8/libz.a
+    lib/zlib-1.2.11/libz.a
 ```
 
 ### WINDOWS
@@ -42,11 +42,11 @@ g++ -I./lib/libzip-1.1.3/lib -I./src \
   <MSVS11>\Common7\Tools\VsDevCmd.bat
   ```
   
-1. Download [libzip](http://www.nih.at/libzip/libzip-1.1.3.tar.gz) and [zlib](http://zlib.net/zlib128.zip) sources and extract them in the 'lib' folder.
+1. Download [libzip](http://www.nih.at/libzip/libzip-1.1.3.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
   ```
   libzippp/compile.bat
-  libzippp/lib/zlib-1.2.8
+  libzippp/lib/zlib-1.2.11
   libzippp/lib/libzip-1.1.3
   ```
 
