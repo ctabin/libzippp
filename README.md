@@ -119,6 +119,22 @@ string str2 = entry2.readAsText();
 zf.close();
 ```
 
+How to read a large entry from an archive:
+
+```C++
+#include "libzippp.h"
+using namespace libzippp;
+
+ZipArchive zf("archive.zip");
+zf.open(ZipArchive::READ_ONLY);
+
+ZipEntry largeEntry = z1.getEntry("largeentry");
+std::ofstream ofUnzippedFile("largeFileContent.data");
+largeEntry.readContent(ofUnzippedFile);
+ofUnzippedFile.close();
+
+zf.close();
+```
 
 How to add data to an archive:
 
