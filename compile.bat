@@ -2,7 +2,7 @@
 @echo off
 
 SET vs2012devprompt=C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Tools\VsDevCmd.bat
-SET zlib=lib\zlib-1.2.8
+SET zlib=lib\zlib-1.2.11
 SET libzip=lib\libzip-1.1.3
 
 if not exist "%zlib%" goto error_zlib_not_found
