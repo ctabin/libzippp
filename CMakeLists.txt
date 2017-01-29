@@ -6,7 +6,7 @@ PROJECT(libzippp)
 SET(PACKAGE "libzippp")
 SET(VERSION "0.2")
 
-SET(ZLIB_PATH "lib/zlib-1.2.8" CACHE STRING "Path to zlib")
+SET(ZLIB_PATH "lib/zlib-1.2.11" CACHE STRING "Path to zlib")
 SET(LIBZIP_PATH "lib/libzip-1.1.3" CACHE STRING "Path to libzip")
 
 FIND_PACKAGE(ZLIB REQUIRED)
