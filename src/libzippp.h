@@ -151,8 +151,10 @@ namespace libzippp {
          * Closes the ZipArchive and releases all the resources held by it. If the ZipArchive was
          * not open previously, this method does nothing. If the archive was open in modification
          * and some were done, they will be committed.
+         * This method returns LIBZIPPP_OK if the archive was successfully closed, otherwise it 
+         * returns the value returned by the zip_close() function.
          */
-        void close(void);
+        int close(void);
         
         /**
          * Closes the ZipArchive and releases all the resources held by it. If the ZipArchive was

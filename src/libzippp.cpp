@@ -118,12 +118,16 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     return false;
 }
 
-void ZipArchive::close(void) {
+int ZipArchive::close(void) {
     if (isOpen()) {
-        zip_close(zipHandle);
+        int result = zip_close(zipHandle);
         zipHandle = NULL;
         mode = NOT_OPEN;
+        
+        if(result!=0) { return result; }
     }
+    
+    return LIBZIPPP_OK;
 }
 
 void ZipArchive::discard(void) {

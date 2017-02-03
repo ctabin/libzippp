@@ -58,7 +58,7 @@ void test1() {
     assert(z1.isMutable());
     bool result = z1.addEntry("folder/subfolder/finalfolder/");
     assert(result);
-    z1.close();
+    assert(z1.close() == LIBZIPPP_OK);
     assert(!z1.isOpen());
     assert(!z1.isMutable());
     
@@ -71,7 +71,7 @@ void test1() {
     assert(z2.hasEntry("folder/"));
     assert(z2.hasEntry("folder/subfolder/"));
     assert(z2.hasEntry("folder/subfolder/finalfolder/"));
-    z2.close();
+    assert(z2.close() == LIBZIPPP_OK);
     assert(z2.unlink());
     
     cout << " done." << endl;
