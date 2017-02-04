@@ -255,6 +255,13 @@ namespace libzippp {
         bool setEntryComment(const ZipEntry& entry, const std::string& comment) const;
         
         /**
+         * Defines the compression method of an entry. If the ZipArchive is not open
+         * or the entry is not linked to this archive, false will be returned.
+         **/
+        bool isEntryCompressionEnabled(const ZipEntry& entry) const;
+        bool setEntryCompressionEnabled(const ZipEntry& entry, bool value) const;
+        
+        /**
          * Read the specified ZipEntry of the ZipArchive and returns its content within
          * a char array. If there is an error while reading the entry, then null will be returned.
          * The data must be deleted by the developer once not used anymore. If the asText
@@ -452,6 +459,14 @@ namespace libzippp {
          * Returns true if this entry is null (means no more entry is available).
          */
         inline bool isNull(void) const { return zipFile==NULL; }
+        
+        /**
+         * Defines if the compression is enabled for this entry.
+         * Those methods are wrappers arount ZipArchive::isEntryCompressionEnabled and
+         * ZipArchive::setEntryCompressionEnabled.
+         */
+        bool isCompressionEnabled(void) const;
+        bool setCompressionEnabled(bool value) const;
         
         /**
          * Defines the comment of the entry. In order to call either one of those

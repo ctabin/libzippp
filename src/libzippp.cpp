@@ -50,6 +50,14 @@ bool ZipEntry::setComment(const string& str) const {
     return zipFile->setEntryComment(*this, str);
 }
 
+bool ZipEntry::isCompressionEnabled(void) const {
+	return zipFile->isEntryCompressionEnabled(*this);
+}
+
+bool ZipEntry::setCompressionEnabled(bool value) const {
+	return zipFile->setEntryCompressionEnabled(*this, value);
+}
+
 string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const {
     char* content = (char*)zipFile->readEntry(*this, true, state, size);
     if (content==NULL) { return string(); } //happen if the ZipArchive has been closed
@@ -158,11 +166,25 @@ string ZipArchive::getComment(State state) const {
 
 bool ZipArchive::setComment(const string& comment) const {
     if (!isOpen()) { return false; }
+    if (mode==READ_ONLY) { return false; }
     
     int size = comment.size();
     const char* data = comment.c_str();
     int result = zip_set_archive_comment(zipHandle, data, size);
     return result==0;
+}
+
+bool ZipArchive::isEntryCompressionEnabled(const ZipEntry& entry) const {
+	return entry.compressionMethod==ZIP_CM_DEFLATE;
+}
+
+bool ZipArchive::setEntryCompressionEnabled(const ZipEntry& entry, bool value) const {
+	if (!isOpen()) { return false; }
+    if (entry.zipFile!=this) { return false; }
+    if (mode==READ_ONLY) { return false; }
+    
+    libzippp_uint16 compMode = value ? ZIP_CM_DEFLATE : ZIP_CM_STORE;
+    return zip_set_file_compression(zipHandle, entry.index, compMode, 0);
 }
 
 libzippp_int64 ZipArchive::getNbEntries(State state) const {
