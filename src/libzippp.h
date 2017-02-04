@@ -53,6 +53,7 @@ struct zip;
 
 //standard unsigned int
 typedef unsigned int uint;
+typedef zip_uint16_t libzippp_uint16;
 
 #ifdef WIN32
         typedef long long libzippp_int64;
@@ -394,7 +395,7 @@ namespace libzippp {
          * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
          * usable to read and modify an archive.
          */
-        explicit ZipEntry(void) : zipFile(NULL), index(0), time(0), method(-1), size(0), sizeComp(0), crc(0)  {}
+        explicit ZipEntry(void) : zipFile(NULL), index(0), time(0), compressionMethod(-1), encryptionMethod(-1), size(0), sizeComp(0), crc(0)  {}
         virtual ~ZipEntry(void) {}
         
         /**
@@ -415,7 +416,12 @@ namespace libzippp {
         /**
          * Returns the compression method.
          */
-        inline int getMethod(void) const { return method; }
+        inline libzippp_uint16 getCompressionMethod(void) const { return compressionMethod; }
+        
+        /**
+         * Returns the encryption method.
+         */
+        inline libzippp_uint16 getEncryptionMethod(void) const { return encryptionMethod; }
         
         /**
          * Returns the size of the file (not deflated).
@@ -492,13 +498,14 @@ namespace libzippp {
         std::string name;
         libzippp_uint64 index;
         time_t time;
-        int method;
+        libzippp_uint16 compressionMethod;
+        libzippp_uint16 encryptionMethod;
         libzippp_uint64 size;
         libzippp_uint64 sizeComp;
         int crc;
         
-        ZipEntry(const ZipArchive* zipFile, const std::string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
-                zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc) {}
+        ZipEntry(const ZipArchive* zipFile, const std::string& name, libzippp_uint64 index, time_t time, libzippp_uint16 compMethod, libzippp_uint16 encMethod, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
+                zipFile(zipFile), name(name), index(index), time(time), compressionMethod(compMethod), encryptionMethod(encMethod), size(size), sizeComp(sizeComp), crc(crc) {}
     };
 }
 

@@ -176,12 +176,13 @@ ZipEntry ZipArchive::createEntry(struct zip_stat* stat) const {
     string name(stat->name);
     libzippp_uint64 index = stat->index;
     libzippp_uint64 size = stat->size;
-    int method = stat->comp_method;
+    libzippp_uint16 compMethod = stat->comp_method;
+    libzippp_uint16 encMethod = stat->encryption_method;
     libzippp_uint64 sizeComp = stat->comp_size;
     int crc = stat->crc;
     time_t time = stat->mtime;
 
-    return ZipEntry(this, name, index, time, method, size, sizeComp, crc);
+    return ZipEntry(this, name, index, time, compMethod, encMethod, size, sizeComp, crc);
 }
 
 vector<ZipEntry> ZipArchive::getEntries(State state) const {
