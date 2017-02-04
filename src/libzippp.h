@@ -57,6 +57,7 @@ typedef unsigned int uint;
 #ifdef WIN32
         typedef long long libzippp_int64;
         typedef unsigned long long libzippp_uint64;
+        typedef unsigned short libzippp_uint16;
         
         //special declarations for windows to use libzippp from a DLL
         #define SHARED_LIBRARY_EXPORT __declspec(dllexport)
@@ -65,6 +66,7 @@ typedef unsigned int uint;
         //standard ISO c++ does not support long long
         typedef long int libzippp_int64;
         typedef unsigned long int libzippp_uint64;
+        typedef unsigned short libzippp_uint16;
         
         #define SHARED_LIBRARY_EXPORT
         #define SHARED_LIBRARY_IMPORT
@@ -254,6 +256,13 @@ namespace libzippp {
         bool setEntryComment(const ZipEntry& entry, const std::string& comment) const;
         
         /**
+         * Defines the compression method of an entry. If the ZipArchive is not open
+         * or the entry is not linked to this archive, false will be returned.
+         **/
+        bool isEntryCompressionEnabled(const ZipEntry& entry) const;
+        bool setEntryCompressionEnabled(const ZipEntry& entry, bool value) const;
+        
+        /**
          * Read the specified ZipEntry of the ZipArchive and returns its content within
          * a char array. If there is an error while reading the entry, then null will be returned.
          * The data must be deleted by the developer once not used anymore. If the asText
@@ -394,7 +403,7 @@ namespace libzippp {
          * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
          * usable to read and modify an archive.
          */
-        explicit ZipEntry(void) : zipFile(NULL), index(0), time(0), method(-1), size(0), sizeComp(0), crc(0)  {}
+        explicit ZipEntry(void) : zipFile(NULL), index(0), time(0), compressionMethod(-1), encryptionMethod(-1), size(0), sizeComp(0), crc(0)  {}
         virtual ~ZipEntry(void) {}
         
         /**
@@ -415,7 +424,12 @@ namespace libzippp {
         /**
          * Returns the compression method.
          */
-        inline int getMethod(void) const { return method; }
+        inline libzippp_uint16 getCompressionMethod(void) const { return compressionMethod; }
+        
+        /**
+         * Returns the encryption method.
+         */
+        inline libzippp_uint16 getEncryptionMethod(void) const { return encryptionMethod; }
         
         /**
          * Returns the size of the file (not deflated).
@@ -446,6 +460,14 @@ namespace libzippp {
          * Returns true if this entry is null (means no more entry is available).
          */
         inline bool isNull(void) const { return zipFile==NULL; }
+        
+        /**
+         * Defines if the compression is enabled for this entry.
+         * Those methods are wrappers arount ZipArchive::isEntryCompressionEnabled and
+         * ZipArchive::setEntryCompressionEnabled.
+         */
+        bool isCompressionEnabled(void) const;
+        bool setCompressionEnabled(bool value) const;
         
         /**
          * Defines the comment of the entry. In order to call either one of those
@@ -492,13 +514,14 @@ namespace libzippp {
         std::string name;
         libzippp_uint64 index;
         time_t time;
-        int method;
+        libzippp_uint16 compressionMethod;
+        libzippp_uint16 encryptionMethod;
         libzippp_uint64 size;
         libzippp_uint64 sizeComp;
         int crc;
         
-        ZipEntry(const ZipArchive* zipFile, const std::string& name, libzippp_uint64 index, time_t time, int method, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
-                zipFile(zipFile), name(name), index(index), time(time), method(method), size(size), sizeComp(sizeComp), crc(crc) {}
+        ZipEntry(const ZipArchive* zipFile, const std::string& name, libzippp_uint64 index, time_t time, libzippp_uint16 compMethod, libzippp_uint16 encMethod, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
+                zipFile(zipFile), name(name), index(index), time(time), compressionMethod(compMethod), encryptionMethod(encMethod), size(size), sizeComp(sizeComp), crc(crc) {}
     };
 }
 

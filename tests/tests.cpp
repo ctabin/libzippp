@@ -86,6 +86,10 @@ void test2() {
     ZipArchive z1("test.zip");
     z1.open(ZipArchive::WRITE);
     z1.addData("somedata", txtFile, len);
+    
+    ZipEntry z1e1 = z1.getEntry("somedata");
+    z1e1.setCompressionEnabled(true);
+    
     z1.close();
     
     ZipArchive z2("test.zip");
@@ -95,6 +99,7 @@ void test2() {
     
     ZipEntry entry = z2.getEntry("somedata");
     assert(!entry.isNull());
+    assert(entry.isCompressionEnabled());
     
     string data = entry.readAsText();
     int clen = data.size();
@@ -128,6 +133,7 @@ void test3() {
     
     ZipEntry entry = z2.getEntry("somedata/in/subfolder/data.txt");
     assert(!entry.isNull());
+    assert(!entry.isCompressionEnabled());
     
     string data = entry.readAsText();
     int clen = data.size();
