@@ -53,11 +53,11 @@ struct zip;
 
 //standard unsigned int
 typedef unsigned int uint;
-typedef zip_uint16_t libzippp_uint16;
 
 #ifdef WIN32
         typedef long long libzippp_int64;
         typedef unsigned long long libzippp_uint64;
+        typedef unsigned short libzippp_uint16;
         
         //special declarations for windows to use libzippp from a DLL
         #define SHARED_LIBRARY_EXPORT __declspec(dllexport)
@@ -66,6 +66,7 @@ typedef zip_uint16_t libzippp_uint16;
         //standard ISO c++ does not support long long
         typedef long int libzippp_int64;
         typedef unsigned long int libzippp_uint64;
+        typedef unsigned short libzippp_uint16;
         
         #define SHARED_LIBRARY_EXPORT
         #define SHARED_LIBRARY_IMPORT
