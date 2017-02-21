@@ -360,7 +360,7 @@ namespace libzippp {
          * If the entryName denotes a directory, this method returns false.
          * If the zip file is not open, this method returns false.
          */
-        bool addData(const std::string& entryName, const void* data, uint length, bool freeData=false) const;
+        bool addData(const std::string& entryName, const void* data, libzippp_uint64 length, bool freeData=false) const;
         
         /**
          * Add the specified entry to the ZipArchive. All the needed hierarchy will be created.

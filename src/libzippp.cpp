@@ -470,7 +470,7 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
     return false;
 }
 
-bool ZipArchive::addData(const string& entryName, const void* data, uint length, bool freeData) const {
+bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uint64 length, bool freeData) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
     if (IS_DIRECTORY(entryName)) { return false; }
