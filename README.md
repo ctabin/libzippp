@@ -8,6 +8,7 @@ It is meant to be a portable and easy-to-use library for ZIP handling.
 Compilation has been tested with:
 - GCC 4.9.3 (GNU/Linux Gentoo)
 - GCC 6.2.1 (GNU/Linux Debian) 
+- GCC 6.3.0 (GNU/Linux Debian) 
 - MS Visual Studio 2012 (Windows 7)
 
 Underlying libraries:
@@ -52,7 +53,8 @@ g++ -I./lib/libzip-1.2.0/lib -I./src \
 
 2. Extract the file *lib/libzip-1.2.0-windows-VS2012-patch.zip*. This file contains 
   changes to be done in libzip in order to compile successfully with Visual 
-  Studio 2012. Simply accept the erasing of the files.
+  Studio 2012. Simply accept the erasing of the file (a #define has been added
+  in zip.h).
 
 3. Execute the *compile.bat* (simply double-click on it). The compilation should 
   go without error.
