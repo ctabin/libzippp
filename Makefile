@@ -46,7 +46,8 @@ clean:
 
 mrproper: clean
 	@rm -rf $(LIBZIP)
-	@rm -rf $(LIB)/libzip-$(LIBZIP_VERSION).tar.gz
+	@rm -rf $(LIB)/libzip-*
+	@rm -rf $(LIB)/zlib-*
 	
 # ZLIB targets
 	
