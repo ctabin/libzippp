@@ -351,6 +351,8 @@ namespace libzippp {
          * If the entryName specifies folders that doesn't exist in the archive, they will be automatically created.
          * If the entryName denotes a directory, this method returns false.
          * The zip file must be open otherwise false will be returned.
+         * 
+         * This method is a wrapper around ZipArchive::addFiles.
          */
         bool addFile(const std::string& entryName, const std::string& file) const;
         
@@ -378,7 +380,7 @@ namespace libzippp {
          * This method will only add the specified entry. The 'real' directory may exist or not.
          * If the directory exists, the files in it won't be added to the archive.
          * 
-         * This method is a wrapper against ZipArchive::addEntries.
+         * This method is a wrapper around ZipArchive::addEntries.
          */
         bool addEntry(const std::string& entryName) const;
         
