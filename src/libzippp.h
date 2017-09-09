@@ -1,6 +1,6 @@
 
 #ifndef LIBZIPPP_H
-#define	LIBZIPPP_H
+#define LIBZIPPP_H
 
 /*
   libzippp.h -- exported declarations.
@@ -95,6 +95,7 @@ typedef unsigned int uint;
 
 namespace libzippp {
     class ZipEntry;
+    class ZipSource;
     
     /**
      * Represents a ZIP archive. This class provides useful methods to handle an archive
@@ -369,8 +370,16 @@ namespace libzippp {
          * If the entryName specifies folders that doesn't exist in the archive, they will be automatically created.
          * If the entryName denotes a directory, this method returns false.
          * If the zip file is not open, this method returns false.
+         * 
+         * This method is a wrapper around ZipArchive::addSources that uses a SimpleZipSource instance.
          */
         bool addData(const std::string& entryName, const void* data, libzippp_uint64 length, bool freeData=false) const;
+        
+        /**
+         * Add the given sources in the archive.
+         * This method returns the number of sources that have been created.
+         */
+        int addSources(const std::vector<ZipSource*>& sources) const;
         
         /**
          * Add the specified entry to the ZipArchive. All the needed hierarchy will be created.
@@ -541,6 +550,49 @@ namespace libzippp {
         
         ZipEntry(const ZipArchive* zipFile, const std::string& name, libzippp_uint64 index, time_t time, libzippp_uint16 compMethod, libzippp_uint16 encMethod, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
                 zipFile(zipFile), name(name), index(index), time(time), compressionMethod(compMethod), encryptionMethod(encMethod), size(size), sizeComp(sizeComp), crc(crc) {}
+    };
+    
+    /**
+     * Simple wrapper class to add data in batch.
+     */
+    class LIBZIPPP_API ZipSource {
+    public:
+        ZipSource(std::string entryName) : entryName(entryName) {}
+        virtual ~ZipSource(void) {}
+        
+        /**
+         * Returns the entry name.
+         */
+        std::string getEntryName(void) const { return entryName; }
+        
+        /**
+         * This method will be invoked to read the data to be add to the archive.
+         * The return value is the raw data array.
+         * The dataSize parameter must be updated with the length of the returned array.
+         * The freeData indicates if the returned array must be freeed by the underlying library (false by default).
+         */
+        virtual const void* readData(libzippp_uint64* dataSize, bool* freeData) = 0;
+        
+    private:
+        std::string entryName;
+    };
+    
+    /**
+     * Simple basic implementation of ZipSource that only stores and return a raw data array.
+     * This class won't delete the data that it holds.
+     */
+    class LIBZIPPP_API SimpleZipSource : public ZipSource {
+    public:
+        SimpleZipSource(std::string entryName, const void* data, libzippp_uint64 length, bool freeData=false) : ZipSource(entryName), data(data), length(length), freeData(freeData) {}
+        virtual ~SimpleZipSource(void) { data=NULL; }
+
+        //will simply return the stored data
+        virtual const void* readData(libzippp_uint64* dataSize, bool* freeData);
+
+    private:
+        const void* data;
+        libzippp_uint64 length;
+        bool freeData;
     };
 }
 
