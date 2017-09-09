@@ -494,21 +494,34 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
 }
 
 bool ZipArchive::addEntry(const string& entryName) const {
-    if (!isOpen()) { return false; }
-    if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (!IS_DIRECTORY(entryName)) { return false; }
+    std::vector<string> container;
+    container.push_back(entryName);
+    return addEntries(container)==1;
+}
+
+int ZipArchive::addEntries(const vector<string>& entries) const {
+    if (!isOpen()) { return 0; }
+    if (mode==READ_ONLY) { return 0; } //adding not allowed
     
-    int nextSlash = entryName.find(DIRECTORY_SEPARATOR);
-    while (nextSlash!=-1) {
-        string pathToCreate = entryName.substr(0, nextSlash+1);
-        if (!hasEntry(pathToCreate)) {
-            libzippp_int64 result = zip_dir_add(zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
-            if (result==-1) { return false; }
+    int createdEntries = 0;
+    vector<string>::const_iterator it;
+    for(it=entries.begin() ; it!=entries.end() ; ++it) {
+        string entryName = *it;
+        if (!IS_DIRECTORY(entryName)) { continue; }
+        
+        int nextSlash = entryName.find(DIRECTORY_SEPARATOR);
+        while (nextSlash!=-1) {
+            string pathToCreate = entryName.substr(0, nextSlash+1);
+            if (!hasEntry(pathToCreate)) {
+                libzippp_int64 result = zip_dir_add(zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
+                if (result==-1) { continue; }
+            }
+            nextSlash = entryName.find(DIRECTORY_SEPARATOR, nextSlash+1);
         }
-        nextSlash = entryName.find(DIRECTORY_SEPARATOR, nextSlash+1);
+        ++createdEntries;
     }
     
-    return true;
+    return createdEntries;
 }
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state, libzippp_uint64 chunksize) const {

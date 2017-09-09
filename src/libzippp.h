@@ -369,8 +369,17 @@ namespace libzippp {
          * returns false. If the entry already exists, this method returns true.
          * This method will only add the specified entry. The 'real' directory may exist or not.
          * If the directory exists, the files in it won't be added to the archive.
+         * 
+         * This method is a wrapper against ZipArchive::addEntries.
          */
         bool addEntry(const std::string& entryName) const;
+        
+        /**
+         * Add all the specified entries to the ZipArchive. All the needed hierarchies will be created.
+         * The entries name must be directories (end with '/').
+         * This method will return the number of created entries.
+         */
+        int addEntries(const std::vector<std::string>& entries) const;
         
         /**
          * Returns the mode in which the file has been open.
