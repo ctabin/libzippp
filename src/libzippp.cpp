@@ -441,33 +441,48 @@ int ZipArchive::renameEntry(const string& e, const string& newName) const {
 }
 
 bool ZipArchive::addFile(const string& entryName, const string& file) const {
-    if (!isOpen()) { return false; }
-    if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (IS_DIRECTORY(entryName)) { return false; }
+    map<string,string> input;
+    input[entryName] = file;
+    return addFiles(input)==1;
+}
+
+int ZipArchive::addFiles(const map<string,string>& entries) const {
+    if (!isOpen()) { return 0; }
+    if (mode==READ_ONLY) { return 0; } //adding not allowed
     
-    int lastSlash = entryName.rfind(DIRECTORY_SEPARATOR);
-    if (lastSlash!=-1) { //creates the needed parent directories
-        string dirEntry = entryName.substr(0, lastSlash+1);
-        bool dadded = addEntry(dirEntry);
-        if (!dadded) { return false; }
+    int createdEntries = 0;
+    map<string,string>::const_iterator it;
+    for(it=entries.begin() ; it!=entries.end() ; ++it) {
+        string entryName = it->first;
+        string file = it->second;
+        
+        if (IS_DIRECTORY(entryName)) { continue; }
+    
+        int lastSlash = entryName.rfind(DIRECTORY_SEPARATOR);
+        if (lastSlash!=-1) { //creates the needed parent directories
+            string dirEntry = entryName.substr(0, lastSlash+1);
+            bool dadded = addEntry(dirEntry);
+            if (!dadded) { continue; }
+        }
+        
+        //retrieves the length of the file
+        //http://stackoverflow.com/questions/5840148/how-can-i-get-a-files-size-in-c
+        const char* filepath = file.c_str();
+        ifstream in(filepath, ifstream::in | ifstream::binary);
+        in.seekg(0, ifstream::end);
+        streampos end = in.tellg();
+        
+        zip_source* source = zip_source_file(zipHandle, filepath, 0, end);
+        if (source!=NULL) {
+            libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
+            if (result<0) { zip_source_free(source); } //unable to add the file
+        } else {
+            //unable to create the zip_source
+        }
+        
+        ++createdEntries;
     }
-    
-    //retrieves the length of the file
-    //http://stackoverflow.com/questions/5840148/how-can-i-get-a-files-size-in-c
-    const char* filepath = file.c_str();
-    ifstream in(filepath, ifstream::in | ifstream::binary);
-    in.seekg(0, ifstream::end);
-    streampos end = in.tellg();
-    
-    zip_source* source = zip_source_file(zipHandle, filepath, 0, end);
-    if (source!=NULL) {
-        libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
-        if (result>=0) { return true; } 
-        else { zip_source_free(source); } //unable to add the file
-    } else {
-        //unable to create the zip_source
-    }
-    return false;
+    return createdEntries;
 }
 
 bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uint64 length, bool freeData) const {

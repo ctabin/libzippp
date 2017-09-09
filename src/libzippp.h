@@ -39,6 +39,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <map>
 
 //defined in libzip
 struct zip;
@@ -352,6 +353,13 @@ namespace libzippp {
          * The zip file must be open otherwise false will be returned.
          */
         bool addFile(const std::string& entryName, const std::string& file) const;
+        
+        /**
+         * Add all the specified files in the archive. The key of the map is the entry name whereas
+         * it's associated value is the file path. This method will return the number of files that
+         * have been created.
+         */
+        int addFiles(const std::map<std::string, std::string>& files) const;
         
         /**
          * Add the given data to the specified entry name in the archive. If the entry already exists,
