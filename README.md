@@ -197,3 +197,10 @@ that will use it. To avoid this issue, you'll have to link the library staticall
 
 More information [here](http://www.codeproject.com/Articles/28969/HowTo-Export-C-classes-from-a-DLL).
 
+#### Libzip windows patch
+
+The following files have been patch in order to compile with VS2012 on windows:
+* lib/CMakeFiles.txt => add SHARED keyword and STATIC library
+* src/ziptool.c => redefine STDIN_FILENO
+* regress/fseek.c => add `compat.h`
+
