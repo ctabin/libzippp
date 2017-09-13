@@ -99,3 +99,5 @@ libzip: libzip-compile
 # LIBRARIES TARGET
 
 libraries: zlib libzip
+
+libraries-download: zlib-download libzip-download
