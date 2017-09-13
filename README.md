@@ -9,11 +9,12 @@ Compilation has been tested with:
 - GCC 4.9.3 (GNU/Linux Gentoo)
 - GCC 6.2.1 (GNU/Linux Debian) 
 - GCC 6.3.0 (GNU/Linux Debian) 
+- GCC 7.2.0 (GNU/Linux Debian) 
 - MS Visual Studio 2012 (Windows 7)
 
 Underlying libraries:
 - [ZLib](http://zlib.net) 1.2.11
-- [libzip](http://www.nih.at/libzip) 1.2.0
+- [libzip](http://www.nih.at/libzip) 1.3.0
 
 # Compilation
 
@@ -25,13 +26,13 @@ Underlying libraries:
 3. You may want to run the tests (optional): ```make tests```
 4. Now you just have to include the src folder in your include path and
   link against *libzippp.a* or *libzippp.so* (do not forget to also link 
-  against libzip libraries in *lib/libzip-1.2.0/lib/.libs/*).
+  against libzip libraries in *lib/libzip-1.3.0/lib/.libs/*).
   An example of compilation with g++:
   
 ```Shell
-g++ -I./lib/libzip-1.2.0/lib -I./src \
+g++ -I./lib/libzip-1.3.0/lib -I./src \
     main.cpp libzippp.a \
-    lib/libzip-1.2.0/lib/.libs/libzip.a \
+    lib/libzip-1.3.0/lib/.libs/libzip.a \
     lib/zlib-1.2.11/libz.a
 ```
 
@@ -43,15 +44,15 @@ g++ -I./lib/libzip-1.2.0/lib -I./src \
   <MSVS11>\Common7\Tools\VsDevCmd.bat
   ```
   
-1. Download [libzip](http://www.nih.at/libzip/libzip-1.2.0.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
+1. Download [libzip](http://www.nih.at/libzip/libzip-1.3.0.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
   ```
   libzippp/compile.bat
   libzippp/lib/zlib-1.2.11
-  libzippp/lib/libzip-1.2.0
+  libzippp/lib/libzip-1.3.0
   ```
 
-2. Extract the file *lib/libzip-1.2.0-windows-VS2012-patch.zip*. This file contains 
+2. Extract the file *lib/libzip-1.3.0-windows-patch.zip*. This file contains 
   changes to be done in libzip in order to compile successfully with Visual 
   Studio 2012. Simply accept the erasing of the file (a #define has been added
   in zip.h).
@@ -195,4 +196,11 @@ Hence you'll need to use the same compiler for libzippp and the pieces of code
 that will use it. To avoid this issue, you'll have to link the library statically.
 
 More information [here](http://www.codeproject.com/Articles/28969/HowTo-Export-C-classes-from-a-DLL).
+
+#### Libzip windows patch
+
+The following files have been patch in order to compile with VS2012 on windows:
+* lib/CMakeFiles.txt => add SHARED keyword and STATIC library
+* src/ziptool.c => redefine STDIN_FILENO
+* regress/fseek.c => add `compat.h`
 
