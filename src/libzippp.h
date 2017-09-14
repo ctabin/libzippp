@@ -1,6 +1,6 @@
 
 #ifndef LIBZIPPP_H
-#define	LIBZIPPP_H
+#define LIBZIPPP_H
 
 /*
   libzippp.h -- exported declarations.
@@ -39,6 +39,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <map>
 
 //defined in libzip
 struct zip;
@@ -94,6 +95,7 @@ typedef unsigned int uint;
 
 namespace libzippp {
     class ZipEntry;
+    class ZipSource;
     
     /**
      * Represents a ZIP archive. This class provides useful methods to handle an archive
@@ -350,8 +352,17 @@ namespace libzippp {
          * If the entryName specifies folders that doesn't exist in the archive, they will be automatically created.
          * If the entryName denotes a directory, this method returns false.
          * The zip file must be open otherwise false will be returned.
+         * 
+         * This method is a wrapper around ZipArchive::addFiles.
          */
         bool addFile(const std::string& entryName, const std::string& file) const;
+        
+        /**
+         * Add all the specified files in the archive. The key of the map is the entry name whereas
+         * it's associated value is the file path. This method will return the number of files that
+         * have been created.
+         */
+        int addFiles(const std::map<std::string, std::string>& files) const;
         
         /**
          * Add the given data to the specified entry name in the archive. If the entry already exists,
@@ -359,8 +370,16 @@ namespace libzippp {
          * If the entryName specifies folders that doesn't exist in the archive, they will be automatically created.
          * If the entryName denotes a directory, this method returns false.
          * If the zip file is not open, this method returns false.
+         * 
+         * This method is a wrapper around ZipArchive::addSources that uses a SimpleZipSource instance.
          */
         bool addData(const std::string& entryName, const void* data, libzippp_uint64 length, bool freeData=false) const;
+        
+        /**
+         * Add the given sources in the archive.
+         * This method returns the number of sources that have been created.
+         */
+        int addSources(const std::vector<ZipSource*>& sources) const;
         
         /**
          * Add the specified entry to the ZipArchive. All the needed hierarchy will be created.
@@ -369,8 +388,17 @@ namespace libzippp {
          * returns false. If the entry already exists, this method returns true.
          * This method will only add the specified entry. The 'real' directory may exist or not.
          * If the directory exists, the files in it won't be added to the archive.
+         * 
+         * This method is a wrapper around ZipArchive::addEntries.
          */
         bool addEntry(const std::string& entryName) const;
+        
+        /**
+         * Add all the specified entries to the ZipArchive. All the needed hierarchies will be created.
+         * The entries name must be directories (end with '/').
+         * This method will return the number of created entries.
+         */
+        int addEntries(const std::vector<std::string>& entries) const;
         
         /**
          * Returns the mode in which the file has been open.
@@ -503,7 +531,7 @@ namespace libzippp {
          * doesn't belong to the archive, LIBZIPPP_ERROR_FOPEN_FAILURE if zip_fopen_index() has failed, LIBZIPPP_ERROR_MEMORY_ALLOCATION if 
          * a memory allocation has failed, LIBZIPPP_ERROR_FREAD_FAILURE if zip_fread() didn't succeed to read data, 
          * LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE if the last ofstream operation has failed, LIBZIPPP_ERROR_OWRITE_FAILURE if fread() didn't 
-         * return the exact amount of requested bytes and -9 if the amount of extracted bytes didn't match the size of the file (unknown error).
+         * return the exact amount of requested bytes and LIBZIPPP_ERROR_UNKNOWN if the amount of extracted bytes didn't match the size of the file (unknown error).
          * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
          * The method doesn't close the ofstream after the extraction.
          */
@@ -522,6 +550,49 @@ namespace libzippp {
         
         ZipEntry(const ZipArchive* zipFile, const std::string& name, libzippp_uint64 index, time_t time, libzippp_uint16 compMethod, libzippp_uint16 encMethod, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
                 zipFile(zipFile), name(name), index(index), time(time), compressionMethod(compMethod), encryptionMethod(encMethod), size(size), sizeComp(sizeComp), crc(crc) {}
+    };
+    
+    /**
+     * Simple wrapper class to add data in batch.
+     */
+    class LIBZIPPP_API ZipSource {
+    public:
+        ZipSource(std::string entryName) : entryName(entryName) {}
+        virtual ~ZipSource(void) {}
+        
+        /**
+         * Returns the entry name.
+         */
+        std::string getEntryName(void) const { return entryName; }
+        
+        /**
+         * This method will be invoked to read the data to be add to the archive.
+         * The return value is the raw data array.
+         * The dataSize parameter must be updated with the length of the returned array.
+         * The freeData indicates if the returned array must be freeed by the underlying library (false by default).
+         */
+        virtual const void* readData(libzippp_uint64* dataSize, bool* freeData) = 0;
+        
+    private:
+        std::string entryName;
+    };
+    
+    /**
+     * Simple basic implementation of ZipSource that only stores and return a raw data array.
+     * This class won't delete the data that it holds.
+     */
+    class LIBZIPPP_API SimpleZipSource : public ZipSource {
+    public:
+        SimpleZipSource(std::string entryName, const void* data, libzippp_uint64 length, bool freeData=false) : ZipSource(entryName), data(data), length(length), freeData(freeData) {}
+        virtual ~SimpleZipSource(void) { data=NULL; }
+
+        //will simply return the stored data
+        virtual const void* readData(libzippp_uint64* dataSize, bool* freeData);
+
+    private:
+        const void* data;
+        libzippp_uint64 length;
+        bool freeData;
     };
 }
 

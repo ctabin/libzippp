@@ -51,11 +51,11 @@ bool ZipEntry::setComment(const string& str) const {
 }
 
 bool ZipEntry::isCompressionEnabled(void) const {
-	return zipFile->isEntryCompressionEnabled(*this);
+    return zipFile->isEntryCompressionEnabled(*this);
 }
 
 bool ZipEntry::setCompressionEnabled(bool value) const {
-	return zipFile->setEntryCompressionEnabled(*this, value);
+    return zipFile->setEntryCompressionEnabled(*this, value);
 }
 
 string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const {
@@ -175,11 +175,11 @@ bool ZipArchive::setComment(const string& comment) const {
 }
 
 bool ZipArchive::isEntryCompressionEnabled(const ZipEntry& entry) const {
-	return entry.compressionMethod==ZIP_CM_DEFLATE;
+    return entry.compressionMethod==ZIP_CM_DEFLATE;
 }
 
 bool ZipArchive::setEntryCompressionEnabled(const ZipEntry& entry, bool value) const {
-	if (!isOpen()) { return false; }
+    if (!isOpen()) { return false; }
     if (entry.zipFile!=this) { return false; }
     if (mode==READ_ONLY) { return false; }
     
@@ -441,74 +441,125 @@ int ZipArchive::renameEntry(const string& e, const string& newName) const {
 }
 
 bool ZipArchive::addFile(const string& entryName, const string& file) const {
-    if (!isOpen()) { return false; }
-    if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (IS_DIRECTORY(entryName)) { return false; }
+    map<string,string> input;
+    input[entryName] = file;
+    return addFiles(input)==1;
+}
+
+int ZipArchive::addFiles(const map<string,string>& entries) const {
+    if (!isOpen()) { return 0; }
+    if (mode==READ_ONLY) { return 0; } //adding not allowed
     
-    int lastSlash = entryName.rfind(DIRECTORY_SEPARATOR);
-    if (lastSlash!=-1) { //creates the needed parent directories
-        string dirEntry = entryName.substr(0, lastSlash+1);
-        bool dadded = addEntry(dirEntry);
-        if (!dadded) { return false; }
+    int createdEntries = 0;
+    map<string,string>::const_iterator it;
+    for(it=entries.begin() ; it!=entries.end() ; ++it) {
+        string entryName = it->first;
+        string file = it->second;
+        
+        if (IS_DIRECTORY(entryName)) { continue; }
+    
+        int lastSlash = entryName.rfind(DIRECTORY_SEPARATOR);
+        if (lastSlash!=-1) { //creates the needed parent directories
+            string dirEntry = entryName.substr(0, lastSlash+1);
+            bool dadded = addEntry(dirEntry);
+            if (!dadded) { continue; }
+        }
+        
+        //retrieves the length of the file
+        //http://stackoverflow.com/questions/5840148/how-can-i-get-a-files-size-in-c
+        const char* filepath = file.c_str();
+        ifstream in(filepath, ifstream::in | ifstream::binary);
+        in.seekg(0, ifstream::end);
+        streampos end = in.tellg();
+        
+        zip_source* source = zip_source_file(zipHandle, filepath, 0, end);
+        if (source!=NULL) {
+            libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
+            if (result<0) { zip_source_free(source); } //unable to add the file
+        } else {
+            //unable to create the zip_source
+            continue;
+        }
+        
+        ++createdEntries;
     }
-    
-    //retrieves the length of the file
-    //http://stackoverflow.com/questions/5840148/how-can-i-get-a-files-size-in-c
-    const char* filepath = file.c_str();
-    ifstream in(filepath, ifstream::in | ifstream::binary);
-    in.seekg(0, ifstream::end);
-    streampos end = in.tellg();
-    
-    zip_source* source = zip_source_file(zipHandle, filepath, 0, end);
-    if (source!=NULL) {
-        libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
-        if (result>=0) { return true; } 
-        else { zip_source_free(source); } //unable to add the file
-    } else {
-        //unable to create the zip_source
-    }
-    return false;
+    return createdEntries;
 }
 
 bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uint64 length, bool freeData) const {
-    if (!isOpen()) { return false; }
-    if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (IS_DIRECTORY(entryName)) { return false; }
+    SimpleZipSource src(entryName, data, length, freeData);
     
-    int lastSlash = entryName.rfind(DIRECTORY_SEPARATOR);
-    if (lastSlash!=-1) { //creates the needed parent directories
-        string dirEntry = entryName.substr(0, lastSlash+1);
-        bool dadded = addEntry(dirEntry);
-        if (!dadded) { return false; }
+    vector<ZipSource*> sources;
+    sources.push_back(&src);
+    return addSources(sources)==1;
+}
+
+int ZipArchive::addSources(const vector<ZipSource*>& sources) const {
+    if (!isOpen()) { return 0; }
+    if (mode==READ_ONLY) { return 0; } //adding not allowed
+    
+    int createdEntries = 0;
+    vector<ZipSource*>::const_iterator it;
+    for(it=sources.begin() ; it!=sources.end() ; ++it) {
+        ZipSource* src = *it;
+        string entryName = src->getEntryName();
+        if (IS_DIRECTORY(entryName)) { continue; }
+        
+        int lastSlash = entryName.rfind(DIRECTORY_SEPARATOR);
+        if (lastSlash!=-1) { //creates the needed parent directories
+            string dirEntry = entryName.substr(0, lastSlash+1);
+            bool dadded = addEntry(dirEntry);
+            if (!dadded) { continue; }
+        }
+        
+        bool freeData = false;
+        libzippp_uint64 length = 0;
+        const void* data = src->readData(&length, &freeData);
+        
+        zip_source* source = zip_source_buffer(zipHandle, data, length, freeData);
+        if (source!=NULL) {
+            libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
+            if (result<0) { zip_source_free(source); } //unable to add the file
+        } else {
+            //unable to create the zip_source
+            continue;
+        }
+        
+        ++createdEntries;
     }
     
-    zip_source* source = zip_source_buffer(zipHandle, data, length, freeData);
-    if (source!=NULL) {
-        libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
-        if (result>=0) { return true; } 
-        else { zip_source_free(source); } //unable to add the file
-    } else {
-        //unable to create the zip_source
-    }
-    return false;
+    return createdEntries;
 }
 
 bool ZipArchive::addEntry(const string& entryName) const {
-    if (!isOpen()) { return false; }
-    if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (!IS_DIRECTORY(entryName)) { return false; }
+    std::vector<string> container;
+    container.push_back(entryName);
+    return addEntries(container)==1;
+}
+
+int ZipArchive::addEntries(const vector<string>& entries) const {
+    if (!isOpen()) { return 0; }
+    if (mode==READ_ONLY) { return 0; } //adding not allowed
     
-    int nextSlash = entryName.find(DIRECTORY_SEPARATOR);
-    while (nextSlash!=-1) {
-        string pathToCreate = entryName.substr(0, nextSlash+1);
-        if (!hasEntry(pathToCreate)) {
-            libzippp_int64 result = zip_dir_add(zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
-            if (result==-1) { return false; }
+    int createdEntries = 0;
+    vector<string>::const_iterator it;
+    for(it=entries.begin() ; it!=entries.end() ; ++it) {
+        string entryName = *it;
+        if (!IS_DIRECTORY(entryName)) { continue; }
+        
+        int nextSlash = entryName.find(DIRECTORY_SEPARATOR);
+        while (nextSlash!=-1) {
+            string pathToCreate = entryName.substr(0, nextSlash+1);
+            if (!hasEntry(pathToCreate)) {
+                libzippp_int64 result = zip_dir_add(zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
+                if (result==-1) { continue; }
+            }
+            nextSlash = entryName.find(DIRECTORY_SEPARATOR, nextSlash+1);
         }
-        nextSlash = entryName.find(DIRECTORY_SEPARATOR, nextSlash+1);
+        ++createdEntries;
     }
     
-    return true;
+    return createdEntries;
 }
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state, libzippp_uint64 chunksize) const {
@@ -604,4 +655,10 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, Sta
        iRes = LIBZIPPP_ERROR_FOPEN_FAILURE;
     }
     return iRes;
+}
+
+const void* SimpleZipSource::readData(libzippp_uint64* ds, bool* fd) {
+    *ds = length;
+    *fd = freeData;
+    return data;
 }
