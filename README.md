@@ -38,7 +38,7 @@ g++ -I./lib/libzip-1.3.0/lib -I./src \
 
 ### WINDOWS
 
-0. Make sure you have cmake (*cmake.exe* must be in the PATH) and MS Visual 
+0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual 
   Studio 2012. The dev command prompt path (defined in *compile.bat*) should be:
   ```
   <MSVS11>\Common7\Tools\VsDevCmd.bat
