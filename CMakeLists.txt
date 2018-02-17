@@ -1,13 +1,17 @@
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.9.5)
 
 PROJECT(libzippp)
 
 SET(PACKAGE "libzippp")
 SET(VERSION "0.2")
 
-SET(ZLIB_PATH "lib/zlib-1.2.11" CACHE STRING "Path to zlib")
-SET(LIBZIP_PATH "lib/libzip-1.3.0" CACHE STRING "Path to libzip")
+if(NOT WIN32)
+  MESSAGE(FATAL_ERROR "This CMakeLists is only designed for Windows. Under UNIX, use make instead")
+endif()
+
+SET(ZLIB_PATH "${CMAKE_SOURCE_DIR}/lib/zlib-1.2.11" CACHE STRING "Path to zlib")
+SET(LIBZIP_PATH "${CMAKE_SOURCE_DIR}/lib/libzip-1.4.0" CACHE STRING "Path to libzip")
 
 FIND_PACKAGE(ZLIB REQUIRED)
 INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
