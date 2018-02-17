@@ -4,7 +4,7 @@ OBJ=obj
 LIB=lib
 ZLIB_VERSION=1.2.11
 ZLIB=$(LIB)/zlib-$(ZLIB_VERSION)
-LIBZIP_VERSION=1.3.0
+LIBZIP_VERSION=1.4.0
 LIBZIP=$(LIB)/libzip-$(LIBZIP_VERSION)
 
 # for optimal compilation speed, should be <nb_proc>+1
@@ -15,7 +15,7 @@ all: libzippp-static libzippp-shared
 libzippp-compile:
 	rm -rf $(OBJ)
 	mkdir $(OBJ)
-	$(CC) -g -fPIC -c -I$(LIBZIP)/lib -o $(OBJ)/libzippp.o $(CFLAGS) src/libzippp.cpp
+	$(CC) -g -fPIC -c -I$(LIBZIP)/lib -I$(LIBZIP)/build -o $(OBJ)/libzippp.o $(CFLAGS) src/libzippp.cpp
 
 libzippp-static: libzippp-compile
 	ar rvs libzippp.a $(OBJ)/libzippp.o
@@ -25,18 +25,18 @@ libzippp-shared: libzippp-compile
 
 libzippp-tests: libzippp-static libzippp-shared
 	if [ -d $(ZLIB) ]; then \
-		$(CC) -o test_static -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/lib/.libs/libzip.a $(ZLIB)/libz.a; \
-		$(CC) -o test_shared -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/lib/.libs -L$(ZLIB) -lzippp -lzip -lz -Wl,-rpath=.; \
+		$(CC) -o test_static -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a; \
+		$(CC) -o test_shared -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz -Wl,-rpath=.; \
 	else \
-		$(CC) -o test_static -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/lib/.libs/libzip.a -lz; \
-		$(CC) -o test_shared -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/lib/.libs -lzippp -lzip -lz -Wl,-rpath=.; \
+		$(CC) -o test_static -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz; \
+		$(CC) -o test_shared -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz -Wl,-rpath=.; \
 	fi;
 
 clean-tests:
 	@rm -rf *.zip
 
 tests: libzippp-tests clean-tests
-	LD_LIBRARY_PATH="$(LIBZIP)/lib/.libs" valgrind --suppressions=ld.supp ./test_shared
+	LD_LIBRARY_PATH="$(LIBZIP)/build/lib" valgrind --suppressions=ld.supp ./test_shared
 	valgrind --suppressions=ld.supp ./test_static
 
 clean:
@@ -84,17 +84,24 @@ libzip-patch: libzip-unzip
 		cd $(LIB)/libzip-$(LIBZIP_VERSION) && patch -p1 < ../libzip-$(LIBZIP_VERSION)-linux.patch; \
 	fi;
 
-libzip-configure: libzip-patch
+libzip-build-folder:
+	mkdir -p $(LIBZIP)/build;
+
+libzip-build-shared: libzip-patch libzip-build-folder
 	if [ -d "$(ZLIB)" ]; then \
-		cd $(LIBZIP) && ./configure --with-zlib=$(abspath $(LIB)/zlib-$(ZLIB_VERSION));  \
+		cd $(LIBZIP)/build && cmake .. -DZLIB_LIBRARY_RELEASE=../../../$(ZLIB)/libz.so -DZLIB_INCLUDE_DIR=../../../$(ZLIB) -DBUILD_SHARED_LIBS=ON && make -j$(NBPROC);  \
 	else \
-		cd $(LIBZIP) && ./configure; \
+		cd $(LIBZIP)/build && cmake .. -DBUILD_SHARED_LIBS=ON && make -j$(NBPROC);  \
+	fi;
+	
+libzip-build-static: libzip-patch libzip-build-folder
+	if [ -d "$(ZLIB)" ]; then \
+		cd $(LIBZIP)/build && cmake .. -DZLIB_LIBRARY_RELEASE=../../../$(ZLIB)/libz.a -DZLIB_INCLUDE_DIR=../../../$(ZLIB) -DBUILD_SHARED_LIBS=OFF && make -j$(NBPROC);  \
+	else \
+		cd $(LIBZIP)/build && cmake .. -DBUILD_SHARED_LIBS=OFF && make -j$(NBPROC);  \
 	fi;
 
-libzip-compile: libzip-configure
-	cd $(LIBZIP) && make -j$(NBPROC)
-
-libzip: libzip-compile
+libzip: libzip-build-shared libzip-build-static
 
 # LIBRARIES TARGET
 
