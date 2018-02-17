@@ -4,7 +4,7 @@ OBJ=obj
 LIB=lib
 ZLIB_VERSION=1.2.11
 ZLIB=$(LIB)/zlib-$(ZLIB_VERSION)
-LIBZIP_VERSION=1.3.0
+LIBZIP_VERSION=1.3.2
 LIBZIP=$(LIB)/libzip-$(LIBZIP_VERSION)
 
 # for optimal compilation speed, should be <nb_proc>+1
