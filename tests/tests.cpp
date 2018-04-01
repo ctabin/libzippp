@@ -42,7 +42,7 @@
 #include <fstream>
 #include <string>
 
-#include "libzippp.h"
+#include "..\src\libzippp.h"
 
 using namespace std;
 using namespace libzippp;
