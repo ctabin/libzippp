@@ -38,7 +38,6 @@ TARGET_LINK_LIBRARIES(libzippp_shared
 			optimized ${LIBZIP_LIBRARY_RELEASE}
 			${ZLIB_LIBRARY})
 
-add_definitions(-DLIBZIPPP_EXPORTS)
 ADD_LIBRARY(libzippp_static STATIC "src/libzippp.cpp")
 
 ADD_EXECUTABLE(libzippp_shared_test "tests/tests.cpp")
