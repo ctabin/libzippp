@@ -50,5 +50,5 @@ TARGET_LINK_LIBRARIES(libzippp_static_test
                         libzippp_static
                         debug ${LIBZIP_LIBRARY_DEBUG}
 			optimized ${LIBZIP_LIBRARY_RELEASE}
-			debug ../${ZLIB_PATH}/build/Debug/zlibstaticd
-			optimized ../${ZLIB_PATH}/build/Release/zlibstatic)
+			debug ${ZLIB_LIBRARY_DEBUG}
+			optimized ${ZLIB_LIBRARY_RELEASE})
