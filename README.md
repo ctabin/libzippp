@@ -199,8 +199,4 @@ More information [here](http://www.codeproject.com/Articles/28969/HowTo-Export-C
 
 #### Libzip windows patch
 
-The following files have been patch in order to compile with VS2012 on windows:
-* lib/CMakeLists.txt => add SHARED keyword and STATIC library
-* src/ziptool.c => redefine STDIN_FILENO
-* regress/fseek.c => add `compat.h`
-
+Not done yet
