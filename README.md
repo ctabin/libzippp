@@ -14,7 +14,7 @@ Compilation has been tested with:
 
 Underlying libraries:
 - [ZLib](http://zlib.net) 1.2.11
-- [libzip](http://www.nih.at/libzip) 1.4.0
+- [libzip](http://www.nih.at/libzip) 1.5.1
 
 # Compilation
 
@@ -26,15 +26,23 @@ Underlying libraries:
 3. You may want to run the tests (optional): ```make tests```
 4. Now you just have to include the src folder in your include path and
   link against *libzippp.a* or *libzippp.so* (do not forget to also link 
-  against libzip libraries in *lib/libzip-1.4.0/lib/.libs/*).
+  against libzip libraries in *lib/libzip-1.5.1/lib/.libs/*).
   An example of compilation with g++:
   
 ```Shell
-g++ -I./lib/libzip-1.4.0/lib -I./src \
+g++ -I./lib/libzip-1.5.1/lib -I./src \
     main.cpp libzippp.a \
-    lib/libzip-1.4.0/lib/.libs/libzip.a \
+    lib/libzip-1.5.1/lib/.libs/libzip.a \
     lib/zlib-1.2.11/libz.a
 ```
+
+#### Encryption
+
+Since version 1.5, libzip uses an underlying cryptographic library (OpenSSL, GNUTLS or CommonCrypto) that
+is necessary for static compilation. By default, libzippp will use `-lssl -lcrypto` (OpenSSL) as default flags
+to compile the tests. This can be changed by using `make CRYPTO_FLAGS=-lsome_lib tests`
+
+See [here](https://github.com/nih-at/libzip/blob/master/INSTALL.md) for more information.
 
 ### WINDOWS
 
@@ -44,15 +52,15 @@ g++ -I./lib/libzip-1.4.0/lib -I./src \
   <MSVS11>\Common7\Tools\VsDevCmd.bat
   ```
   
-1. Download [libzip](http://www.nih.at/libzip/libzip-1.4.0.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
+1. Download [libzip](http://www.nih.at/libzip/libzip-1.5.1.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
   ```
   libzippp/compile.bat
   libzippp/lib/zlib-1.2.11
-  libzippp/lib/libzip-1.4.0
+  libzippp/lib/libzip-1.5.1
   ```
 
-2. Extract the file *lib/libzip-1.4.0-windows-patch.zip*. This file contains 
+2. Extract the file *lib/libzip-1.5.1-windows-patch.zip*. This file contains 
   changes to be done in libzip in order to compile successfully with Visual 
   Studio 2012. Simply accept the erasing of the file (a #define has been added
   in zip.h).
