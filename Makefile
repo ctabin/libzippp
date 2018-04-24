@@ -4,8 +4,9 @@ OBJ=obj
 LIB=lib
 ZLIB_VERSION=1.2.11
 ZLIB=$(LIB)/zlib-$(ZLIB_VERSION)
-LIBZIP_VERSION=1.4.0
+LIBZIP_VERSION=1.5.1
 LIBZIP=$(LIB)/libzip-$(LIBZIP_VERSION)
+CRYPTO_FLAGS=-lssl -lcrypto
 
 # for optimal compilation speed, should be <nb_proc>+1
 NBPROC=5
@@ -25,11 +26,11 @@ libzippp-shared: libzippp-compile
 
 libzippp-tests: libzippp-static libzippp-shared
 	if [ -d $(ZLIB) ]; then \
-		$(CC) -o test_static -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a; \
-		$(CC) -o test_shared -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz -Wl,-rpath=.; \
+		$(CC) -o test_static -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a $(CRYPTO_FLAGS); \
+		$(CC) -o test_shared -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz $(CRYPTO_FLAGS) -Wl,-rpath=.; \
 	else \
-		$(CC) -o test_static -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz; \
-		$(CC) -o test_shared -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz -Wl,-rpath=.; \
+		$(CC) -o test_static -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz $(CRYPTO_FLAGS)o; \
+		$(CC) -o test_shared -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz $(CRYPTO_FLAGS) -Wl,-rpath=.; \
 	fi;
 
 clean-tests:
