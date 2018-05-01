@@ -42,7 +42,11 @@
 #include <fstream>
 #include <string>
 
+#ifdef _MSC_VER
+#include "..\src\libzippp.h"
+#else
 #include "libzippp.h"
+#endif
 
 using namespace std;
 using namespace libzippp;
