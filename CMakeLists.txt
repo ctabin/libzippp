@@ -10,11 +10,9 @@ if(NOT WIN32)
   MESSAGE(FATAL_ERROR "This CMakeLists is only designed for Windows. Under UNIX, use make instead")
 endif()
 
-#SET(ZLIB_PATH "${CMAKE_SOURCE_DIR}/lib/zlib-1.2.11" CACHE STRING "Path to zlib")
-#SET(LIBZIP_PATH "${CMAKE_SOURCE_DIR}/lib/libzip-1.4.0" CACHE STRING "Path to libzip")
-set(LIBZIP_INCLUDE_DIR "" CACHE PATH "Path to libzip include folder.")
-set(LIBZIP_LIBRARY_RELEASE "" CACHE FILEPATH "Path to libzip release library.")
-set(LIBZIP_LIBRARY_DEBUG "" CACHE FILEPATH "Path to libzip debug library.")
+set(LIBZIP_INCLUDE_DIR "${LIBZIP_HOME}/lib;${LIBZIP_HOME}/build" CACHE PATH "Path to libzip include folder.")
+set(LIBZIP_LIBRARY_RELEASE "../${LIBZIP_HOME}/build/lib/Release/zip" CACHE FILEPATH "Path to libzip release library.")
+set(LIBZIP_LIBRARY_DEBUG "../${LIBZIP_HOME}/build/lib/Debug/zip" CACHE FILEPATH "Path to libzip debug library.")
 
 FIND_PACKAGE(ZLIB REQUIRED)
 INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
@@ -22,10 +20,6 @@ set(CMAKE_REQUIRED_INCLUDES ${ZLIB_INCLUDE_DIR})
 IF(ZLIB_VERSION_STRING VERSION_LESS "1.1.2")
   MESSAGE(FATAL_ERROR "-- ZLIB version too old, please install at least v1.1.2")
 ENDIF(ZLIB_VERSION_STRING VERSION_LESS "1.1.2")
-
-#INCLUDE_DIRECTORIES(${LIBZIP_PATH}/lib)
-#INCLUDE_DIRECTORIES(${LIBZIP_PATH}/build)
-#INCLUDE_DIRECTORIES("src")
 
 INCLUDE_DIRECTORIES(${LIBZIP_INCLUDE_DIR})
 set(CMAKE_REQUIRED_INCLUDES ${LIBZIP_INCLUDE_DIR})
@@ -49,6 +43,6 @@ ADD_EXECUTABLE(libzippp_static_test "tests/tests.cpp")
 TARGET_LINK_LIBRARIES(libzippp_static_test 
                         libzippp_static
                         debug ${LIBZIP_LIBRARY_DEBUG}
-			optimized ${LIBZIP_LIBRARY_RELEASE}
-			debug ${ZLIB_LIBRARY_DEBUG}
-			optimized ${ZLIB_LIBRARY_RELEASE})
+                        optimized ${LIBZIP_LIBRARY_RELEASE}
+                        debug ${ZLIB_LIBRARY_DEBUG}
+                        optimized ${ZLIB_LIBRARY_RELEASE})

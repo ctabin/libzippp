@@ -3,7 +3,7 @@
 
 SET vs2012devprompt=C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Tools\VsDevCmd.bat
 SET zlib=lib\zlib-1.2.11
-SET libzip=lib\libzip-1.3.0
+SET libzip=lib\libzip-1.5.1
 
 if not exist "%zlib%" goto error_zlib_not_found
 if not exist "%libzip%" goto error_libzip_not_found
@@ -44,7 +44,7 @@ if exist "build" goto compile_libzippp
 echo Compiling lizippp...
 mkdir build
 cd "build"
-cmake .. -G"Visual Studio 11" -DCMAKE_PREFIX_PATH="%zlib%/build/install"
+cmake .. -G"Visual Studio 11" -DCMAKE_PREFIX_PATH="%zlib%/build/install" -DLIBZIP_HOME="%libzip%"
 if %ERRORLEVEL% GEQ 1 goto error_libzippp
 cd ".."
 
@@ -75,7 +75,7 @@ copy ..\build\Debug\libzippp_static_test.exe debug
 copy ..\build\Debug\libzippp.dll debug
 copy ..\build\Debug\libzippp.lib debug
 copy ..\build\Debug\libzippp_static.lib debug
-copy ..\%zlib%\build\Release\zlib.dll debug
+copy ..\%zlib%\build\Debug\zlibd.dll debug
 copy ..\%libzip%\build\lib\Debug\zip.dll debug
 cd ..
 

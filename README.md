@@ -46,6 +46,27 @@ See [here](https://github.com/nih-at/libzip/blob/master/INSTALL.md) for more inf
 
 ### WINDOWS
 
+#### From Stage 1 - Use prepared environment
+
+
+0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual 
+  Studio 2012. The dev command prompt path (defined in *compile.bat*) should be:
+  ```
+  <MSVS11>\Common7\Tools\VsDevCmd.bat
+  ```
+
+1. Download the *libzip-\<version\>-windows-ready_to_compile.zip* file from the release 
+  and extract it somewhere on your system. This will create a prepared structure, so *libzippp* can 
+  be compiled along with the needed libraries.
+
+2. Simply execute the *compile.bat* file. This will compile *zlib*, *libzip* and
+ finally *libzippp*.
+
+3. You'll have a *dist* folder containing the *release* and *debug* folders 
+  where you can now execute the libzippp tests.
+
+#### From Stage 0 - DIY
+
 0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual 
   Studio 2012. The dev command prompt path (defined in *compile.bat*) should be:
   ```
@@ -60,18 +81,13 @@ See [here](https://github.com/nih-at/libzip/blob/master/INSTALL.md) for more inf
   libzippp/lib/libzip-1.5.1
   ```
 
-2. Extract the file *lib/libzip-1.5.1-windows-patch.zip*. This file contains 
-  changes to be done in libzip in order to compile successfully with Visual 
-  Studio 2012. Simply accept the erasing of the file (a #define has been added
-  in zip.h).
-
-3. Execute the *compile.bat* (simply double-click on it). The compilation should 
+2. Execute the *compile.bat* (simply double-click on it). The compilation should 
   go without error.
 
-4. You'll have a *dist* folder containing the *release* and *debug* folders 
+3. You'll have a *dist* folder containing the *release* and *debug* folders 
   where you can now execute the libzippp tests.
 
-5. You can either use *libzippp.dll* and *libzippp.lib* to link dynamically the 
+4. You can either use *libzippp.dll* and *libzippp.lib* to link dynamically the 
   library or simply use *libzippp_static.lib* to link it statically. Unless you 
   also link zlib and libzippp statically, you'll need the dll packaged with 
   your executable.
@@ -205,6 +221,3 @@ that will use it. To avoid this issue, you'll have to link the library staticall
 
 More information [here](http://www.codeproject.com/Articles/28969/HowTo-Export-C-classes-from-a-DLL).
 
-#### Libzip windows patch
-
-Not done yet
