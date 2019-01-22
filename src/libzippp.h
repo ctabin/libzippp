@@ -42,6 +42,7 @@
 
 //defined in libzip
 struct zip;
+struct zip_source;
 
 #define ENTRY_PATH_SEPARATOR '/'
 #define ENTRY_IS_DIRECTORY(str) ((str).length()>0 && (str)[(str).length()-1]==ENTRY_PATH_SEPARATOR)
@@ -148,6 +149,8 @@ namespace libzippp {
          */
         bool open(OpenMode mode=READ_ONLY, bool checkConsistency=false);
         
+		bool open(const char* buffer, uint32_t sz, OpenMode mode = READ_ONLY, bool checkConsistency = false);
+
         /**
          * Closes the ZipArchive and releases all the resources held by it. If the ZipArchive was
          * not open previously, this method does nothing. If the archive was open in modification
@@ -296,7 +299,7 @@ namespace libzippp {
          * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
          * The method doesn't close the ofstream after the extraction.
          */
-        int readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state=CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
+        int readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state=CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
 
         /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
@@ -380,6 +383,7 @@ namespace libzippp {
     private:
         std::string path;
         zip* zipHandle;
+		zip_source* zipSource;
         OpenMode mode;
         std::string password;
         
@@ -506,7 +510,7 @@ namespace libzippp {
          * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
          * The method doesn't close the ofstream after the extraction.
          */
-        int readContent(std::ofstream& ofOutput, ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
+        int readContent(std::ostream& ofOutput, ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
         
     private:
         const ZipArchive* zipFile;
