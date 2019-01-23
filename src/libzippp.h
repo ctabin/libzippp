@@ -1,6 +1,6 @@
 
 #ifndef LIBZIPPP_H
-#define	LIBZIPPP_H
+#define LIBZIPPP_H
 
 /*
   libzippp.h -- exported declarations.
@@ -148,8 +148,7 @@ namespace libzippp {
          * mode is the same.
          */
         bool open(OpenMode mode=READ_ONLY, bool checkConsistency=false);
-        
-		bool open(const char* buffer, uint32_t sz, OpenMode mode = READ_ONLY, bool checkConsistency = false);
+        bool open(const char* buffer, uint32_t sz, OpenMode mode=READ_ONLY, bool checkConsistency=false);
 
         /**
          * Closes the ZipArchive and releases all the resources held by it. If the ZipArchive was
@@ -383,7 +382,7 @@ namespace libzippp {
     private:
         std::string path;
         zip* zipHandle;
-		zip_source* zipSource;
+        zip_source* zipSource;
         OpenMode mode;
         std::string password;
         

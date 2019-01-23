@@ -660,11 +660,49 @@ void test20() {
     cout << " done." << endl;
 }
 
+void test21() {
+    cout << "Running test 21...";
+    const char* txtFile = "this is some data";   // 17 Bytes
+    const char* txtFile2 = "this is some data!"; // 18 Bytes
+    int len = strlen(txtFile);
+    int len2 = strlen(txtFile2);
+
+    ZipArchive z1("test.zip");
+    z1.open(ZipArchive::WRITE);
+    z1.addData("somedata", txtFile, len);
+    z1.addData("somedata2", txtFile2, len2);
+    z1.close();
+
+    std::ifstream ifs("test.zip", std::ios::binary);
+    ifs.seekg(0, std::ifstream::end);
+    uint32_t bufferSize = (uint32_t)ifs.tellg();
+    char* buffer = new char[bufferSize];
+    ifs.seekg(std::ifstream::beg);
+    ifs.read(buffer, bufferSize);
+    ifs.close();
+
+    ZipArchive z2("");
+    z2.open(buffer, bufferSize);
+    assert(z2.getNbEntries() == 2);
+    assert(z2.hasEntry("somedata"));
+    assert(z2.hasEntry("somedata2"));
+
+    ZipEntry entry = z2.getEntry("somedata");
+    ZipEntry entry2 = z2.getEntry("somedata2");
+    assert(!entry.isNull());
+    assert(!entry2.isNull());
+
+    z2.close();
+
+    cout << " done." << endl;
+}
+
 int main(int argc, char** argv) {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();
     test16(); test17(); test18(); test19(); test20();
+    test21();
 }
 
 
