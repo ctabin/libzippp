@@ -676,7 +676,7 @@ void test21() {
     std::ifstream ifs("test.zip", std::ios::binary);
     ifs.seekg(0, std::ifstream::end);
     uint32_t bufferSize = (uint32_t)ifs.tellg();
-    char* buffer = new char[bufferSize];
+    char* buffer =  (char*)malloc(bufferSize);
     ifs.seekg(std::ifstream::beg);
     ifs.read(buffer, bufferSize);
     ifs.close();
