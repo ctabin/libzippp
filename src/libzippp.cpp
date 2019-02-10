@@ -174,9 +174,9 @@ int ZipArchive::close(void) {
     if (isOpen()) {
 
         if (zipSource){
-            zip_source_close(zipSource);
-            zip_source_free(zipSource);
-            zipSource = NULL;
+            //zip_source_close(zipSource);
+            //zip_source_free(zipSource);
+            //zipSource = NULL;
         }
 
         int result = zip_close(zipHandle);

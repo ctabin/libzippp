@@ -693,6 +693,7 @@ void test21() {
     assert(!entry2.isNull());
 
     z2.close();
+    free(buffer);
 
     cout << " done." << endl;
 }

@@ -5,3 +5,4 @@ test_static
 test_shared
 *.a
 *.so
+/build
