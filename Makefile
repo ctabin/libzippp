@@ -6,6 +6,7 @@ ZLIB_VERSION=1.2.11
 ZLIB=$(LIB)/zlib-$(ZLIB_VERSION)
 LIBZIP_VERSION=1.5.1
 LIBZIP=$(LIB)/libzip-$(LIBZIP_VERSION)
+LIBZIP_CMAKE=-DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF 
 CRYPTO_FLAGS=-lssl -lcrypto
 
 # for optimal compilation speed, should be <nb_proc>+1
@@ -90,16 +91,16 @@ libzip-build-folder:
 
 libzip-build-shared: libzip-patch libzip-build-folder
 	if [ -d "$(ZLIB)" ]; then \
-		cd $(LIBZIP)/build && cmake .. -DZLIB_LIBRARY_RELEASE=../../../$(ZLIB)/libz.so -DZLIB_INCLUDE_DIR=../../../$(ZLIB) -DBUILD_SHARED_LIBS=ON && make -j$(NBPROC);  \
+		cd $(LIBZIP)/build && cmake .. -DZLIB_LIBRARY_RELEASE=../../../$(ZLIB)/libz.so -DZLIB_INCLUDE_DIR=../../../$(ZLIB) -DBUILD_SHARED_LIBS=ON $(LIBZIP_CMAKE) && make -j$(NBPROC);  \
 	else \
-		cd $(LIBZIP)/build && cmake .. -DBUILD_SHARED_LIBS=ON && make -j$(NBPROC);  \
+		cd $(LIBZIP)/build && cmake .. -DBUILD_SHARED_LIBS=ON $(LIBZIP_CMAKE) && make -j$(NBPROC);  \
 	fi;
 	
 libzip-build-static: libzip-patch libzip-build-folder
 	if [ -d "$(ZLIB)" ]; then \
-		cd $(LIBZIP)/build && cmake .. -DZLIB_LIBRARY_RELEASE=../../../$(ZLIB)/libz.a -DZLIB_INCLUDE_DIR=../../../$(ZLIB) -DBUILD_SHARED_LIBS=OFF && make -j$(NBPROC);  \
+		cd $(LIBZIP)/build && cmake .. -DZLIB_LIBRARY_RELEASE=../../../$(ZLIB)/libz.a -DZLIB_INCLUDE_DIR=../../../$(ZLIB) -DBUILD_SHARED_LIBS=OFF $(LIBZIP_CMAKE) && make -j$(NBPROC);  \
 	else \
-		cd $(LIBZIP)/build && cmake .. -DBUILD_SHARED_LIBS=OFF && make -j$(NBPROC);  \
+		cd $(LIBZIP)/build && cmake .. -DBUILD_SHARED_LIBS=OFF $(LIBZIP_CMAKE) && make -j$(NBPROC);  \
 	fi;
 
 libzip: libzip-build-shared libzip-build-static
