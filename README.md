@@ -21,16 +21,16 @@ Underlying libraries:
 
 ### LINUX
 
-0. Make sure you have the following commands: ```g++``` ```make``` ```tar``` ```wget```
-1. Download and compile the libraries (zlib and libzip) with the command: ```make libraries```
-2. Then create the static and shared libraries of libzippp: ```make```
-3. You may want to run the tests (optional): ```make tests```
+0. Make sure you have the following commands: `g++` `make` `tar` `wget`
+1. Download and compile the libraries (zlib and libzip) with the command: `make libraries`
+2. Then create the static and shared libraries of libzippp: `make`
+3. You may want to run the tests (optional): `make tests` (`libbz2-dev` package is needed to link statically)
 4. Now you just have to include the src folder in your include path and
   link against *libzippp.a* or *libzippp.so* (do not forget to also link 
   against libzip libraries in *lib/libzip-1.5.1/lib/.libs/*).
   An example of compilation with g++:
   
-```Shell
+```shell
 g++ -I./lib/libzip-1.5.1/lib -I./src \
     main.cpp libzippp.a \
     lib/libzip-1.5.1/lib/.libs/libzip.a \
@@ -204,11 +204,11 @@ You might already have libzip compiled elsewhere on your system. Hence, you
 don't need to run 'make libzip'. Instead, just put the libzip location when
 you compile libzipp:
 
-```Shell
+```shell
 make LIBZIP=path/to/libzip
 ```
 
-Under Debian, you'll have to install the package *zlib1g-dev* in order to compile
+Under Debian, you'll have to install the package `zlib1g-dev` in order to compile
 if you don't want to install zlib manually.
 
 ### WINDOWS
