@@ -40,7 +40,10 @@ g++ -I./lib/libzip-1.5.1/lib -I./src \
 
 Since version 1.5, libzip uses an underlying cryptographic library (OpenSSL, GNUTLS or CommonCrypto) that
 is necessary for static compilation. By default, libzippp will use `-lssl -lcrypto` (OpenSSL) as default flags
-to compile the tests. This can be changed by using `make CRYPTO_FLAGS=-lsome_lib tests`
+to compile the tests. This can be changed by using `make CRYPTO_FLAGS="-lsome_lib" LIBZIP_CMAKE="" tests`.
+
+Since libzip `cmake`'s file detects automatically the cryptographic library to use, by default all the allowed
+libraries but OpenSSL are explicitely disabled in the `LIBZIP_CMAKE` variable in the Makefile.
 
 See [here](https://github.com/nih-at/libzip/blob/master/INSTALL.md) for more information.
 
