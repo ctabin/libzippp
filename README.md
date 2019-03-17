@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/ctabin/libzippp.svg?branch=master)](https://travis-ci.org/ctabin/libzippp)
 
 libzippp
 --------
