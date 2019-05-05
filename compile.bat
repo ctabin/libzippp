@@ -62,6 +62,7 @@ if exist "dist\libzippp_static.lib" goto end
 mkdir "dist"
 cd "dist"
 mkdir release
+copy ..\src\libzippp.h release
 copy ..\build\Release\libzippp_shared_test.exe release
 copy ..\build\Release\libzippp_static_test.exe release
 copy ..\build\Release\libzippp.dll release
@@ -70,6 +71,7 @@ copy ..\build\Release\libzippp_static.lib release
 copy ..\%zlib%\build\Release\zlib.dll release
 copy ..\%libzip%\build\lib\Release\zip.dll release
 mkdir debug
+copy ..\src\libzippp.h debug
 copy ..\build\Debug\libzippp_shared_test.exe debug
 copy ..\build\Debug\libzippp_static_test.exe debug
 copy ..\build\Debug\libzippp.dll debug
