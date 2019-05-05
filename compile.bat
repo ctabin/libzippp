@@ -31,7 +31,7 @@ echo Compiling libzip...
 cd "%libzip%"
 mkdir build
 cd "build"
-cmake .. -G"Visual Studio 11" -DCMAKE_PREFIX_PATH="../../%zlib%/build/install"
+cmake .. -G"Visual Studio 11" -DCMAKE_PREFIX_PATH="../../%zlib%/build/install" -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF -DENABLE_OPENSSL=OFF -DENABLE_WINDOWS_CRYPTO=ON -DENABLE_BZIP2=OFF -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_DOC=OFF
 if %ERRORLEVEL% GEQ 1 goto error_libzip
 msbuild /P:Configuration=Debug ALL_BUILD.vcxproj
 if %ERRORLEVEL% GEQ 1 goto error_libzip

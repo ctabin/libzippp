@@ -81,14 +81,15 @@ See [here](https://github.com/nih-at/libzip/blob/master/INSTALL.md) for more inf
   libzippp/lib/zlib-1.2.11
   libzippp/lib/libzip-1.5.2
   ```
+2. Apply the modifications described in libzippp/lib/libzip-1.5.2-windows.patch.
 
-2. Execute the *compile.bat* (simply double-click on it). The compilation should 
+3. Execute the *compile.bat* (simply double-click on it). The compilation should 
   go without error.
 
-3. You'll have a *dist* folder containing the *release* and *debug* folders 
+4. You'll have a *dist* folder containing the *release* and *debug* folders 
   where you can now execute the libzippp tests.
 
-4. You can either use *libzippp.dll* and *libzippp.lib* to link dynamically the 
+5. You can either use *libzippp.dll* and *libzippp.lib* to link dynamically the 
   library or simply use *libzippp_static.lib* to link it statically. Unless you 
   also link zlib and libzippp statically, you'll need the dll packaged with 
   your executable.
