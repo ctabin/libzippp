@@ -7,10 +7,7 @@ libzippp is a simple basic C++ wrapper around the libzip library.
 It is meant to be a portable and easy-to-use library for ZIP handling.
 
 Compilation has been tested with:
-- GCC 4.9.3 (GNU/Linux Gentoo)
-- GCC 6.2.1 (GNU/Linux Debian) 
-- GCC 6.3.0 (GNU/Linux Debian) 
-- GCC 7.2.0 (GNU/Linux Debian) 
+- GCC 8.3.0 (GNU/Linux Debian) 
 - MS Visual Studio 2012 (Windows 7)
 
 Underlying libraries:
