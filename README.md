@@ -7,15 +7,12 @@ libzippp is a simple basic C++ wrapper around the libzip library.
 It is meant to be a portable and easy-to-use library for ZIP handling.
 
 Compilation has been tested with:
-- GCC 4.9.3 (GNU/Linux Gentoo)
-- GCC 6.2.1 (GNU/Linux Debian) 
-- GCC 6.3.0 (GNU/Linux Debian) 
-- GCC 7.2.0 (GNU/Linux Debian) 
+- GCC 8.3.0 (GNU/Linux Debian) 
 - MS Visual Studio 2012 (Windows 7)
 
 Underlying libraries:
 - [ZLib](http://zlib.net) 1.2.11
-- [libzip](http://www.nih.at/libzip) 1.5.1
+- [libzip](http://www.nih.at/libzip) 1.5.2
 
 # Compilation
 
@@ -27,13 +24,13 @@ Underlying libraries:
 3. You may want to run the tests (optional): `make tests` (`libbz2-dev` package is needed to link statically)
 4. Now you just have to include the src folder in your include path and
   link against *libzippp.a* or *libzippp.so* (do not forget to also link 
-  against libzip libraries in *lib/libzip-1.5.1/lib/.libs/*).
+  against libzip libraries in *lib/libzip-1.5.2/lib/.libs/*).
   An example of compilation with g++:
   
 ```shell
-g++ -I./lib/libzip-1.5.1/lib -I./src \
+g++ -I./lib/libzip-1.5.2/lib -I./src \
     main.cpp libzippp.a \
-    lib/libzip-1.5.1/lib/.libs/libzip.a \
+    lib/libzip-1.5.2/lib/.libs/libzip.a \
     lib/zlib-1.2.11/libz.a
 ```
 
@@ -77,21 +74,22 @@ See [here](https://github.com/nih-at/libzip/blob/master/INSTALL.md) for more inf
   <MSVS11>\Common7\Tools\VsDevCmd.bat
   ```
   
-1. Download [libzip](http://www.nih.at/libzip/libzip-1.5.1.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
+1. Download [libzip](http://www.nih.at/libzip/libzip-1.5.2.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
   ```
   libzippp/compile.bat
   libzippp/lib/zlib-1.2.11
-  libzippp/lib/libzip-1.5.1
+  libzippp/lib/libzip-1.5.2
   ```
+2. Apply the modifications described in libzippp/lib/libzip-1.5.2-windows.patch.
 
-2. Execute the *compile.bat* (simply double-click on it). The compilation should 
+3. Execute the *compile.bat* (simply double-click on it). The compilation should 
   go without error.
 
-3. You'll have a *dist* folder containing the *release* and *debug* folders 
+4. You'll have a *dist* folder containing the *release* and *debug* folders 
   where you can now execute the libzippp tests.
 
-4. You can either use *libzippp.dll* and *libzippp.lib* to link dynamically the 
+5. You can either use *libzippp.dll* and *libzippp.lib* to link dynamically the 
   library or simply use *libzippp_static.lib* to link it statically. Unless you 
   also link zlib and libzippp statically, you'll need the dll packaged with 
   your executable.
