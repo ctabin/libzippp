@@ -223,3 +223,7 @@ that will use it. To avoid this issue, you'll have to link the library staticall
 
 More information [here](http://www.codeproject.com/Articles/28969/HowTo-Export-C-classes-from-a-DLL).
 
+### Static linkage
+
+Extra explanations can be found [here](http://hostagebrain.blogspot.com/search/label/zlib).
+
