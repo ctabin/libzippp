@@ -51,9 +51,6 @@ struct zip;
 //- http://www.nih.at/libzip/libzip.html
 //- http://slash.developpez.com/tutoriels/c/utilisation-libzip/
 
-//standard unsigned int
-typedef unsigned int uint;
-
 #ifdef WIN32
         typedef long long libzippp_int64;
         typedef unsigned long long libzippp_uint64;
