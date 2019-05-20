@@ -59,23 +59,23 @@ typedef unsigned int uint;
         typedef unsigned long long libzippp_uint64;
         typedef unsigned short libzippp_uint16;
         //special declarations for windows to use libzippp from a DLL
-        #define SHARED_LIBRARY_EXPORT __declspec(dllexport)
-        #define SHARED_LIBRARY_IMPORT
+        #define LIBZIPPP_SHARED_LIBRARY_EXPORT __declspec(dllexport)
+        #define LIBZIPPP_SHARED_LIBRARY_IMPORT
 #else
         //standard ISO c++ does not support long long
         typedef long int libzippp_int64;
         typedef unsigned long int libzippp_uint64;
         typedef unsigned short libzippp_uint16;
         
-        #define SHARED_LIBRARY_EXPORT
-        #define SHARED_LIBRARY_IMPORT
+        #define LIBZIPPP_SHARED_LIBRARY_EXPORT
+        #define LIBZIPPP_SHARED_LIBRARY_IMPORT
 #endif
 
 #ifdef LIBZIPPP_EXPORTS
         #define LIBZIPPP_INTERNAL
-        #define LIBZIPPP_API SHARED_LIBRARY_EXPORT
+        #define LIBZIPPP_API LIBZIPPP_SHARED_LIBRARY_EXPORT
 #else
-        #define LIBZIPPP_API SHARED_LIBRARY_IMPORT
+        #define LIBZIPPP_API LIBZIPPP_SHARED_LIBRARY_IMPORT
 #endif
 
 // special return code for libzippp
