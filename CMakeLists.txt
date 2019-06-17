@@ -1,48 +1,64 @@
+cmake_minimum_required(VERSION 3.9.5)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9.5)
+project(libzippp)
 
-PROJECT(libzippp)
+set(PACKAGE "libzippp")
+set(VERSION "0.2")
 
-SET(PACKAGE "libzippp")
-SET(VERSION "0.2")
+option(INSTALL_HEADERS "Install library headers" ON)
+option(BUILD_TESTS "Build unit tests" ON)
 
-if(NOT WIN32)
-  MESSAGE(FATAL_ERROR "This CMakeLists is only designed for Windows. Under UNIX, use make instead")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+find_package(LIBZIP MODULE REQUIRED)
+
+add_library(libzippp "src/libzippp.cpp")
+target_include_directories(libzippp 
+  PUBLIC  
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:include/libzippp>
+  PRIVATE
+    $<BUILD_INTERFACE:${LIBZIP_INCLUDE_DIRS}>
+)
+target_link_libraries(libzippp PRIVATE libzip::libzip)
+if (BUILD_SHARED_LIBS)
+  target_compile_definitions(libzippp PUBLIC LIBZIPPP_EXPORTS)
 endif()
 
-set(LIBZIP_INCLUDE_DIR "${LIBZIP_HOME}/lib;${LIBZIP_HOME}/build" CACHE PATH "Path to libzip include folder.")
-set(LIBZIP_LIBRARY_RELEASE "../${LIBZIP_HOME}/build/lib/Release/zip" CACHE FILEPATH "Path to libzip release library.")
-set(LIBZIP_LIBRARY_DEBUG "../${LIBZIP_HOME}/build/lib/Debug/zip" CACHE FILEPATH "Path to libzip debug library.")
+install(
+  TARGETS libzippp 
+  EXPORT libzipppTargets
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib 
+  RUNTIME DESTINATION bin 
+)
 
-FIND_PACKAGE(ZLIB REQUIRED)
-INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
-set(CMAKE_REQUIRED_INCLUDES ${ZLIB_INCLUDE_DIR})
-IF(ZLIB_VERSION_STRING VERSION_LESS "1.1.2")
-  MESSAGE(FATAL_ERROR "-- ZLIB version too old, please install at least v1.1.2")
-ENDIF(ZLIB_VERSION_STRING VERSION_LESS "1.1.2")
+if (INSTALL_HEADERS)
+    install(FILES src/libzippp.h DESTINATION include/libzippp)
+endif()
 
-INCLUDE_DIRECTORIES(${LIBZIP_INCLUDE_DIR})
-set(CMAKE_REQUIRED_INCLUDES ${LIBZIP_INCLUDE_DIR})
+include(CMakePackageConfigHelpers)
 
-add_definitions(-DLIBZIPPP_EXPORTS)
-ADD_LIBRARY(libzippp_shared SHARED "src/libzippp.cpp")
-SET_TARGET_PROPERTIES(libzippp_shared PROPERTIES OUTPUT_NAME libzippp)
-TARGET_LINK_LIBRARIES(libzippp_shared 
-			debug ${LIBZIP_LIBRARY_DEBUG}
-			optimized ${LIBZIP_LIBRARY_RELEASE}
-			${ZLIB_LIBRARY})
+set(PROJECT_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated/libzipppConfig.cmake")
 
-ADD_LIBRARY(libzippp_static STATIC "src/libzippp.cpp")
+configure_package_config_file(
+  "Config.cmake.in" 
+  ${PROJECT_CONFIG_FILE} 
+  INSTALL_DESTINATION "share/libzippp"
+)
 
-ADD_EXECUTABLE(libzippp_shared_test "tests/tests.cpp")
-TARGET_LINK_LIBRARIES(libzippp_shared_test libzippp_shared)
+install(
+  FILES ${PROJECT_CONFIG_FILE} 
+  DESTINATION "share/libzippp"
+)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-ADD_EXECUTABLE(libzippp_static_test "tests/tests.cpp")
-TARGET_LINK_LIBRARIES(libzippp_static_test 
-                        libzippp_static
-                        debug ${LIBZIP_LIBRARY_DEBUG}
-                        optimized ${LIBZIP_LIBRARY_RELEASE}
-                        debug ${ZLIB_LIBRARY_DEBUG}
-                        optimized ${ZLIB_LIBRARY_RELEASE})
+install(
+  EXPORT libzipppTargets
+  NAMESPACE "libzippp::"
+  DESTINATION "share/libzippp"
+)
+
+if (BUILD_TESTS)
+  add_executable(libzippp_test "tests/tests.cpp")
+  target_link_libraries(libzippp_test PRIVATE libzippp)
+endif()
