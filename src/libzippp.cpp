@@ -330,7 +330,7 @@ string ZipArchive::getEntryComment(const ZipEntry& entry, State state) const {
     int flag = ZIP_FL_ENC_GUESS;
     if (state==ORIGINAL) { flag = flag | ZIP_FL_UNCHANGED; }
     
-    uint clen;
+    unsigned int clen;
     const char* com = zip_file_get_comment(zipHandle, entry.getIndex(), &clen, flag);
     string comment = com==NULL ? string() : string(com, clen);
     return comment;

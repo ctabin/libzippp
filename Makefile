@@ -1,11 +1,11 @@
-CC=g++
 CFLAGS=-W -Wall -Wextra -ansi -pedantic -std=c++0x
 OBJ=obj
 LIB=lib
 ZLIB_VERSION=1.2.11
 ZLIB=$(LIB)/zlib-$(ZLIB_VERSION)
-LIBZIP_VERSION=1.5.1
+LIBZIP_VERSION=1.5.2
 LIBZIP=$(LIB)/libzip-$(LIBZIP_VERSION)
+LIBZIP_CMAKE=-DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF 
 CRYPTO_FLAGS=-lssl -lcrypto
 
 # for optimal compilation speed, should be <nb_proc>+1
@@ -16,21 +16,21 @@ all: libzippp-static libzippp-shared
 libzippp-compile:
 	rm -rf $(OBJ)
 	mkdir $(OBJ)
-	$(CC) -g -fPIC -c -I$(LIBZIP)/lib -I$(LIBZIP)/build -o $(OBJ)/libzippp.o $(CFLAGS) src/libzippp.cpp
+	$(CXX) -g -fPIC -c -I$(LIBZIP)/lib -I$(LIBZIP)/build -o $(OBJ)/libzippp.o $(CFLAGS) src/libzippp.cpp
 
 libzippp-static: libzippp-compile
 	ar rvs libzippp.a $(OBJ)/libzippp.o
 
 libzippp-shared: libzippp-compile
-	$(CC) -shared -o libzippp.so $(OBJ)/libzippp.o
+	$(CXX) -shared -o libzippp.so $(OBJ)/libzippp.o
 
 libzippp-tests: libzippp-static libzippp-shared
 	if [ -d $(ZLIB) ]; then \
-		$(CC) -o test_static -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a $(CRYPTO_FLAGS); \
-		$(CC) -o test_shared -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz $(CRYPTO_FLAGS) -Wl,-rpath=.; \
+		$(CXX) -o test_static -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a -lbz2 $(CRYPTO_FLAGS); \
+		$(CXX) -o test_shared -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz -lbz2 $(CRYPTO_FLAGS) -Wl,-rpath=.; \
 	else \
-		$(CC) -o test_static -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz $(CRYPTO_FLAGS)o; \
-		$(CC) -o test_shared -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz $(CRYPTO_FLAGS) -Wl,-rpath=.; \
+		$(CXX) -o test_static -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz -lbz2 $(CRYPTO_FLAGS); \
+		$(CXX) -o test_shared -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz -lbz2 $(CRYPTO_FLAGS) -Wl,-rpath=.; \
 	fi;
 
 clean-tests:
@@ -47,8 +47,9 @@ clean:
 
 mrproper: clean
 	@rm -rf $(LIBZIP)
-	@rm -rf $(LIB)/libzip-*
-	@rm -rf $(LIB)/zlib-*
+	@rm -rf $(LIB)/libzip-$(LIBZIP_VERSION)
+	@rm -rf $(LIB)/zlib-$(ZLIB_VERSION)
+	@rm -rf $(LIB)/*.tar.gz
 	
 # ZLIB targets
 	
@@ -90,16 +91,16 @@ libzip-build-folder:
 
 libzip-build-shared: libzip-patch libzip-build-folder
 	if [ -d "$(ZLIB)" ]; then \
-		cd $(LIBZIP)/build && cmake .. -DZLIB_LIBRARY_RELEASE=../../../$(ZLIB)/libz.so -DZLIB_INCLUDE_DIR=../../../$(ZLIB) -DBUILD_SHARED_LIBS=ON && make -j$(NBPROC);  \
+		cd $(LIBZIP)/build && cmake .. -DZLIB_LIBRARY_RELEASE=../../../$(ZLIB)/libz.so -DZLIB_INCLUDE_DIR=../../../$(ZLIB) -DBUILD_SHARED_LIBS=ON $(LIBZIP_CMAKE) && make -j$(NBPROC);  \
 	else \
-		cd $(LIBZIP)/build && cmake .. -DBUILD_SHARED_LIBS=ON && make -j$(NBPROC);  \
+		cd $(LIBZIP)/build && cmake .. -DBUILD_SHARED_LIBS=ON $(LIBZIP_CMAKE) && make -j$(NBPROC);  \
 	fi;
 	
 libzip-build-static: libzip-patch libzip-build-folder
 	if [ -d "$(ZLIB)" ]; then \
-		cd $(LIBZIP)/build && cmake .. -DZLIB_LIBRARY_RELEASE=../../../$(ZLIB)/libz.a -DZLIB_INCLUDE_DIR=../../../$(ZLIB) -DBUILD_SHARED_LIBS=OFF && make -j$(NBPROC);  \
+		cd $(LIBZIP)/build && cmake .. -DZLIB_LIBRARY_RELEASE=../../../$(ZLIB)/libz.a -DZLIB_INCLUDE_DIR=../../../$(ZLIB) -DBUILD_SHARED_LIBS=OFF $(LIBZIP_CMAKE) && make -j$(NBPROC);  \
 	else \
-		cd $(LIBZIP)/build && cmake .. -DBUILD_SHARED_LIBS=OFF && make -j$(NBPROC);  \
+		cd $(LIBZIP)/build && cmake .. -DBUILD_SHARED_LIBS=OFF $(LIBZIP_CMAKE) && make -j$(NBPROC);  \
 	fi;
 
 libzip: libzip-build-shared libzip-build-static

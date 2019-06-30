@@ -1,0 +1,24 @@
+diff -u libzip-1.5.2/lib/zip_crypto_win.c libzip-1.5.2-win/lib/zip_crypto_win.c
+--- libzip-1.5.2/lib/zip_crypto_win.c	2019-03-12 12:44:02.000000000 +0100
++++ libzip-1.5.2-win/lib/zip_crypto_win.c	2019-05-05 21:41:01.203275000 +0200
+@@ -80,7 +80,7 @@
+ */
+ 
+ #if !defined(WINCE) && !defined(__MINGW32__)
+-#define HAS_BCRYPTDERIVEKEYPBKDF2
++//#define HAS_BCRYPTDERIVEKEYPBKDF2
+ #endif
+ 
+ #ifdef HAS_BCRYPTDERIVEKEYPBKDF2
+diff -u libzip-1.5.2/lib/zip_source_winzip_aes_encode.c libzip-1.5.2-win/lib/zip_source_winzip_aes_encode.c
+--- libzip-1.5.2/lib/zip_source_winzip_aes_encode.c	2019-03-12 12:44:02.000000000 +0100
++++ libzip-1.5.2-win/lib/zip_source_winzip_aes_encode.c	2019-05-05 21:51:31.213545000 +0200
+@@ -163,7 +163,7 @@
+ 		/* TODO: return partial read? */
+ 		return -1;
+ 	    }
+-	    buffer_n += _zip_buffer_read(ctx->buffer, data + ret, length - (zip_uint64_t)ret);
++	    buffer_n += _zip_buffer_read(ctx->buffer, ((size_t)data) + ret, length - (zip_uint64_t)ret);
+ 	}
+ 
+ 	return (zip_int64_t)(buffer_n + (zip_uint64_t)ret);
