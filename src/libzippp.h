@@ -134,6 +134,13 @@ namespace libzippp {
         virtual ~ZipArchive(void); //commit all the changes if open
         
         /**
+         * Creates a new ZipArchive from the specified buffer. The archive will
+         * directly be open with the given mode. If the archive fails to be open or
+         * if the consistency check fails, this method will return null.
+         */
+        static ZipArchive* fromBuffer(const char* buffer, uint32_t size, OpenMode mode=READ_ONLY, bool checkConsistency=false);
+        
+        /**
          * Return the path of the ZipArchive.
          */
         std::string getPath(void) const { return path; }
@@ -145,7 +152,6 @@ namespace libzippp {
          * mode is the same.
          */
         bool open(OpenMode mode=READ_ONLY, bool checkConsistency=false);
-        bool open(const char* buffer, uint32_t sz, OpenMode mode=READ_ONLY, bool checkConsistency=false);
 
         /**
          * Closes the ZipArchive and releases all the resources held by it. If the ZipArchive was
@@ -382,6 +388,9 @@ namespace libzippp {
         zip_source* zipSource;
         OpenMode mode;
         std::string password;
+        
+        //open from a buffer
+        bool openBuffer(const char* buffer, uint32_t sz, OpenMode mode=READ_ONLY, bool checkConsistency=false);
         
         //generic method to create ZipEntry
         ZipEntry createEntry(struct zip_stat* stat) const;
