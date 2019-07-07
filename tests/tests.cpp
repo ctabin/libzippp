@@ -680,6 +680,8 @@ void test21() {
     ifs.seekg(std::ifstream::beg);
     ifs.read(buffer, bufferSize);
     ifs.close();
+    
+    z1.unlink();
 
     ZipArchive z2("");
     z2.open(buffer, bufferSize);
