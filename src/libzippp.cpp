@@ -83,7 +83,18 @@ ZipArchive::~ZipArchive(void) {
     close(); /* discard ??? */ 
 }
 
-bool ZipArchive::open(const char* data, uint32_t size, OpenMode om, bool checkConsistency)
+ZipArchive* ZipArchive::fromBuffer(const char* data, uint32_t size, OpenMode om, bool checkConsistency)
+{
+    ZipArchive* za = new ZipArchive("");
+    bool o = za->openBuffer(data, size, om, checkConsistency);
+    if(!o) {
+        delete za;
+        za = NULL;
+    }
+    return za;
+}
+
+bool ZipArchive::openBuffer(const char* data, uint32_t size, OpenMode om, bool checkConsistency)
 {
     if (isOpen()) { return om == mode; }
     int zipFlag = 0;

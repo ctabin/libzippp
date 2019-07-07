@@ -683,18 +683,18 @@ void test21() {
     
     z1.unlink();
 
-    ZipArchive z2("");
-    z2.open(buffer, bufferSize);
-    assert(z2.getNbEntries() == 2);
-    assert(z2.hasEntry("somedata"));
-    assert(z2.hasEntry("somedata2"));
+    ZipArchive* z2 = ZipArchive::fromBuffer(buffer, bufferSize);
+    assert(z2->getNbEntries() == 2);
+    assert(z2->hasEntry("somedata"));
+    assert(z2->hasEntry("somedata2"));
 
-    ZipEntry entry = z2.getEntry("somedata");
-    ZipEntry entry2 = z2.getEntry("somedata2");
+    ZipEntry entry = z2->getEntry("somedata");
+    ZipEntry entry2 = z2->getEntry("somedata2");
     assert(!entry.isNull());
     assert(!entry2.isNull());
 
-    z2.close();
+    z2->close();
+    delete z2;
 
     cout << " done." << endl;
 }

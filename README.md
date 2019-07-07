@@ -99,7 +99,7 @@ See [here](https://github.com/nih-at/libzip/blob/master/INSTALL.md) for more inf
 The API is meant to be very straight forward. Some french explanations
 can be found [here](http://www.astorm.ch/blog).
 
-How to list and read files in an archive:
+### List and read files in an archive:
 
 ```C++
 #include "libzippp.h"
@@ -127,7 +127,21 @@ for(it=entries.begin() ; it!=entries.end(); ++it) {
 zf.close();
 ```
 
-How to read a specific entry from an archive:
+You can also create an archive directly from a buffer:
+```C++
+#include "libzippp.h"
+using namespace libzippp;
+
+char* buffer = someData;
+uint32_t bufferSize = sizeOfBuffer;
+
+ZipArchive* zf = ZipArchive::fromBuffer(buffer, bufferSize);
+/* work with zf */
+zf->close();
+delete zf;
+```
+
+### Read a specific entry from an archive:
 
 ```C++
 #include "libzippp.h"
@@ -148,7 +162,7 @@ string str2 = entry2.readAsText();
 zf.close();
 ```
 
-How to read a large entry from an archive:
+### Read a large entry from an archive:
 
 ```C++
 #include "libzippp.h"
@@ -165,7 +179,7 @@ ofUnzippedFile.close();
 zf.close();
 ```
 
-How to add data to an archive:
+### Add data to an archive:
 
 ```C++
 #include "libzippp.h"
@@ -181,7 +195,7 @@ zf.addData("helloworld.txt", textData, 12);
 zf.close();
 ```
 
-How to remove data from an archive:
+### Remove data from an archive:
 
 ```C++
 #include "libzippp.h"
