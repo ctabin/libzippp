@@ -51,11 +51,11 @@ bool ZipEntry::setComment(const string& str) const {
 }
 
 bool ZipEntry::isCompressionEnabled(void) const {
-	return zipFile->isEntryCompressionEnabled(*this);
+    return zipFile->isEntryCompressionEnabled(*this);
 }
 
 bool ZipEntry::setCompressionEnabled(bool value) const {
-	return zipFile->setEntryCompressionEnabled(*this, value);
+    return zipFile->setEntryCompressionEnabled(*this, value);
 }
 
 string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const {
@@ -72,15 +72,59 @@ void* ZipEntry::readAsBinary(ZipArchive::State state, libzippp_uint64 size) cons
     return zipFile->readEntry(*this, false, state, size); 
 }
 
-int ZipEntry::readContent(std::ofstream& ofOutput, ZipArchive::State state, libzippp_uint64 chunksize) const {
+int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzippp_uint64 chunksize) const {
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), mode(NOT_OPEN), password(password) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), zipSource(NULL), mode(NOT_OPEN), password(password) {
 }
 
 ZipArchive::~ZipArchive(void) { 
     close(); /* discard ??? */ 
+}
+
+bool ZipArchive::open(const char* data, uint32_t size, OpenMode om, bool checkConsistency)
+{
+    if (isOpen()) { return om == mode; }
+    int zipFlag = 0;
+    if (om == READ_ONLY) { zipFlag = 0; }
+    else if (om == WRITE) { zipFlag = ZIP_CREATE; }
+    else if (om == NEW) { zipFlag = ZIP_CREATE | ZIP_TRUNCATE; }
+    else { return false; }
+    if (checkConsistency) {
+        zipFlag = zipFlag | ZIP_CHECKCONS;
+    }
+
+    zip_error_t error;
+    zip_error_init(&error);
+
+    /* create source from buffer */
+    zipSource = zip_source_buffer_create(data, size, 1, &error);
+    if (zipSource == NULL) {
+        zip_error_fini(&error);
+        return false;
+    }
+    /* open zip archive from source */
+    zipHandle = zip_open_from_source(zipSource, 0, &error);
+    if (zipHandle == NULL) {
+        fprintf(stderr, "can't open zip from source: %s\n", zip_error_strerror(&error));
+        zip_source_free(zipSource);
+        zipSource = NULL;
+        zip_error_fini(&error);
+        return false;
+    }
+    zip_error_fini(&error);
+
+    if (isEncrypted()) {
+        int result = zip_set_default_password(zipHandle, password.c_str());
+        if (result != 0) {
+            close();
+            return false;
+        }
+    }
+
+    mode = om;
+    return true;
 }
 
 bool ZipArchive::open(OpenMode om, bool checkConsistency) {
@@ -128,6 +172,13 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
 
 int ZipArchive::close(void) {
     if (isOpen()) {
+
+        if (zipSource){
+            //zip_source_close(zipSource);
+            //zip_source_free(zipSource);
+            //zipSource = NULL;
+        }
+
         int result = zip_close(zipHandle);
         zipHandle = NULL;
         mode = NOT_OPEN;
@@ -175,11 +226,11 @@ bool ZipArchive::setComment(const string& comment) const {
 }
 
 bool ZipArchive::isEntryCompressionEnabled(const ZipEntry& entry) const {
-	return entry.compressionMethod==ZIP_CM_DEFLATE;
+    return entry.compressionMethod==ZIP_CM_DEFLATE;
 }
 
 bool ZipArchive::setEntryCompressionEnabled(const ZipEntry& entry, bool value) const {
-	if (!isOpen()) { return false; }
+    if (!isOpen()) { return false; }
     if (entry.zipFile!=this) { return false; }
     if (mode==READ_ONLY) { return false; }
     
@@ -511,8 +562,8 @@ bool ZipArchive::addEntry(const string& entryName) const {
     return true;
 }
 
-int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state, libzippp_uint64 chunksize) const {
-    if (!ofOutput.is_open()) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
+int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state, libzippp_uint64 chunksize) const {
+    if (!ofOutput) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
     if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
     if (zipEntry.zipFile!=this) { return LIBZIPPP_ERROR_INVALID_ENTRY; }
     
