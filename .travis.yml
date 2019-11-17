@@ -11,11 +11,45 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-8
+      env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - BUILD_TYPE=Debug
+      install:
+        - THIRD_PARTY=$HOME/third_party
+        - THIRD_PARTY_PREFIX=$THIRD_PARTY/install
+        - sudo apt-get install libbz2-dev
+        - |
+          mkdir -p $THIRD_PARTY && cd $THIRD_PARTY
+          wget -qO- "http://zlib.net/zlib-1.2.11.tar.gz" | tar xz
+          cd zlib-1.2.11
+          ./configure --prefix=${THIRD_PARTY_PREFIX}
+          make -j3 install
+        - |
+          mkdir -p $THIRD_PARTY && cd $THIRD_PARTY
+          wget -qO- "http://www.nih.at/libzip/libzip-1.5.2.tar.gz" | tar xz
+          cd libzip-1.5.2
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${THIRD_PARTY_PREFIX} -DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_PREFIX} -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF
+          make -j3 install
+        - cd $TRAVIS_BUILD_DIR # Reset CWD
+      script:
+        - mkdir build && cd build
+        - cmake .. -DCMAKE_PREFIX_PATH=${THIRD_PARTY_PREFIX} -DCMAKE_INSTALL_PREFIX=$HOME/lipzippp -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+        - make -j3 install
+        - make test
+        - [ -f $HOME/lipzippp/lib/libzippp.* ]
+        - [ -f $HOME/lipzippp/include/libzippp/libzippp.h ]
 
 before_install:
-    - eval "${MATRIX_EVAL}"
+  - eval "${MATRIX_EVAL}"
 
 install:
   - sudo apt-get install libbz2-dev valgrind
