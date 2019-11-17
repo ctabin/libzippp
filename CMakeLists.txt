@@ -16,11 +16,13 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(LIBZIP MODULE REQUIRED)
 
 add_library(libzippp "src/libzippp.cpp")
+add_library(libzippp::libzippp ALIAS libzippp) # Convenience alias
 target_include_directories(libzippp 
   PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include/libzippp>
 )
+set_target_properties(libzippp PROPERTIES PREFIX "") # Avoid duplicate "lib" prefix
 target_link_libraries(libzippp PRIVATE libzip::libzip)
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(libzippp PRIVATE LIBZIPPP_EXPORTS)

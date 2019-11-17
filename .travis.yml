@@ -44,9 +44,10 @@ matrix:
         - mkdir build && cd build
         - cmake .. -DCMAKE_PREFIX_PATH=${THIRD_PARTY_PREFIX} -DCMAKE_INSTALL_PREFIX=$HOME/lipzippp -DCMAKE_BUILD_TYPE=$BUILD_TYPE
         - make -j3 install
-        - make test
-        - [ -f $HOME/lipzippp/lib/libzippp.* ]
-        - [ -f $HOME/lipzippp/include/libzippp/libzippp.h ]
+        - |
+          make test
+          [ -f $HOME/lipzippp/lib/libzippp.a ]
+          [ -f $HOME/lipzippp/include/libzippp/libzippp.h ]
 
 before_install:
   - eval "${MATRIX_EVAL}"
