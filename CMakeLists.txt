@@ -57,7 +57,7 @@ if(LIBZIPPP_INSTALL)
   )
 
   install(
-    FILES ${PROJECT_CONFIG_FILE} 
+    FILES ${PROJECT_CONFIG_FILE} cmake/FindLIBZIP.cmake
     DESTINATION "share/libzippp"
   )
 
