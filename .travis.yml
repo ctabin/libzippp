@@ -36,7 +36,8 @@ install:
     mkdir -p $THIRD_PARTY && cd $THIRD_PARTY
     wget -qO- "http://zlib.net/zlib-1.2.11.tar.gz" | tar xz
     cd zlib-1.2.11
-    ./configure --prefix=${THIRD_PARTY_PREFIX}
+    mkdir build && cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_PREFIX}
     make -j3 install
   - |
     mkdir -p $THIRD_PARTY && cd $THIRD_PARTY
