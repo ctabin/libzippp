@@ -55,6 +55,7 @@ script:
   - make test
   - rm -r *
   - cmake ../tests/exampleProject -DCMAKE_PREFIX_PATH="${THIRD_PARTY_PREFIX};$HOME/libzippp" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$THIRD_PARTY_PREFIX/lib" # For shared libs
   - make -j3
   - make test
   
