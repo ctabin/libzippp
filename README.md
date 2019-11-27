@@ -35,12 +35,11 @@ TLDR: Use the standard CMake workflow: `mkdir build && cd build && cmake <-D...>
 - Switch to the source folder
 - Create a build folder and switch to it, e.g.: `mkdir build && cd build`
 - Configure the build with cmake:
-  - Commandline: `cmake .. -DCMAKE_INSTALL_PREFIX=<path-to-install-libzippp-into> -DCMAKE_BUILD_TYPE=<Debug|Release> -DBUILD_SHARED_LIBS=<ON|OFF>`
+  - Commandline: `cmake .. -DCMAKE_BUILD_TYPE=Release`
   - With the CMake GUI:
     - Set source and build folder accordingly
-	- Click `Add Cache Entry` to add `CMAKE_INSTALL_PREFIX` and `CMAKE_BUILD_TYPE` as required
+	- Click `Add Cache Entry` to add `CMAKE_BUILD_TYPE` if not building with MSVC
 	- Click `Configure` & `Generate`
-  - `CMAKE_BUILD_TYPE` is not required for compilation via MSVC
   - If CMake can't find zlib and/or libzip you need to set `CMAKE_PREFIX_PATH` to the directories where you installed those into
   (either via `-DCMAKE_PREFIX_PATH=<...>` or via the GUI)
     - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.5.2:/home/user/zlib-1.2.11`
@@ -49,6 +48,8 @@ TLDR: Use the standard CMake workflow: `mkdir build && cd build && cmake <-D...>
   - Windows: Open generated project in MSVC. Build the `INSTALL` target to install.
 
 ### CMake variables of interest
+
+Set via commandline as `cmake -DNAME=VALUE <other opts>` or via CMake GUI or CCMake `Add Cache Entry`.
 
 - `LIBZIPPP_INSTALL`: Enable/Disable installation of libzippp. Default is OFF when using via `add_subdirectory`, else ON
 - `LIBZIPPP_BUILD_TESTS`: Enable/Disable building libzippp tests. Default is OFF when using via `add_subdirectory`, else ON
