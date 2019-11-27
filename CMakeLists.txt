@@ -50,13 +50,18 @@ if(LIBZIPPP_INSTALL)
 
   include(CMakePackageConfigHelpers)
 
-  set(PROJECT_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated/libzipppConfig.cmake")
-  set(PROJECT_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated/libzipppConfigVersion.cmake")
-
+  set(PROJECT_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}Config.cmake")
+  set(PROJECT_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}ConfigVersion.cmake")
+  if(WIN32)
+    set(configInstallDestination cmake/${PROJECT_NAME})
+  else()
+    set(configInstallDestination share/${PROJECT_NAME})
+  endif()
+  
   configure_package_config_file(
     "Config.cmake.in" 
     ${PROJECT_CONFIG_FILE} 
-    INSTALL_DESTINATION "share/libzippp"
+    INSTALL_DESTINATION ${configInstallDestination}
   )
   write_basic_package_version_file(
     ${PROJECT_VERSION_FILE}
@@ -65,13 +70,13 @@ if(LIBZIPPP_INSTALL)
 
   install(
     FILES ${PROJECT_CONFIG_FILE} ${PROJECT_VERSION_FILE} cmake/FindLIBZIP.cmake
-    DESTINATION "share/libzippp"
+    DESTINATION ${configInstallDestination}
   )
 
   install(
     EXPORT libzipppTargets
-    NAMESPACE "libzippp::"
-    DESTINATION "share/libzippp"
+    NAMESPACE "${PROJECT_NAME}::"
+    DESTINATION ${configInstallDestination}
   )
 endif()
 
