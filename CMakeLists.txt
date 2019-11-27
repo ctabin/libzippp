@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.8.0)
 
 project(libzippp VERSION 3.0.0)
 
+# Do not install or build tests by default when this file is included
+# as a sub-project (via add_subdirectory)
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(is_root_project ON)
 else()

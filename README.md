@@ -48,6 +48,15 @@ TLDR: Use the standard CMake workflow: `mkdir build && cd build && cmake <-D...>
   - Linux: `make && make install`
   - Windows: Open generated project in MSVC. Build the `INSTALL` target to install.
 
+### CMake variables of interest
+
+- `LIBZIPPP_INSTALL`: Enable/Disable installation of libzippp. Default is OFF when using via `add_subdirectory`, else ON
+- `LIBZIPPP_BUILD_TESTS`: Enable/Disable building libzippp tests. Default is OFF when using via `add_subdirectory`, else ON
+- `CMAKE_INSTALL_PREFIX`: Where to install the project to
+- `CMAKE_BUILD_TYPE`: Set to Release or Debug to build with or without optimizations
+- `BUILD_SHARED_LIBS`: Set to ON or OFF to build shared or static libs, uses platform default if not set
+- `CMAKE_PREFIX_PATH`: Colon-separated list of prefix paths (paths containing `lib` and `include` folders) for installed libs to be used by this
+
 ### Using libzippp
 
 Once installed libzipp can be used from any CMake project with ease:   
