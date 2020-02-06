@@ -13,7 +13,7 @@ Compilation has been tested with:
 Underlying libraries:
 - [ZLib](http://zlib.net) 1.2.11
 - [libzip](http://www.nih.at/libzip) 1.5.2
-- BZip2
+- Optional: [BZip2](https://www.sourceware.org/bzip2/)
 
 # Compilation
 
