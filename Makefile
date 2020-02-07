@@ -57,7 +57,7 @@ zlib-init:
 	mkdir -p $(LIB)
 	
 zlib-download: zlib-init
-	wget -c -O "$(ZLIB).tar.gz" "http://zlib.net/zlib-$(ZLIB_VERSION).tar.gz"
+	wget -c -O "$(ZLIB).tar.gz" "https://github.com/madler/zlib/archive/v$(ZLIB_VERSION).tar.gz"
 
 zlib-unzip: zlib-download
 	cd $(LIB) && tar -xf zlib-$(ZLIB_VERSION).tar.gz
@@ -76,7 +76,7 @@ libzip-init:
 	mkdir -p $(LIB)
 
 libzip-download: libzip-init
-	wget -c -O "$(LIBZIP).tar.gz" "http://www.nih.at/libzip/libzip-$(LIBZIP_VERSION).tar.gz"
+	wget -c -O "$(LIBZIP).tar.gz" "https://www.nih.at/libzip/libzip-$(LIBZIP_VERSION).tar.gz"
 
 libzip-unzip: libzip-download
 	cd $(LIB) && tar -xf libzip-$(LIBZIP_VERSION).tar.gz

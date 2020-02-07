@@ -1,15 +1,11 @@
 
 @echo off
 
-SET vs2012devprompt=C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Tools\VsDevCmd.bat
 SET zlib=lib\zlib-1.2.11
 SET libzip=lib\libzip-1.5.2
 
 if not exist "%zlib%" goto error_zlib_not_found
 if not exist "%libzip%" goto error_libzip_not_found
-if not exist "%vs2012devprompt%" goto error_vs2012_not_found
-
-call "%vs2012devprompt%"
 
 :compile_zlib
 if exist "%zlib%\build" goto compile_libzip
@@ -17,11 +13,11 @@ echo Compiling zlib...
 cd "%zlib%"
 mkdir build
 cd "build"
-cmake .. -G"Visual Studio 11" -DCMAKE_INSTALL_PREFIX="install"
+cmake .. -DCMAKE_INSTALL_PREFIX="../../install"
 if %ERRORLEVEL% GEQ 1 goto error_zlib
-msbuild /P:Configuration=Debug INSTALL.vcxproj
+cmake --build . --config Debug --target install
 if %ERRORLEVEL% GEQ 1 goto error_zlib
-msbuild /P:Configuration=Release INSTALL.vcxproj
+cmake --build . --config Release --target install
 if %ERRORLEVEL% GEQ 1 goto error_zlib
 cd "..\..\.."
 
@@ -31,29 +27,27 @@ echo Compiling libzip...
 cd "%libzip%"
 mkdir build
 cd "build"
-cmake .. -G"Visual Studio 11" -DCMAKE_PREFIX_PATH="../../%zlib%/build/install" -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF -DENABLE_OPENSSL=OFF -DENABLE_WINDOWS_CRYPTO=ON -DENABLE_BZIP2=OFF -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_DOC=OFF
+cmake .. -DCMAKE_INSTALL_PREFIX="../../install" -DCMAKE_PREFIX_PATH="../../install" -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF -DENABLE_OPENSSL=OFF -DENABLE_WINDOWS_CRYPTO=ON -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_DOC=OFF
 if %ERRORLEVEL% GEQ 1 goto error_libzip
-msbuild /P:Configuration=Debug ALL_BUILD.vcxproj
+cmake --build . --config Debug --target install
 if %ERRORLEVEL% GEQ 1 goto error_libzip
-msbuild /P:Configuration=Release ALL_BUILD.vcxproj
+cmake --build . --config Release --target install
 if %ERRORLEVEL% GEQ 1 goto error_libzip
 cd "..\..\.."
 
 :prepare_libzippp
-if exist "build" goto compile_libzippp
 echo Compiling lizippp...
 mkdir build
 cd "build"
-cmake .. -G"Visual Studio 11" -DCMAKE_PREFIX_PATH="%zlib%/build/install" -DLIBZIP_HOME="%libzip%"
+cmake .. -DCMAKE_PREFIX_PATH="../lib/install"
 if %ERRORLEVEL% GEQ 1 goto error_libzippp
 cd ".."
 
 :compile_libzippp
-cd "build"
-if exist "libzippp_static.lib" goto package_libzippp
-msbuild /P:Configuration=Debug ALL_BUILD.vcxproj
+if exist "build/libzippp_static.lib" goto package_libzippp
+cmake --build build --config Debug
 if %ERRORLEVEL% GEQ 1 goto error_libzippp
-msbuild /P:Configuration=Release ALL_BUILD.vcxproj
+cmake --build build --config Release
 if %ERRORLEVEL% GEQ 1 goto error_libzippp
 cd ".."
 

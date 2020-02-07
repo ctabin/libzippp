@@ -13,19 +13,60 @@ Compilation has been tested with:
 Underlying libraries:
 - [ZLib](http://zlib.net) 1.2.11
 - [libzip](http://www.nih.at/libzip) 1.5.2
+- Optional: [BZip2](https://www.sourceware.org/bzip2/)
 
 # Compilation
 
-### LINUX
+### Install Prerequisites
 
-0. Make sure you have the following commands: `g++` `make` `tar` `wget`
-1. Download and compile the libraries (zlib and libzip) with the command: `make libraries`
-2. Then create the static and shared libraries of libzippp: `make`
-3. You may want to run the tests (optional): `make tests` (`libbz2-dev` package is needed to link statically)
-4. Now you just have to include the src folder in your include path and
-  link against *libzippp.a* or *libzippp.so* (do not forget to also link 
-  against libzip libraries in *lib/libzip-1.5.2/lib/.libs/*).
-  An example of compilation with g++:
+- Linux
+  - Install the development packages for zlib and libzip (e.g. `zlib1g-dev, libzip-dev`)
+  - OR Install from source
+  - OR Use the utility in the Makefile by executing `make libraries`
+- Windows:
+  - Use precompile libraries from *libzip-\<version\>-windows-ready_to_compile.zip*
+  - Install from source via CMake (similar to workflow below)
+
+### Compile libzippp
+
+TLDR: Use the standard CMake workflow: `mkdir build && cd build && cmake <-D...> .. && make install`
+
+- Make sure you have a compiler (MSVC, g++, ...) and CMake installed
+- Switch to the source folder
+- Create a build folder and switch to it, e.g.: `mkdir build && cd build`
+- Configure the build with cmake:
+  - Commandline: `cmake .. -DCMAKE_BUILD_TYPE=Release`
+  - With the CMake GUI:
+    - Set source and build folder accordingly
+	- Click `Add Cache Entry` to add `CMAKE_BUILD_TYPE` if not building with MSVC
+	- Click `Configure` & `Generate`
+  - If CMake can't find zlib and/or libzip you need to set `CMAKE_PREFIX_PATH` to the directories where you installed those into
+  (either via `-DCMAKE_PREFIX_PATH=<...>` or via the GUI)
+    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.5.2:/home/user/zlib-1.2.11`
+- Compile as usual
+  - Linux: `make && make install`
+  - Windows: Open generated project in MSVC. Build the `INSTALL` target to install.
+
+### CMake variables of interest
+
+Set via commandline as `cmake -DNAME=VALUE <other opts>` or via CMake GUI or CCMake `Add Cache Entry`.
+
+- `LIBZIPPP_INSTALL`: Enable/Disable installation of libzippp. Default is OFF when using via `add_subdirectory`, else ON
+- `LIBZIPPP_BUILD_TESTS`: Enable/Disable building libzippp tests. Default is OFF when using via `add_subdirectory`, else ON
+- `CMAKE_INSTALL_PREFIX`: Where to install the project to
+- `CMAKE_BUILD_TYPE`: Set to Release or Debug to build with or without optimizations
+- `BUILD_SHARED_LIBS`: Set to ON or OFF to build shared or static libs, uses platform default if not set
+- `CMAKE_PREFIX_PATH`: Colon-separated list of prefix paths (paths containing `lib` and `include` folders) for installed libs to be used by this
+
+### Using libzippp
+
+Once installed libzipp can be used from any CMake project with ease:   
+Given that it was installed (via `CMAKE_INSTALL_PREFIX`) into a standard location or its install prefix is passed into your projects
+`CMAKE_PREFIX_PATH` you can simply call `find_package(libzippp 3.0 REQUIRED)` and link against `libzipp::libzipp`.
+
+When not using CMake to consume libzipp you have to pass its include directory to your compiler and link against `libzippp.{a,so}`.
+Do not forget to also link against libzip libraries e.g. in *lib/libzip-1.5.2/lib/.libs/*).
+An example of compilation with g++:
   
 ```shell
 g++ -I./lib/libzip-1.5.2/lib -I./src \
@@ -45,16 +86,23 @@ libraries but OpenSSL are explicitely disabled in the `LIBZIP_CMAKE` variable in
 
 See [here](https://github.com/nih-at/libzip/blob/master/INSTALL.md) for more information.
 
-### WINDOWS
+### WINDOWS - Alternative way
+
+The easiest way is to download zlib, libzip and libzipp sources and use CMake GUI to build each library in order:
+
+- Open CMake GUI
+- Point `Source` to the libraries source folder, `Build` to a new folder `build` inside it
+- Run `Generate`
+- Open the generated solution in MSVC and build & install it
+- Repeat for the next library
+
+But there is also a prepared batch file to help automate this.
+It may need some adjusting though.
 
 #### From Stage 1 - Use prepared environment
 
 
-0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual 
-  Studio 2012. The dev command prompt path (defined in *compile.bat*) should be:
-  ```
-  <MSVS11>\Common7\Tools\VsDevCmd.bat
-  ```
+0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual Studio.
 
 1. Download the *libzip-\<version\>-windows-ready_to_compile.zip* file from the release 
   and extract it somewhere on your system. This will create a prepared structure, so *libzippp* can 
@@ -68,11 +116,7 @@ See [here](https://github.com/nih-at/libzip/blob/master/INSTALL.md) for more inf
 
 #### From Stage 0 - DIY
 
-0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual 
-  Studio 2012. The dev command prompt path (defined in *compile.bat*) should be:
-  ```
-  <MSVS11>\Common7\Tools\VsDevCmd.bat
-  ```
+0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual Studio 2012.
   
 1. Download [libzip](http://www.nih.at/libzip/libzip-1.5.2.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
