@@ -20,9 +20,8 @@ env:
 jobs:
   include:
     - env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-      install:
-        - make libraries
       script:
+        - make libraries
         - make
         - make tests
 
@@ -41,7 +40,7 @@ install:
     make -j3 install
   - |
     mkdir -p $THIRD_PARTY/libzip && cd $THIRD_PARTY/libzip
-    travis_retry wget -O libzip.tar.gz "https://github.com/nih-at/libzip/archive/rel-1-5-2.tar.gz"
+    travis_retry wget -O libzip.tar.gz "https://github.com/nih-at/libzip/archive/rel-1-6-1.tar.gz"
     tar xzf libzip.tar.gz --strip-components=1
     mkdir build && cd build
     cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${THIRD_PARTY_PREFIX} -DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_PREFIX} -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF
