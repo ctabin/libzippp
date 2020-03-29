@@ -10,25 +10,29 @@ if not exist "%libzip%" goto error_libzip_not_found
 
 :compile_zlib
 if exist "%zlib%\build" goto compile_libzip
+echo =============================
 echo Compiling zlib...
+echo =============================
 cd "%zlib%"
 mkdir build
 cd "build"
-cmake .. -DCMAKE_INSTALL_PREFIX="%root%/lib/install"
+cmake ".." -DCMAKE_INSTALL_PREFIX="%root%/lib/install"
 if %ERRORLEVEL% GEQ 1 goto error_zlib
-cmake --build . --config Debug --target install
+cmake --build "." --config Debug --target install
 if %ERRORLEVEL% GEQ 1 goto error_zlib
-cmake --build . --config Release --target install
+cmake --build "." --config Release --target install
 if %ERRORLEVEL% GEQ 1 goto error_zlib
 cd "..\..\.."
 
 :compile_libzip
-if exist "%libzip%\build" goto prepare_libzippp
+if exist "%libzip%\build" goto compile_libzippp
+echo =============================
 echo Compiling libzip...
+echo =============================
 cd "%libzip%"
-mkdir build
+mkdir "build"
 cd "build"
-cmake .. -DCMAKE_INSTALL_PREFIX="%root%/lib/install" -DCMAKE_PREFIX_PATH="%root%/lib/install" -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF -DENABLE_OPENSSL=OFF -DENABLE_WINDOWS_CRYPTO=ON -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_DOC=OFF
+cmake ".." -DCMAKE_INSTALL_PREFIX="%root%/lib/install" -DCMAKE_PREFIX_PATH="%root%/lib/install" -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF -DENABLE_OPENSSL=OFF -DENABLE_WINDOWS_CRYPTO=ON -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_DOC=OFF
 if %ERRORLEVEL% GEQ 1 goto error_libzip
 cmake --build . --config Debug --target install
 if %ERRORLEVEL% GEQ 1 goto error_libzip
@@ -36,45 +40,60 @@ cmake --build . --config Release --target install
 if %ERRORLEVEL% GEQ 1 goto error_libzip
 cd "..\..\.."
 
-:prepare_libzippp
-echo Compiling lizippp...
-rmdir /q /s "build"
-mkdir build
-cd "build"
-cmake .. -DCMAKE_PREFIX_PATH="%root%/lib/install"
-if %ERRORLEVEL% GEQ 1 goto error_libzippp
+:compile_libzippp
+rmdir /q /s "dist"
+mkdir "dist"
+cd "dist"
+mkdir "release"
+copy "..\%zlib%\build\Release\zlib.dll" release
+copy "..\%libzip%\build\lib\Release\zip.dll" release
+copy "..\src\libzippp.h" release
+
+mkdir "debug"
+copy "..\%zlib%\build\Debug\zlibd.dll" debug
+copy "..\%libzip%\build\lib\Debug\zip.dll" debug
+copy "..\src\libzippp.h" debug
 cd ".."
 
-:compile_libzippp
+echo =============================
+echo Compiling (shared) lizippp...
+echo =============================
+rmdir /q /s "build"
+mkdir "build"
+cd "build"
+cmake .. -DCMAKE_PREFIX_PATH="%root%/lib/install" -DBUILD_SHARED_LIBS=ON
+if %ERRORLEVEL% GEQ 1 goto error_libzippp
+cd ".."
 cmake --build build --config Debug
 if %ERRORLEVEL% GEQ 1 goto error_libzippp
 cmake --build build --config Release
 if %ERRORLEVEL% GEQ 1 goto error_libzippp
-cd ".."
 
-:package_libzippp
-if exist "dist\libzippp_static.lib" goto end
-mkdir "dist"
-cd "dist"
-mkdir release
-copy ..\src\libzippp.h release
-copy ..\build\Release\libzippp_shared_test.exe release
-copy ..\build\Release\libzippp_static_test.exe release
-copy ..\build\Release\libzippp.dll release
-copy ..\build\Release\libzippp.lib release
-copy ..\build\Release\libzippp_static.lib release
-copy ..\%zlib%\build\Release\zlib.dll release
-copy ..\%libzip%\build\lib\Release\zip.dll release
-mkdir debug
-copy ..\src\libzippp.h debug
-copy ..\build\Debug\libzippp_shared_test.exe debug
-copy ..\build\Debug\libzippp_static_test.exe debug
-copy ..\build\Debug\libzippp.dll debug
-copy ..\build\Debug\libzippp.lib debug
-copy ..\build\Debug\libzippp_static.lib debug
-copy ..\%zlib%\build\Debug\zlibd.dll debug
-copy ..\%libzip%\build\lib\Debug\zip.dll debug
-cd ..
+copy "build\Release\libzippp_shared_test.exe" "dist/release"
+copy "build\Release\libzippp.dll" "dist/release"
+copy "build\Release\libzippp.lib" "dist/release"
+copy "build\Debug\libzippp_shared_test.exe" "dist/debug"
+copy "build\Debug\libzippp.dll" "dist/debug"
+copy "build\Debug\libzippp.lib" "dist/debug"
+
+echo =============================
+echo Compiling (static) lizippp...
+echo =============================
+rmdir /q /s "build"
+mkdir "build"
+cd "build"
+cmake .. -DCMAKE_PREFIX_PATH="%root%/lib/install" -DBUILD_SHARED_LIBS=OFF
+if %ERRORLEVEL% GEQ 1 goto error_libzippp
+cd ".."
+cmake --build build --config Debug
+if %ERRORLEVEL% GEQ 1 goto error_libzippp
+cmake --build build --config Release
+if %ERRORLEVEL% GEQ 1 goto error_libzippp
+
+copy "build\Release\libzippp_static_test.exe" "dist/release"
+copy "build\Release\libzippp_static.lib" "dist/release"
+copy "build\Debug\libzippp_static_test.exe" "dist/debug"
+copy "build\Debug\libzippp_static.lib" "dist/debug"
 
 goto end
 
@@ -105,5 +124,5 @@ echo [ERROR] Unable to compile libzippp
 goto end
 
 :end
-cd %root%
+cd "%root%"
 cmd
