@@ -28,6 +28,8 @@ set_target_properties(libzippp PROPERTIES PREFIX "") # Avoid duplicate "lib" pre
 target_link_libraries(libzippp PRIVATE libzip::libzip)
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(libzippp PRIVATE LIBZIPPP_EXPORTS)
+else()
+  set_target_properties(libzippp PROPERTIES OUTPUT_NAME "libzippp_static")
 endif()
 
 export(TARGETS libzippp NAMESPACE libzippp:: FILE ${PROJECT_BINARY_DIR}/libzippp-target.cmake)
@@ -37,6 +39,12 @@ if(LIBZIPPP_BUILD_TESTS)
   add_executable(libzippp_test "tests/tests.cpp")
   target_link_libraries(libzippp_test PRIVATE libzippp)
   add_test(NAME libzippp_tests COMMAND libzippp_test)
+  
+  if (BUILD_SHARED_LIBS)
+	set_target_properties(libzippp_test PROPERTIES OUTPUT_NAME "libzippp_shared_test")
+  else()
+	set_target_properties(libzippp_test PROPERTIES OUTPUT_NAME "libzippp_static_test")
+  endif()
 endif()
 
 if(LIBZIPPP_INSTALL)
