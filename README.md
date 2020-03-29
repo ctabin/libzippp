@@ -20,7 +20,7 @@ Underlying libraries:
 ### Install Prerequisites
 
 - Linux
-  - Install the development packages for zlib and libzip (e.g. `zlib1g-dev`, `libzip-dev`)
+  - Install the development packages for zlib and libzip (e.g. `zlib1g-dev`, `libzip-dev`, `liblzma-dev`, `libbz2-dev`)
   - OR Install from source
   - OR Use the utility in the Makefile by executing `make libraries`
 - Windows:

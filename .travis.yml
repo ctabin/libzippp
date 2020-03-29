@@ -8,6 +8,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-8
+      - liblzma-dev
       - libbz2-dev
       - valgrind
 
@@ -20,8 +21,9 @@ env:
 jobs:
   include:
     - env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-      script:
+      install:
         - make libraries
+      script:
         - make
         - make tests
 

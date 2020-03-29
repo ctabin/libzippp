@@ -26,11 +26,11 @@ libzippp-shared: libzippp-compile
 
 libzippp-tests: libzippp-static libzippp-shared
 	if [ -d $(ZLIB) ]; then \
-		$(CXX) -o test_static -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a -lbz2 $(CRYPTO_FLAGS); \
-		$(CXX) -o test_shared -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz -lbz2 $(CRYPTO_FLAGS) -Wl,-rpath=.; \
+		$(CXX) -o test_static -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a -lbz2 -llzma $(CRYPTO_FLAGS); \
+		$(CXX) -o test_shared -I$(ZLIB) -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz -lbz2 -llzma $(CRYPTO_FLAGS) -Wl,-rpath=.; \
 	else \
-		$(CXX) -o test_static -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz -lbz2 $(CRYPTO_FLAGS); \
-		$(CXX) -o test_shared -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz -lbz2 $(CRYPTO_FLAGS) -Wl,-rpath=.; \
+		$(CXX) -o test_static -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz -lbz2 -llzma $(CRYPTO_FLAGS); \
+		$(CXX) -o test_shared -I$(LIBZIP)/lib -Isrc $(CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz -lbz2 -llzma $(CRYPTO_FLAGS) -Wl,-rpath=.; \
 	fi;
 
 clean-tests:
