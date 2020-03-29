@@ -2,7 +2,7 @@
 @echo off
 
 SET zlib=lib\zlib-1.2.11
-SET libzip=lib\libzip-1.5.2
+SET libzip=lib\libzip-1.6.1
 
 if not exist "%zlib%" goto error_zlib_not_found
 if not exist "%libzip%" goto error_libzip_not_found

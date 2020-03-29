@@ -7,12 +7,12 @@ libzippp is a simple basic C++ wrapper around the libzip library.
 It is meant to be a portable and easy-to-use library for ZIP handling.
 
 Compilation has been tested with:
-- GCC 8.3.0 (GNU/Linux Debian) 
+- GCC 9.2.1 (GNU/Linux Debian) 
 - MS Visual Studio 2012 (Windows 7)
 
 Underlying libraries:
 - [ZLib](http://zlib.net) 1.2.11
-- [libzip](http://www.nih.at/libzip) 1.5.2
+- [libzip](http://www.nih.at/libzip) 1.6.1
 - Optional: [BZip2](https://www.sourceware.org/bzip2/)
 
 # Compilation
@@ -20,7 +20,7 @@ Underlying libraries:
 ### Install Prerequisites
 
 - Linux
-  - Install the development packages for zlib and libzip (e.g. `zlib1g-dev, libzip-dev`)
+  - Install the development packages for zlib and libzip (e.g. `zlib1g-dev`, `libzip-dev`, `liblzma-dev`, `libbz2-dev`)
   - OR Install from source
   - OR Use the utility in the Makefile by executing `make libraries`
 - Windows:
@@ -42,7 +42,7 @@ TLDR: Use the standard CMake workflow: `mkdir build && cd build && cmake <-D...>
 	- Click `Configure` & `Generate`
   - If CMake can't find zlib and/or libzip you need to set `CMAKE_PREFIX_PATH` to the directories where you installed those into
   (either via `-DCMAKE_PREFIX_PATH=<...>` or via the GUI)
-    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.5.2:/home/user/zlib-1.2.11`
+    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.6.1:/home/user/zlib-1.2.11`
 - Compile as usual
   - Linux: `make && make install`
   - Windows: Open generated project in MSVC. Build the `INSTALL` target to install.
@@ -65,13 +65,13 @@ Given that it was installed (via `CMAKE_INSTALL_PREFIX`) into a standard locatio
 `CMAKE_PREFIX_PATH` you can simply call `find_package(libzippp 3.0 REQUIRED)` and link against `libzipp::libzipp`.
 
 When not using CMake to consume libzipp you have to pass its include directory to your compiler and link against `libzippp.{a,so}`.
-Do not forget to also link against libzip libraries e.g. in *lib/libzip-1.5.2/lib/.libs/*).
+Do not forget to also link against libzip libraries e.g. in *lib/libzip-1.6.1/lib/.libs/*).
 An example of compilation with g++:
   
 ```shell
-g++ -I./lib/libzip-1.5.2/lib -I./src \
+g++ -I./lib/libzip-1.6.1/lib -I./src \
     main.cpp libzippp.a \
-    lib/libzip-1.5.2/lib/.libs/libzip.a \
+    lib/libzip-1.6.1/lib/.libs/libzip.a \
     lib/zlib-1.2.11/libz.a
 ```
 
@@ -118,14 +118,14 @@ It may need some adjusting though.
 
 0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual Studio 2012.
   
-1. Download [libzip](http://www.nih.at/libzip/libzip-1.5.2.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
+1. Download [libzip](http://www.nih.at/libzip/libzip-1.6.1.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
   ```
   libzippp/compile.bat
   libzippp/lib/zlib-1.2.11
-  libzippp/lib/libzip-1.5.2
+  libzippp/lib/libzip-1.6.1
   ```
-2. Apply the modifications described in libzippp/lib/libzip-1.5.2-windows.patch.
+2. Apply the modifications described in libzippp/lib/libzip-1.6.1-windows.patch.
 
 3. Execute the *compile.bat* (simply double-click on it). The compilation should 
   go without error.
