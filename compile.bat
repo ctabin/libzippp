@@ -1,6 +1,7 @@
 
 @echo off
 
+SET root=%cd%
 SET zlib=lib\zlib-1.2.11
 SET libzip=lib\libzip-1.6.1
 
@@ -13,7 +14,7 @@ echo Compiling zlib...
 cd "%zlib%"
 mkdir build
 cd "build"
-cmake .. -DCMAKE_INSTALL_PREFIX="../../install"
+cmake .. -DCMAKE_INSTALL_PREFIX="%root%/lib/install"
 if %ERRORLEVEL% GEQ 1 goto error_zlib
 cmake --build . --config Debug --target install
 if %ERRORLEVEL% GEQ 1 goto error_zlib
@@ -27,7 +28,7 @@ echo Compiling libzip...
 cd "%libzip%"
 mkdir build
 cd "build"
-cmake .. -DCMAKE_INSTALL_PREFIX="../../install" -DCMAKE_PREFIX_PATH="../../install" -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF -DENABLE_OPENSSL=OFF -DENABLE_WINDOWS_CRYPTO=ON -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_DOC=OFF
+cmake .. -DCMAKE_INSTALL_PREFIX="%root%/lib/install" -DCMAKE_PREFIX_PATH="%root%/lib/install" -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF -DENABLE_OPENSSL=OFF -DENABLE_WINDOWS_CRYPTO=ON -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_DOC=OFF
 if %ERRORLEVEL% GEQ 1 goto error_libzip
 cmake --build . --config Debug --target install
 if %ERRORLEVEL% GEQ 1 goto error_libzip
@@ -37,14 +38,14 @@ cd "..\..\.."
 
 :prepare_libzippp
 echo Compiling lizippp...
+rmdir /q /s "build"
 mkdir build
 cd "build"
-cmake .. -DCMAKE_PREFIX_PATH="../lib/install"
+cmake .. -DCMAKE_PREFIX_PATH="%root%/lib/install"
 if %ERRORLEVEL% GEQ 1 goto error_libzippp
 cd ".."
 
 :compile_libzippp
-if exist "build/libzippp_static.lib" goto package_libzippp
 cmake --build build --config Debug
 if %ERRORLEVEL% GEQ 1 goto error_libzippp
 cmake --build build --config Release
@@ -104,4 +105,5 @@ echo [ERROR] Unable to compile libzippp
 goto end
 
 :end
+cd %root%
 cmd
