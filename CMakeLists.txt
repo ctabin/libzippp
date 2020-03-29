@@ -30,6 +30,8 @@ if (BUILD_SHARED_LIBS)
   target_compile_definitions(libzippp PRIVATE LIBZIPPP_EXPORTS)
 endif()
 
+export(TARGETS libzippp NAMESPACE libzippp:: FILE ${PROJECT_BINARY_DIR}/libzippp-target.cmake)
+
 if(LIBZIPPP_BUILD_TESTS)
   enable_testing()
   add_executable(libzippp_test "tests/tests.cpp")
