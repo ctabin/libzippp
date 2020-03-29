@@ -55,6 +55,7 @@ struct zip_source;
 #ifdef WIN32
         typedef long long libzippp_int64;
         typedef unsigned long long libzippp_uint64;
+        typedef unsigned int libzippp_uint32;
         typedef unsigned short libzippp_uint16;
         //special declarations for windows to use libzippp from a DLL
         #define LIBZIPPP_SHARED_LIBRARY_EXPORT __declspec(dllexport)
@@ -63,6 +64,7 @@ struct zip_source;
         //standard ISO c++ does not support long long
         typedef long int libzippp_int64;
         typedef unsigned long int libzippp_uint64;
+        typedef unsigned int libzippp_uint32;
         typedef unsigned short libzippp_uint16;
         
         #define LIBZIPPP_SHARED_LIBRARY_EXPORT
@@ -138,7 +140,7 @@ namespace libzippp {
          * directly be open with the given mode. If the archive fails to be open or
          * if the consistency check fails, this method will return null.
          */
-        static ZipArchive* fromBuffer(const char* buffer, uint32_t size, OpenMode mode=READ_ONLY, bool checkConsistency=false);
+        static ZipArchive* fromBuffer(const char* buffer, libzippp_uint32 size, OpenMode mode=READ_ONLY, bool checkConsistency=false);
         
         /**
          * Return the path of the ZipArchive.
@@ -390,7 +392,7 @@ namespace libzippp {
         std::string password;
         
         //open from a buffer
-        bool openBuffer(const char* buffer, uint32_t sz, OpenMode mode=READ_ONLY, bool checkConsistency=false);
+        bool openBuffer(const char* buffer, libzippp_uint32 sz, OpenMode mode=READ_ONLY, bool checkConsistency=false);
         
         //generic method to create ZipEntry
         ZipEntry createEntry(struct zip_stat* stat) const;
