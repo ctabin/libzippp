@@ -1,45 +1,92 @@
+cmake_minimum_required(VERSION 3.8.0)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+project(libzippp VERSION 3.0.0)
 
-PROJECT(libzippp)
+# Do not install or build tests by default when this file is included
+# as a sub-project (via add_subdirectory)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    set(is_root_project ON)
+else()
+    set(is_root_project OFF)
+endif()
 
-SET(PACKAGE "libzippp")
-SET(VERSION "0.2")
+option(LIBZIPPP_INSTALL "Install library" ${is_root_project})
+option(LIBZIPPP_BUILD_TESTS "Build unit tests" ${is_root_project})
 
-SET(ZLIB_PATH "lib/zlib-1.2.8" CACHE STRING "Path to zlib")
-SET(LIBZIP_PATH "lib/libzip-1.1.3" CACHE STRING "Path to libzip")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-FIND_PACKAGE(ZLIB REQUIRED)
-INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
-set(CMAKE_REQUIRED_INCLUDES ${ZLIB_INCLUDE_DIR})
-IF(ZLIB_VERSION_STRING VERSION_LESS "1.1.2")
-  MESSAGE(FATAL_ERROR "-- ZLIB version too old, please install at least v1.1.2")
-ENDIF(ZLIB_VERSION_STRING VERSION_LESS "1.1.2")
+find_package(LIBZIP MODULE REQUIRED)
 
-INCLUDE_DIRECTORIES(${LIBZIP_PATH}/lib)
-INCLUDE_DIRECTORIES(${LIBZIP_PATH}/build)
-INCLUDE_DIRECTORIES("src")
+add_library(libzippp "src/libzippp.cpp")
+add_library(libzippp::libzippp ALIAS libzippp) # Convenience alias
+target_include_directories(libzippp 
+  PUBLIC  
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:include/libzippp>
+)
+set_target_properties(libzippp PROPERTIES PREFIX "") # Avoid duplicate "lib" prefix
+target_link_libraries(libzippp PRIVATE libzip::libzip)
+if (BUILD_SHARED_LIBS)
+  target_compile_definitions(libzippp PRIVATE LIBZIPPP_EXPORTS)
+else()
+  set_target_properties(libzippp PROPERTIES OUTPUT_NAME "libzippp_static")
+endif()
 
-add_definitions(-DLIBZIPPP_EXPORTS)
-ADD_LIBRARY(libzippp_shared SHARED "src/libzippp.cpp")
-SET_TARGET_PROPERTIES(libzippp_shared PROPERTIES OUTPUT_NAME libzippp)
-TARGET_LINK_LIBRARIES(libzippp_shared 
-			debug ../${LIBZIP_PATH}/build/lib/Debug/zip
-			optimized ../${LIBZIP_PATH}/build/lib/Release/zip
-			${ZLIB_LIBRARY})
+export(TARGETS libzippp NAMESPACE libzippp:: FILE ${PROJECT_BINARY_DIR}/libzippp-target.cmake)
 
-add_definitions(-DLIBZIPPP_EXPORTS)
-ADD_LIBRARY(libzippp_static STATIC "src/libzippp.cpp")
+if(LIBZIPPP_BUILD_TESTS)
+  enable_testing()
+  add_executable(libzippp_test "tests/tests.cpp")
+  target_link_libraries(libzippp_test PRIVATE libzippp)
+  add_test(NAME libzippp_tests COMMAND libzippp_test)
+  
+  if (BUILD_SHARED_LIBS)
+	set_target_properties(libzippp_test PROPERTIES OUTPUT_NAME "libzippp_shared_test")
+  else()
+	set_target_properties(libzippp_test PROPERTIES OUTPUT_NAME "libzippp_static_test")
+  endif()
+endif()
 
-ADD_EXECUTABLE(libzippp_shared_test "tests/tests.cpp")
-TARGET_LINK_LIBRARIES(libzippp_shared_test libzippp_shared)
+if(LIBZIPPP_INSTALL)
+  install(
+    TARGETS libzippp 
+    EXPORT libzipppTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib 
+    RUNTIME DESTINATION bin 
+  )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MT" FORCE)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd" FORCE)
-ADD_EXECUTABLE(libzippp_static_test "tests/tests.cpp")
-TARGET_LINK_LIBRARIES(libzippp_static_test 
-                        libzippp_static
-                        debug ../${LIBZIP_PATH}/build/lib/Debug/zip
-			optimized ../${LIBZIP_PATH}/build/lib/Release/zip
-			debug ../${ZLIB_PATH}/build/Debug/zlibstaticd
-			optimized ../${ZLIB_PATH}/build/Release/zlibstatic)
+  install(FILES src/libzippp.h DESTINATION include/libzippp)
+
+  include(CMakePackageConfigHelpers)
+
+  set(PROJECT_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}Config.cmake")
+  set(PROJECT_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}ConfigVersion.cmake")
+  if(WIN32)
+    set(configInstallDestination cmake/${PROJECT_NAME})
+  else()
+    set(configInstallDestination share/${PROJECT_NAME})
+  endif()
+  
+  configure_package_config_file(
+    "Config.cmake.in" 
+    ${PROJECT_CONFIG_FILE} 
+    INSTALL_DESTINATION ${configInstallDestination}
+  )
+  write_basic_package_version_file(
+    ${PROJECT_VERSION_FILE}
+    COMPATIBILITY SameMajorVersion
+  )
+
+  install(
+    FILES ${PROJECT_CONFIG_FILE} ${PROJECT_VERSION_FILE} cmake/FindLIBZIP.cmake
+    DESTINATION ${configInstallDestination}
+  )
+
+  install(
+    EXPORT libzipppTargets
+    NAMESPACE "${PROJECT_NAME}::"
+    DESTINATION ${configInstallDestination}
+  )
+endif()
+

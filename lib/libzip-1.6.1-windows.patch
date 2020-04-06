@@ -1,0 +1,12 @@
+diff -u libzip-1.5.2/lib/zip_crypto_win.c libzip-1.5.2-win/lib/zip_crypto_win.c
+--- libzip-1.5.2/lib/zip_crypto_win.c	2019-03-12 12:44:02.000000000 +0100
++++ libzip-1.5.2-win/lib/zip_crypto_win.c	2019-05-05 21:41:01.203275000 +0200
+@@ -80,7 +80,7 @@
+ */
+ 
+ #if !defined(WINCE) && !defined(__MINGW32__)
+-#define HAS_BCRYPTDERIVEKEYPBKDF2
++//#define HAS_BCRYPTDERIVEKEYPBKDF2
+ #endif
+ 
+ #ifdef HAS_BCRYPTDERIVEKEYPBKDF2

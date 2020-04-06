@@ -1,0 +1,62 @@
+os: linux
+dist: trusty
+language: cpp
+compiler: gcc
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-8
+      - liblzma-dev
+      - libbz2-dev
+      - valgrind
+
+env:
+  - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug BUILD_SHARED_LIBS=OFF
+  - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release BUILD_SHARED_LIBS=OFF
+  - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug BUILD_SHARED_LIBS=ON
+  - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release BUILD_SHARED_LIBS=ON
+
+jobs:
+  include:
+    - env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+      install:
+        - make libraries
+      script:
+        - make
+        - make tests
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+install:
+  - THIRD_PARTY=$HOME/third_party
+  - THIRD_PARTY_PREFIX=$THIRD_PARTY/install
+  - |
+    mkdir -p $THIRD_PARTY/zlib && cd $THIRD_PARTY/zlib
+    travis_retry wget -O zlib.tar.gz "https://github.com/madler/zlib/archive/v1.2.11.tar.gz"
+    tar xzf zlib.tar.gz --strip-components=1
+    mkdir build && cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_PREFIX}
+    make -j3 install
+  - |
+    mkdir -p $THIRD_PARTY/libzip && cd $THIRD_PARTY/libzip
+    travis_retry wget -O libzip.tar.gz "https://github.com/nih-at/libzip/archive/rel-1-6-1.tar.gz"
+    tar xzf libzip.tar.gz --strip-components=1
+    mkdir build && cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${THIRD_PARTY_PREFIX} -DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_PREFIX} -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF
+    make -j3 install
+  - cd $TRAVIS_BUILD_DIR # Reset CWD
+
+script:
+  - mkdir build && cd build
+  - cmake .. -DCMAKE_PREFIX_PATH=${THIRD_PARTY_PREFIX} -DCMAKE_INSTALL_PREFIX=$HOME/libzippp -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS
+  - make -j3 install
+  - make test
+  - rm -r *
+  - cmake ../tests/exampleProject -DCMAKE_PREFIX_PATH="${THIRD_PARTY_PREFIX};$HOME/libzippp" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$THIRD_PARTY_PREFIX/lib" # For shared libs
+  - make -j3
+  - make test
+  

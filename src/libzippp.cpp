@@ -50,6 +50,14 @@ bool ZipEntry::setComment(const string& str) const {
     return zipFile->setEntryComment(*this, str);
 }
 
+bool ZipEntry::isCompressionEnabled(void) const {
+    return zipFile->isEntryCompressionEnabled(*this);
+}
+
+bool ZipEntry::setCompressionEnabled(bool value) const {
+    return zipFile->setEntryCompressionEnabled(*this, value);
+}
+
 string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const {
     char* content = (char*)zipFile->readEntry(*this, true, state, size);
     if (content==NULL) { return string(); } //happen if the ZipArchive has been closed
@@ -64,15 +72,70 @@ void* ZipEntry::readAsBinary(ZipArchive::State state, libzippp_uint64 size) cons
     return zipFile->readEntry(*this, false, state, size); 
 }
 
-int ZipEntry::readContent(std::ofstream& ofOutput, ZipArchive::State state, libzippp_uint64 chunksize) const {
+int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzippp_uint64 chunksize) const {
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), mode(NOT_OPEN), password(password) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), zipSource(NULL), mode(NOT_OPEN), password(password) {
 }
 
 ZipArchive::~ZipArchive(void) { 
     close(); /* discard ??? */ 
+}
+
+ZipArchive* ZipArchive::fromBuffer(const char* data, libzippp_uint32 size, OpenMode om, bool checkConsistency)
+{
+    ZipArchive* za = new ZipArchive("");
+    bool o = za->openBuffer(data, size, om, checkConsistency);
+    if(!o) {
+        delete za;
+        za = NULL;
+    }
+    return za;
+}
+
+bool ZipArchive::openBuffer(const char* data, libzippp_uint32 size, OpenMode om, bool checkConsistency)
+{
+    if (isOpen()) { return om == mode; }
+    int zipFlag = 0;
+    if (om == READ_ONLY) { zipFlag = 0; }
+    else if (om == WRITE) { zipFlag = ZIP_CREATE; }
+    else if (om == NEW) { zipFlag = ZIP_CREATE | ZIP_TRUNCATE; }
+    else { return false; }
+    if (checkConsistency) {
+        zipFlag = zipFlag | ZIP_CHECKCONS;
+    }
+
+    zip_error_t error;
+    zip_error_init(&error);
+
+    /* create source from buffer */
+    zipSource = zip_source_buffer_create(data, size, 1, &error);
+    if (zipSource == NULL) {
+        zip_error_fini(&error);
+        return false;
+    }
+    /* open zip archive from source */
+    zipHandle = zip_open_from_source(zipSource, 0, &error);
+    if (zipHandle == NULL) {
+        fprintf(stderr, "can't open zip from source: %s\n", zip_error_strerror(&error));
+        zip_source_free(zipSource);
+        zipSource = NULL;
+        zip_error_fini(&error);
+        return false;
+    }
+    zip_error_fini(&error);
+
+    if (isEncrypted()) {
+        int result = zip_set_default_password(zipHandle, password.c_str());
+        if (result != 0) {
+            close();
+            return false;
+        }
+    }
+
+    mode = om;
+    return true;
 }
 
 bool ZipArchive::open(OpenMode om, bool checkConsistency) {
@@ -118,12 +181,23 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     return false;
 }
 
-void ZipArchive::close(void) {
+int ZipArchive::close(void) {
     if (isOpen()) {
-        zip_close(zipHandle);
+
+        if (zipSource){
+            //zip_source_close(zipSource);
+            //zip_source_free(zipSource);
+            //zipSource = NULL;
+        }
+
+        int result = zip_close(zipHandle);
         zipHandle = NULL;
         mode = NOT_OPEN;
+        
+        if(result!=0) { return result; }
     }
+    
+    return LIBZIPPP_OK;
 }
 
 void ZipArchive::discard(void) {
@@ -154,11 +228,25 @@ string ZipArchive::getComment(State state) const {
 
 bool ZipArchive::setComment(const string& comment) const {
     if (!isOpen()) { return false; }
+    if (mode==READ_ONLY) { return false; }
     
     int size = comment.size();
     const char* data = comment.c_str();
     int result = zip_set_archive_comment(zipHandle, data, size);
     return result==0;
+}
+
+bool ZipArchive::isEntryCompressionEnabled(const ZipEntry& entry) const {
+    return entry.compressionMethod==ZIP_CM_DEFLATE;
+}
+
+bool ZipArchive::setEntryCompressionEnabled(const ZipEntry& entry, bool value) const {
+    if (!isOpen()) { return false; }
+    if (entry.zipFile!=this) { return false; }
+    if (mode==READ_ONLY) { return false; }
+    
+    libzippp_uint16 compMode = value ? ZIP_CM_DEFLATE : ZIP_CM_STORE;
+    return zip_set_file_compression(zipHandle, entry.index, compMode, 0);
 }
 
 libzippp_int64 ZipArchive::getNbEntries(State state) const {
@@ -172,12 +260,13 @@ ZipEntry ZipArchive::createEntry(struct zip_stat* stat) const {
     string name(stat->name);
     libzippp_uint64 index = stat->index;
     libzippp_uint64 size = stat->size;
-    int method = stat->comp_method;
+    libzippp_uint16 compMethod = stat->comp_method;
+    libzippp_uint16 encMethod = stat->encryption_method;
     libzippp_uint64 sizeComp = stat->comp_size;
     int crc = stat->crc;
     time_t time = stat->mtime;
 
-    return ZipEntry(this, name, index, time, method, size, sizeComp, crc);
+    return ZipEntry(this, name, index, time, compMethod, encMethod, size, sizeComp, crc);
 }
 
 vector<ZipEntry> ZipArchive::getEntries(State state) const {
@@ -252,7 +341,7 @@ string ZipArchive::getEntryComment(const ZipEntry& entry, State state) const {
     int flag = ZIP_FL_ENC_GUESS;
     if (state==ORIGINAL) { flag = flag | ZIP_FL_UNCHANGED; }
     
-    uint clen;
+    unsigned int clen;
     const char* com = zip_file_get_comment(zipHandle, entry.getIndex(), &clen, flag);
     string comment = com==NULL ? string() : string(com, clen);
     return comment;
@@ -347,9 +436,9 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
     if (newName==entry.getName()) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
     
     if (entry.isFile()) {
-        if (IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
+        if (ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
-        int lastSlash = newName.rfind(DIRECTORY_SEPARATOR);
+        int lastSlash = newName.rfind(ENTRY_PATH_SEPARATOR);
         if (lastSlash!=1) { 
             bool dadded = addEntry(newName.substr(0, lastSlash+1)); 
             if (!dadded) { return LIBZIPPP_ERROR_UNKNOWN; } //the hierarchy hasn't been created
@@ -359,9 +448,9 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
         if (result==0) { return 1; }
         return LIBZIPPP_ERROR_UNKNOWN; //renaming was not possible (entry already exists ?)
     } else {
-        if (!IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
+        if (!ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
-        int parentSlash = newName.rfind(DIRECTORY_SEPARATOR, newName.length()-2);
+        int parentSlash = newName.rfind(ENTRY_PATH_SEPARATOR, newName.length()-2);
         if (parentSlash!=-1) { //updates the dir hierarchy
             string parent = newName.substr(0, parentSlash+1);
             bool dadded = addEntry(parent);
@@ -416,9 +505,9 @@ int ZipArchive::renameEntry(const string& e, const string& newName) const {
 bool ZipArchive::addFile(const string& entryName, const string& file) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (IS_DIRECTORY(entryName)) { return false; }
+    if (ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
-    int lastSlash = entryName.rfind(DIRECTORY_SEPARATOR);
+    int lastSlash = entryName.rfind(ENTRY_PATH_SEPARATOR);
     if (lastSlash!=-1) { //creates the needed parent directories
         string dirEntry = entryName.substr(0, lastSlash+1);
         bool dadded = addEntry(dirEntry);
@@ -443,12 +532,12 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
     return false;
 }
 
-bool ZipArchive::addData(const string& entryName, const void* data, uint length, bool freeData) const {
+bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uint64 length, bool freeData) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (IS_DIRECTORY(entryName)) { return false; }
+    if (ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
-    int lastSlash = entryName.rfind(DIRECTORY_SEPARATOR);
+    int lastSlash = entryName.rfind(ENTRY_PATH_SEPARATOR);
     if (lastSlash!=-1) { //creates the needed parent directories
         string dirEntry = entryName.substr(0, lastSlash+1);
         bool dadded = addEntry(dirEntry);
@@ -469,23 +558,23 @@ bool ZipArchive::addData(const string& entryName, const void* data, uint length,
 bool ZipArchive::addEntry(const string& entryName) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (!IS_DIRECTORY(entryName)) { return false; }
+    if (!ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
-    int nextSlash = entryName.find(DIRECTORY_SEPARATOR);
+    int nextSlash = entryName.find(ENTRY_PATH_SEPARATOR);
     while (nextSlash!=-1) {
         string pathToCreate = entryName.substr(0, nextSlash+1);
         if (!hasEntry(pathToCreate)) {
             libzippp_int64 result = zip_dir_add(zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
             if (result==-1) { return false; }
         }
-        nextSlash = entryName.find(DIRECTORY_SEPARATOR, nextSlash+1);
+        nextSlash = entryName.find(ENTRY_PATH_SEPARATOR, nextSlash+1);
     }
     
     return true;
 }
 
-int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ofstream& ofOutput, State state, libzippp_uint64 chunksize) const {
-    if (!ofOutput.is_open()) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
+int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state, libzippp_uint64 chunksize) const {
+    if (!ofOutput) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
     if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
     if (zipEntry.zipFile!=this) { return LIBZIPPP_ERROR_INVALID_ENTRY; }
     
