@@ -365,7 +365,7 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state, 
         libzippp_uint64 maxSize = zipEntry.getSize();
         libzippp_uint64 uisize = size==0 || size>maxSize ? maxSize : size;
         
-        char* data = new char[uisize+(asText ? 1 : 0)];
+        char* data = new (std::nothrow) char[uisize+(asText ? 1 : 0)];
         if(!data) { //allocation error
             zip_fclose(zipFile);
             return NULL; 
@@ -586,7 +586,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
         if (!chunksize) { chunksize = DEFAULT_CHUNK_SIZE; } // use the default chunk size (512K) if not specified by the user
     
         if (maxSize<chunksize) {
-            char* data = new char[maxSize];
+            char* data = new (std::nothrow) char[maxSize];
             if (data!=NULL) {
                 libzippp_int64 result = zip_fread(zipFile, data, maxSize);
                 if (result>0) {
@@ -606,7 +606,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
         } else {
             libzippp_uint64 uWrittenBytes = 0;
             libzippp_int64 result = 0;
-            char* data = new char[chunksize];
+            char* data = new (std::nothrow) char[chunksize];
             if (data!=NULL) {
                 int nbChunks = maxSize/chunksize;
                 for (int uiChunk=0 ; uiChunk<nbChunks ; ++uiChunk) {
@@ -635,7 +635,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
             
             int leftOver = maxSize%chunksize;
             if (iRes==0 && leftOver>0) {
-                char* data = new char[leftOver];
+                char* data = new (std::nothrow) char[leftOver];
                 if (data!=NULL) {
                     result = zip_fread(zipFile, data, leftOver);
                     if (result>0) {
