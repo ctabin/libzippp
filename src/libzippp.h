@@ -143,7 +143,7 @@ namespace libzippp {
         static ZipArchive* fromBuffer(const char* buffer, libzippp_uint32 size, OpenMode mode=READ_ONLY, bool checkConsistency=false);
         
         /**
-         * Return the path of the ZipArchive.
+         * Returns the path of the ZipArchive.
          */
         std::string getPath(void) const { return path; }
         
@@ -232,14 +232,14 @@ namespace libzippp {
         std::vector<ZipEntry> getEntries(State state=CURRENT) const;
         
         /**
-         * Return true if an entry with the specified name exists. If no such entry exists,
+         * Returns true if an entry with the specified name exists. If no such entry exists,
          * then false will be returned. If a directory is searched, the name must end with a '/' !
          * The zip file must be open otherwise false will be returned.
          */
         bool hasEntry(const std::string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=CURRENT) const;
         
         /**
-         * Return the ZipEntry for the specified entry name. If no such entry exists,
+         * Returns the ZipEntry for the specified entry name. If no such entry exists,
          * then a null-ZiPEntry will be returned. If a directory is searched, the name
          * must end with a '/' !
          * The zip file must be open otherwise a null-ZipEntry will be returned.
@@ -247,7 +247,7 @@ namespace libzippp {
         ZipEntry getEntry(const std::string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=CURRENT) const;
         
         /**
-         * Return the ZipEntry for the specified index. If the index is out of range,
+         * Returns the ZipEntry for the specified index. If the index is out of range,
          * then a null-ZipEntry will be returned.
          * The zip file must be open otherwise a null-ZipEntry will be returned.
          */
@@ -269,10 +269,10 @@ namespace libzippp {
         bool setEntryCompressionEnabled(const ZipEntry& entry, bool value) const;
         
         /**
-         * Read the specified ZipEntry of the ZipArchive and returns its content within
+         * Reads the specified ZipEntry of the ZipArchive and returns its content within
          * a char array. If there is an error while reading the entry, then null will be returned.
          * The data must be deleted by the developer once not used anymore. If the asText
-         * is set to true, then the returned void* will be ended by a \0 (hence the size of
+         * is set to true, then the returned void* will be ended by a '\0' (hence the size of
          * the returned array will be zipEntry.getSize()+1 or size+1 if the latter is specified).
          * The zip file must be open otherwise null will be returned. If the ZipEntry was not
          * created by this ZipArchive, null will be returned.
@@ -280,10 +280,10 @@ namespace libzippp {
         void* readEntry(const ZipEntry& zipEntry, bool asText=false, State state=CURRENT, libzippp_uint64 size=0) const;
         
         /**
-         * Read the specified ZipEntry of the ZipArchive and returns its content within
+         * Reads the specified ZipEntry of the ZipArchive and returns its content within
          * a char array. If there is an error while reading the entry, then null will be returned.
          * The data must be deleted by the developer once not used anymore. If the asText
-         * is set to true, then the returned void* will be ended by a \0 (hence the size of
+         * is set to true, then the returned void* will be ended by a '\0' (hence the size of
          * the returned array will be zipEntry.getSize()+1 or size+1 if the latter is specified).
          * The zip file must be open otherwise null will be returned. If the ZipEntry was not
          * created by this ZipArchive, null will be returned. If the zipEntry does not exist,
@@ -292,10 +292,10 @@ namespace libzippp {
         void* readEntry(const std::string& zipEntry, bool asText=false, State state=CURRENT, libzippp_uint64 size=0) const;
         
         /**
-         * Read the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
+         * Reads the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
          * opened std::ofstream, gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
-         * The method returns LIBZIPPP_OK if the extraction has succeeded with no problems, LIBZIPPP_ERROR_INVALID_PARAMETER if the 
-         * ofstream is not opened, LIBZIPPP_ERROR_NOT_OPEN if the archive is not opened, LIBZIPPP_ERROR_INVALID_ENTRY if the zipEntry 
+         * The method returns LIBZIPPP_OK if the extraction has succeeded with no problem, LIBZIPPP_ERROR_INVALID_PARAMETER if the 
+         * ofstream is not open, LIBZIPPP_ERROR_NOT_OPEN if the archive is not open, LIBZIPPP_ERROR_INVALID_ENTRY if the zipEntry 
          * doesn't belong to the archive, LIBZIPPP_ERROR_FOPEN_FAILURE if zip_fopen_index() has failed, LIBZIPPP_ERROR_MEMORY_ALLOCATION if 
          * a memory allocation has failed, LIBZIPPP_ERROR_FREAD_FAILURE if zip_fread() didn't succeed to read data, 
          * LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE if the last ofstream operation has failed, LIBZIPPP_ERROR_OWRITE_FAILURE if fread() didn't 
@@ -332,7 +332,7 @@ namespace libzippp {
          * Renames the entry with the specified newName. The method returns the number of entries
          * that have been renamed, LIBZIPPP_ERROR_INVALID_PARAMETER if the new name is invalid, 
          * LIBZIPPP_ERROR_NOT_ALLOWED if the mode doesn't allow modification or LIBZIPPP_ERROR_UNKNOWN if an error 
-         * occurred.  If the entry is a directory, a '/' will automatically be appended at the end of newName if the 
+         * occurred. If the entry is a directory, a '/' will automatically be appended at the end of newName if the 
          * latter hasn't it already. All the files in the folder will be moved.
          * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
          * then LIBZIPPP_ERROR_INVALID_ENTRY will be returned.
@@ -340,10 +340,10 @@ namespace libzippp {
         int renameEntry(const ZipEntry& entry, const std::string& newName) const;
         
         /**
-         * RRenames the entry with the specified newName. The method returns the number of entries
+         * Renames the entry with the specified newName. The method returns the number of entries
          * that have been renamed, LIBZIPPP_ERROR_INVALID_PARAMETER if the new name is invalid, 
          * LIBZIPPP_ERROR_NOT_ALLOWED if the mode doesn't allow modification or LIBZIPPP_ERROR_UNKNOWN if an error 
-         * occurred.  If the entry is a directory, a '/' will automatically be appended at the end of newName if the 
+         * occurred. If the entry is a directory, a '/' will automatically be appended at the end of newName if the 
          * latter hasn't it already. All the files in the folder will be moved.
          * If the ZipArchive is not open or the entry was not edited by this ZipArchive or is a null-ZipEntry,
          * then LIBZIPPP_ERROR_INVALID_ENTRY will be returned. If the entry does not exist, this method returns LIBZIPPP_ERROR_INVALID_PARAMETER.
@@ -351,25 +351,25 @@ namespace libzippp {
         int renameEntry(const std::string& entry, const std::string& newName) const;
         
         /**
-         * Add the specified file in the archive with the given entry. If the entry already exists,
+         * Adds the specified file in the archive with the given entry. If the entry already exists,
          * it will be replaced. This method returns true if the file has been added successfully. 
-         * If the entryName specifies folders that doesn't exist in the archive, they will be automatically created.
+         * If the entryName contains folders that don't exist in the archive, they will be automatically created.
          * If the entryName denotes a directory, this method returns false.
          * The zip file must be open otherwise false will be returned.
          */
         bool addFile(const std::string& entryName, const std::string& file) const;
         
         /**
-         * Add the given data to the specified entry name in the archive. If the entry already exists,
+         * Adds the given data to the specified entry name in the archive. If the entry already exists,
          * its content will be erased. 
-         * If the entryName specifies folders that doesn't exist in the archive, they will be automatically created.
+         * If the entryName contains folders that don't exist in the archive, they will be automatically created.
          * If the entryName denotes a directory, this method returns false.
          * If the zip file is not open, this method returns false.
          */
         bool addData(const std::string& entryName, const void* data, libzippp_uint64 length, bool freeData=false) const;
         
         /**
-         * Add the specified entry to the ZipArchive. All the needed hierarchy will be created.
+         * Adds the specified entry to the ZipArchive. All the needed hierarchy will be created.
          * The entryName must be a directory (end with '/').
          * If the ZipArchive is not open or the entryName is not a directory, this method will
          * returns false. If the entry already exists, this method returns true.
@@ -413,7 +413,7 @@ namespace libzippp {
          * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
          * usable to read and modify an archive.
          */
-        explicit ZipEntry(void) : zipFile(NULL), index(0), time(0), compressionMethod(-1), encryptionMethod(-1), size(0), sizeComp(0), crc(0)  {}
+        explicit ZipEntry(void) : zipFile(NULL), index(0), time(0), compressionMethod(-1), encryptionMethod(-1), size(0), sizeComp(0), crc(0) {}
         virtual ~ZipEntry(void) {}
         
         /**
@@ -489,7 +489,7 @@ namespace libzippp {
         bool setComment(const std::string& str) const;
         
         /**
-         * Read the content of this ZipEntry as text. 
+         * Reads the content of this ZipEntry as text. 
          * The returned string will be of size getSize() if the latter is not specified or too big. 
          * If the ZipArchive is not open, this method returns an
          * empty string. This method is a wrapper around ZipArchive::readEntry(...).
@@ -497,7 +497,7 @@ namespace libzippp {
         std::string readAsText(ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 size=0) const;
         
         /**
-         * Read the content of this ZipEntry as binary. 
+         * Reads the content of this ZipEntry as binary. 
          * The returned void* will be of size getSize() if the latter is not specified or too big.
          * If the ZipArchive is not open, this method returns NULL. 
          * The data must be deleted by the developer once not used anymore.
@@ -506,10 +506,10 @@ namespace libzippp {
         void* readAsBinary(ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 size=0) const;
         
         /**
-         * Read the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
+         * Reads the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
          * opened std::ofstream, gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
          * The method returns LIBZIPPP_OK if the extraction has succeeded with no problems, LIBZIPPP_ERROR_INVALID_PARAMETER if the 
-         * ofstream is not opened, LIBZIPPP_ERROR_NOT_OPEN if the archive is not opened, LIBZIPPP_ERROR_INVALID_ENTRY if the zipEntry 
+         * ofstream is not open, LIBZIPPP_ERROR_NOT_OPEN if the archive is not open, LIBZIPPP_ERROR_INVALID_ENTRY if the zipEntry 
          * doesn't belong to the archive, LIBZIPPP_ERROR_FOPEN_FAILURE if zip_fopen_index() has failed, LIBZIPPP_ERROR_MEMORY_ALLOCATION if 
          * a memory allocation has failed, LIBZIPPP_ERROR_FREAD_FAILURE if zip_fread() didn't succeed to read data, 
          * LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE if the last ofstream operation has failed, LIBZIPPP_ERROR_OWRITE_FAILURE if fread() didn't 
