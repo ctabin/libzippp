@@ -145,7 +145,7 @@ namespace libzippp {
         /**
          * Return the path of the ZipArchive.
          */
-        std::string getPath(void) const { return path; }
+        inline std::string getPath(void) const { return path; }
         
         /**
          * Open the ZipArchive with the given mode. This method will return true if the operation
