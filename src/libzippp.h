@@ -45,7 +45,7 @@ struct zip;
 struct zip_source;
 
 #define LIBZIPPP_ENTRY_PATH_SEPARATOR '/'
-#define ENTRY_IS_DIRECTORY(str) ((str).length()>0 && (str)[(str).length()-1]==LIBZIPPP_ENTRY_PATH_SEPARATOR)
+#define LIBZIPPP_ENTRY_IS_DIRECTORY(str) ((str).length()>0 && (str)[(str).length()-1]==LIBZIPPP_ENTRY_PATH_SEPARATOR)
 #define DEFAULT_CHUNK_SIZE 524288
 
 //libzip documentation
@@ -459,7 +459,7 @@ namespace libzippp {
         /**
          * Returns true if the entry is a directory.
          */
-        inline bool isDirectory(void) const { return ENTRY_IS_DIRECTORY(name); }
+        inline bool isDirectory(void) const { return LIBZIPPP_ENTRY_IS_DIRECTORY(name); }
         
         /**
          * Returns true if the entry is a file.

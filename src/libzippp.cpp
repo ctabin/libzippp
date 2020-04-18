@@ -438,7 +438,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
     if (newName==entry.getName()) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
     
     if (entry.isFile()) {
-        if (ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
+        if (LIBZIPPP_ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
         int lastSlash = newName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
         if (lastSlash!=1) { 
@@ -450,7 +450,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
         if (result==0) { return 1; }
         return LIBZIPPP_ERROR_UNKNOWN; //renaming was not possible (entry already exists ?)
     } else {
-        if (!ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
+        if (!LIBZIPPP_ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
         int parentSlash = newName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR, newName.length()-2);
         if (parentSlash!=-1) { //updates the dir hierarchy
@@ -507,7 +507,7 @@ int ZipArchive::renameEntry(const string& e, const string& newName) const {
 bool ZipArchive::addFile(const string& entryName, const string& file) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (ENTRY_IS_DIRECTORY(entryName)) { return false; }
+    if (LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
     int lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
     if (lastSlash!=-1) { //creates the needed parent directories
@@ -537,7 +537,7 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
 bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uint64 length, bool freeData) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (ENTRY_IS_DIRECTORY(entryName)) { return false; }
+    if (LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
     int lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
     if (lastSlash!=-1) { //creates the needed parent directories
@@ -560,7 +560,7 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
 bool ZipArchive::addEntry(const string& entryName) const {
     if (!isOpen()) { return false; }
     if (mode==READ_ONLY) { return false; } //adding not allowed
-    if (!ENTRY_IS_DIRECTORY(entryName)) { return false; }
+    if (!LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
     int nextSlash = entryName.find(LIBZIPPP_ENTRY_PATH_SEPARATOR);
     while (nextSlash!=-1) {
