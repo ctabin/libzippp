@@ -44,9 +44,9 @@
 struct zip;
 struct zip_source;
 
-#define ENTRY_PATH_SEPARATOR '/'
-#define ENTRY_IS_DIRECTORY(str) ((str).length()>0 && (str)[(str).length()-1]==ENTRY_PATH_SEPARATOR)
-#define DEFAULT_CHUNK_SIZE 524288
+#define LIBZIPPP_ENTRY_PATH_SEPARATOR '/'
+#define LIBZIPPP_ENTRY_IS_DIRECTORY(str) ((str).length()>0 && (str)[(str).length()-1]==LIBZIPPP_ENTRY_PATH_SEPARATOR)
+#define LIBZIPPP_DEFAULT_CHUNK_SIZE 524288
 
 //libzip documentation
 //- http://www.nih.at/libzip/libzip.html
@@ -303,10 +303,10 @@ namespace libzippp {
          * a memory allocation has failed, LIBZIPPP_ERROR_FREAD_FAILURE if zip_fread() didn't succeed to read data, 
          * LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE if the last ofstream operation has failed, LIBZIPPP_ERROR_OWRITE_FAILURE if fread() didn't 
          * return the exact amount of requested bytes and -9 if the amount of extracted bytes didn't match the size of the file (unknown error).
-         * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
+         * If the provided chunk size is zero, it will be defaulted to LIBZIPPP_DEFAULT_CHUNK_SIZE (512KB).
          * The method doesn't close the ofstream after the extraction.
          */
-        int readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state=CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
+        int readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state=CURRENT, libzippp_uint64 chunksize=LIBZIPPP_DEFAULT_CHUNK_SIZE) const;
 
         /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
@@ -462,7 +462,7 @@ namespace libzippp {
         /**
          * Returns true if the entry is a directory.
          */
-        inline bool isDirectory(void) const { return ENTRY_IS_DIRECTORY(name); }
+        inline bool isDirectory(void) const { return LIBZIPPP_ENTRY_IS_DIRECTORY(name); }
         
         /**
          * Returns true if the entry is a file.
@@ -517,10 +517,10 @@ namespace libzippp {
          * a memory allocation has failed, LIBZIPPP_ERROR_FREAD_FAILURE if zip_fread() didn't succeed to read data, 
          * LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE if the last ofstream operation has failed, LIBZIPPP_ERROR_OWRITE_FAILURE if fread() didn't 
          * return the exact amount of requested bytes and -9 if the amount of extracted bytes didn't match the size of the file (unknown error).
-         * If the provided chunk size is zero, it will be defaulted to DEFAULT_CHUNK_SIZE (512KB).
+         * If the provided chunk size is zero, it will be defaulted to LIBZIPPP_DEFAULT_CHUNK_SIZE (512KB).
          * The method doesn't close the ofstream after the extraction.
          */
-        int readContent(std::ostream& ofOutput, ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 chunksize=DEFAULT_CHUNK_SIZE) const;
+        int readContent(std::ostream& ofOutput, ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 chunksize=LIBZIPPP_DEFAULT_CHUNK_SIZE) const;
         
     private:
         const ZipArchive* zipFile;
