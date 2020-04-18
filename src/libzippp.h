@@ -91,6 +91,9 @@ struct zip_source;
 #define LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE -36
 #define LIBZIPPP_ERROR_UNKNOWN -99
 
+// flags to apply when reading original entries
+#define LIBZIPPP_ORIGINAL_STATE_FLAGS ZIP_FL_UNCHANGED | ZIP_FL_ENC_RAW
+
 namespace libzippp {
     class ZipEntry;
     
