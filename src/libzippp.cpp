@@ -440,7 +440,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
     if (entry.isFile()) {
         if (ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
-        int lastSlash = newName.rfind(ENTRY_PATH_SEPARATOR);
+        int lastSlash = newName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
         if (lastSlash!=1) { 
             bool dadded = addEntry(newName.substr(0, lastSlash+1)); 
             if (!dadded) { return LIBZIPPP_ERROR_UNKNOWN; } //the hierarchy hasn't been created
@@ -452,7 +452,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
     } else {
         if (!ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
-        int parentSlash = newName.rfind(ENTRY_PATH_SEPARATOR, newName.length()-2);
+        int parentSlash = newName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR, newName.length()-2);
         if (parentSlash!=-1) { //updates the dir hierarchy
             string parent = newName.substr(0, parentSlash+1);
             bool dadded = addEntry(parent);
@@ -509,7 +509,7 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
     if (mode==READ_ONLY) { return false; } //adding not allowed
     if (ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
-    int lastSlash = entryName.rfind(ENTRY_PATH_SEPARATOR);
+    int lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
     if (lastSlash!=-1) { //creates the needed parent directories
         string dirEntry = entryName.substr(0, lastSlash+1);
         bool dadded = addEntry(dirEntry);
@@ -539,7 +539,7 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
     if (mode==READ_ONLY) { return false; } //adding not allowed
     if (ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
-    int lastSlash = entryName.rfind(ENTRY_PATH_SEPARATOR);
+    int lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
     if (lastSlash!=-1) { //creates the needed parent directories
         string dirEntry = entryName.substr(0, lastSlash+1);
         bool dadded = addEntry(dirEntry);
@@ -562,14 +562,14 @@ bool ZipArchive::addEntry(const string& entryName) const {
     if (mode==READ_ONLY) { return false; } //adding not allowed
     if (!ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
-    int nextSlash = entryName.find(ENTRY_PATH_SEPARATOR);
+    int nextSlash = entryName.find(LIBZIPPP_ENTRY_PATH_SEPARATOR);
     while (nextSlash!=-1) {
         string pathToCreate = entryName.substr(0, nextSlash+1);
         if (!hasEntry(pathToCreate)) {
             libzippp_int64 result = zip_dir_add(zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
             if (result==-1) { return false; }
         }
-        nextSlash = entryName.find(ENTRY_PATH_SEPARATOR, nextSlash+1);
+        nextSlash = entryName.find(LIBZIPPP_ENTRY_PATH_SEPARATOR, nextSlash+1);
     }
     
     return true;

@@ -44,8 +44,8 @@
 struct zip;
 struct zip_source;
 
-#define ENTRY_PATH_SEPARATOR '/'
-#define ENTRY_IS_DIRECTORY(str) ((str).length()>0 && (str)[(str).length()-1]==ENTRY_PATH_SEPARATOR)
+#define LIBZIPPP_ENTRY_PATH_SEPARATOR '/'
+#define ENTRY_IS_DIRECTORY(str) ((str).length()>0 && (str)[(str).length()-1]==LIBZIPPP_ENTRY_PATH_SEPARATOR)
 #define DEFAULT_CHUNK_SIZE 524288
 
 //libzip documentation
