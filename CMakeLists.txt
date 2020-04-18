@@ -11,6 +11,7 @@ else()
 endif()
 
 option(LIBZIPPP_INSTALL "Install library" ${is_root_project})
+option(LIBZIPPP_INSTALL_HEADERS "Install the headers" ${is_root_project})
 option(LIBZIPPP_BUILD_TESTS "Build unit tests" ${is_root_project})
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -56,7 +57,9 @@ if(LIBZIPPP_INSTALL)
     RUNTIME DESTINATION bin 
   )
 
-  install(FILES src/libzippp.h DESTINATION include/libzippp)
+  if(LIBZIPPP_INSTALL_HEADERS)
+    install(FILES src/libzippp.h DESTINATION include/libzippp)
+  endif()
 
   include(CMakePackageConfigHelpers)
 
