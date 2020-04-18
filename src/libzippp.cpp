@@ -219,8 +219,9 @@ bool ZipArchive::unlink(void) {
 string ZipArchive::getComment(State state) const {
     if (!isOpen()) { return string(); }
     
-    int flag = ZIP_FL_ENC_GUESS;
-    if (state==ORIGINAL) { flag = flag | ZIP_FL_UNCHANGED; }
+    int flag = 0;
+    if (state==ORIGINAL) { flag = flag | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
+    else { flag = flag | ZIP_FL_ENC_GUESS; }
     
     int length = 0;
     const char* comment = zip_get_archive_comment(zipHandle, &length, flag);
@@ -254,7 +255,7 @@ bool ZipArchive::setEntryCompressionEnabled(const ZipEntry& entry, bool value) c
 libzippp_int64 ZipArchive::getNbEntries(State state) const {
     if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
     
-    int flag = state==ORIGINAL ? ZIP_FL_UNCHANGED : 0;
+    int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : 0;
     return zip_get_num_entries(zipHandle, flag);
 }
 
@@ -278,7 +279,7 @@ vector<ZipEntry> ZipArchive::getEntries(State state) const {
     zip_stat_init(&stat);
 
     vector<ZipEntry> entries;
-    int flag = state==ORIGINAL ? ZIP_FL_UNCHANGED : 0;
+    int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
     libzippp_int64 nbEntries = getNbEntries(state);
     for(libzippp_int64 i=0 ; i<nbEntries ; ++i) {
         int result = zip_stat_index(zipHandle, i, flag, &stat);
@@ -295,10 +296,11 @@ vector<ZipEntry> ZipArchive::getEntries(State state) const {
 bool ZipArchive::hasEntry(const string& name, bool excludeDirectories, bool caseSensitive, State state) const {
     if (!isOpen()) { return false; }
     
-    int flags = ZIP_FL_ENC_GUESS;
+    int flags = 0;
     if (excludeDirectories) { flags = flags | ZIP_FL_NODIR; }
     if (!caseSensitive) { flags = flags | ZIP_FL_NOCASE; }
-    if (state==ORIGINAL) { flags = flags | ZIP_FL_UNCHANGED; }
+    if (state==ORIGINAL) { flags = flags | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
+    else { flags = flags | ZIP_FL_ENC_GUESS; }
     
     libzippp_int64 index = zip_name_locate(zipHandle, name.c_str(), flags);
     return index>=0;
@@ -306,10 +308,11 @@ bool ZipArchive::hasEntry(const string& name, bool excludeDirectories, bool case
 
 ZipEntry ZipArchive::getEntry(const string& name, bool excludeDirectories, bool caseSensitive, State state) const {
     if (isOpen()) {
-        int flags = ZIP_FL_ENC_GUESS;
+        int flags = 0;
         if (excludeDirectories) { flags = flags | ZIP_FL_NODIR; }
         if (!caseSensitive) { flags = flags | ZIP_FL_NOCASE; }
-        if (state==ORIGINAL) { flags = flags | ZIP_FL_UNCHANGED; }
+        if (state==ORIGINAL) { flags = flags | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
+        else { flags = flags | ZIP_FL_ENC_GUESS; }
 
         libzippp_int64 index = zip_name_locate(zipHandle, name.c_str(), flags);
         if (index>=0) {
@@ -325,7 +328,7 @@ ZipEntry ZipArchive::getEntry(libzippp_int64 index, State state) const {
     if (isOpen()) {
         struct zip_stat stat;
         zip_stat_init(&stat);
-        int flag = state==ORIGINAL ? ZIP_FL_UNCHANGED : 0;
+        int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
         int result = zip_stat_index(zipHandle, index, flag, &stat);
         if (result==0) {
             return createEntry(&stat);
@@ -340,8 +343,9 @@ string ZipArchive::getEntryComment(const ZipEntry& entry, State state) const {
     if (!isOpen()) { return string(); }
     if (entry.zipFile!=this) { return string(); }
     
-    int flag = ZIP_FL_ENC_GUESS;
-    if (state==ORIGINAL) { flag = flag | ZIP_FL_UNCHANGED; }
+    int flag = 0;
+    if (state==ORIGINAL) { flag = flag | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
+    else { flag = ZIP_FL_ENC_GUESS; }
     
     unsigned int clen;
     const char* com = zip_file_get_comment(zipHandle, entry.getIndex(), &clen, flag);
@@ -361,7 +365,7 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state, 
     if (!isOpen()) { return NULL; }
     if (zipEntry.zipFile!=this) { return NULL; }
     
-    int flag = state==ORIGINAL ? ZIP_FL_UNCHANGED : 0;
+    int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
     struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
     if (zipFile) {
         libzippp_uint64 maxSize = zipEntry.getSize();
@@ -581,7 +585,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
     if (zipEntry.zipFile!=this) { return LIBZIPPP_ERROR_INVALID_ENTRY; }
     
     int iRes = LIBZIPPP_OK;
-    int flag = state==ORIGINAL ? ZIP_FL_UNCHANGED : 0;
+    int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
     struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
     if (zipFile) {
         libzippp_uint64 maxSize = zipEntry.getSize();
