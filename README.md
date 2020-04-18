@@ -52,6 +52,7 @@ TLDR: Use the standard CMake workflow: `mkdir build && cd build && cmake <-D...>
 Set via commandline as `cmake -DNAME=VALUE <other opts>` or via CMake GUI or CCMake `Add Cache Entry`.
 
 - `LIBZIPPP_INSTALL`: Enable/Disable installation of libzippp. Default is OFF when using via `add_subdirectory`, else ON
+- `LIBZIPPP_INSTALL_HEADERS`: Enable/Disable installation of libzippp headers. Default is OFF when using via `add_subdirectory`, else ON
 - `LIBZIPPP_BUILD_TESTS`: Enable/Disable building libzippp tests. Default is OFF when using via `add_subdirectory`, else ON
 - `CMAKE_INSTALL_PREFIX`: Where to install the project to
 - `CMAKE_BUILD_TYPE`: Set to Release or Debug to build with or without optimizations
