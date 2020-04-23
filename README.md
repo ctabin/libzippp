@@ -1,7 +1,6 @@
 [![Build Status](https://travis-ci.org/ctabin/libzippp.svg?branch=master)](https://travis-ci.org/ctabin/libzippp)
 
-libzippp
---------
+# LIBZIPPP
 
 libzippp is a simple basic C++ wrapper around the libzip library.
 It is meant to be a portable and easy-to-use library for ZIP handling.
@@ -15,7 +14,15 @@ Underlying libraries:
 - [libzip](http://www.nih.at/libzip) 1.6.1
 - Optional: [BZip2](https://www.sourceware.org/bzip2/)
 
-# Compilation
+## Integration
+
+libzippp has been ported  to [vcpkg](https://github.com/microsoft/vcpkg) and thus can be
+very easily integrated by running:
+```
+./vcpkg install libzippp
+```
+
+## Compilation
 
 ### Install Prerequisites
 
@@ -253,7 +260,7 @@ zf.deleteEntry("myDir/subDir/");
 zf.close();
 ```
 
-# Issues
+## Known issues
 
 ### LINUX
 
