@@ -62,7 +62,7 @@ bool ZipEntry::setCompressionEnabled(bool value) const {
 
 string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const {
     char* content = (char*)zipFile->readEntry(*this, true, state, size);
-    if (content==NULL) { return string(); } //happen if the ZipArchive has been closed
+    if (content==nullptr) { return string(); } //happen if the ZipArchive has been closed
     
     libzippp_uint64 maxSize = getSize();
     string str(content, (size==0 || size>maxSize ? maxSize : size));
@@ -78,7 +78,7 @@ int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzi
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(NULL), zipSource(NULL), mode(NOT_OPEN), password(password) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NOT_OPEN), password(password) {
 }
 
 ZipArchive::~ZipArchive(void) { 
@@ -91,7 +91,7 @@ ZipArchive* ZipArchive::fromBuffer(const char* data, libzippp_uint32 size, OpenM
     bool o = za->openBuffer(data, size, om, checkConsistency);
     if(!o) {
         delete za;
-        za = NULL;
+        za = nullptr;
     }
     return za;
 }
@@ -113,16 +113,16 @@ bool ZipArchive::openBuffer(const char* data, libzippp_uint32 size, OpenMode om,
 
     /* create source from buffer */
     zipSource = zip_source_buffer_create(data, size, 1, &error);
-    if (zipSource == NULL) {
+    if (zipSource == nullptr) {
         zip_error_fini(&error);
         return false;
     }
     /* open zip archive from source */
     zipHandle = zip_open_from_source(zipSource, 0, &error);
-    if (zipHandle == NULL) {
+    if (zipHandle == nullptr) {
         fprintf(stderr, "can't open zip from source: %s\n", zip_error_strerror(&error));
         zip_source_free(zipSource);
-        zipSource = NULL;
+        zipSource = nullptr;
         zip_error_fini(&error);
         return false;
     }
@@ -163,11 +163,11 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
         errorStr[255] = '\0';
         cout << "Error: " << errorStr << endl;*/
         
-        zipHandle = NULL;
+        zipHandle = nullptr;
         return false;
     }
     
-    if (zipHandle!=NULL) {
+    if (zipHandle!=nullptr) {
         if (isEncrypted()) {
             int result = zip_set_default_password(zipHandle, password.c_str());
             if (result!=0) { 
@@ -189,11 +189,11 @@ int ZipArchive::close(void) {
         if (zipSource){
             //zip_source_close(zipSource);
             //zip_source_free(zipSource);
-            //zipSource = NULL;
+            //zipSource = nullptr;
         }
 
         int result = zip_close(zipHandle);
-        zipHandle = NULL;
+        zipHandle = nullptr;
         mode = NOT_OPEN;
         
         if(result!=0) { return result; }
@@ -205,7 +205,7 @@ int ZipArchive::close(void) {
 void ZipArchive::discard(void) {
     if (isOpen()) {
         zip_discard(zipHandle);
-        zipHandle = NULL;
+        zipHandle = nullptr;
         mode = NOT_OPEN;
     }
 }
@@ -225,7 +225,7 @@ string ZipArchive::getComment(State state) const {
     
     int length = 0;
     const char* comment = zip_get_archive_comment(zipHandle, &length, flag);
-    if (comment==NULL) { return string(); }
+    if (comment==nullptr) { return string(); }
     return string(comment, length);
 }
 
@@ -349,7 +349,7 @@ string ZipArchive::getEntryComment(const ZipEntry& entry, State state) const {
     
     unsigned int clen;
     const char* com = zip_file_get_comment(zipHandle, entry.getIndex(), &clen, flag);
-    string comment = com==NULL ? string() : string(com, clen);
+    string comment = com==nullptr ? string() : string(com, clen);
     return comment;
 }
 
@@ -362,8 +362,8 @@ bool ZipArchive::setEntryComment(const ZipEntry& entry, const string& comment) c
 }
 
 void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state, libzippp_uint64 size) const {
-    if (!isOpen()) { return NULL; }
-    if (zipEntry.zipFile!=this) { return NULL; }
+    if (!isOpen()) { return nullptr; }
+    if (zipEntry.zipFile!=this) { return nullptr; }
     
     int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
     struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
@@ -374,7 +374,7 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state, 
         char* data = NEW_CHAR_ARRAY(uisize+(asText ? 1 : 0))
         if(!data) { //allocation error
             zip_fclose(zipFile);
-            return NULL; 
+            return nullptr; 
         }
 
         libzippp_int64 result = zip_fread(zipFile, data, uisize);
@@ -393,12 +393,12 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state, 
         //unable to read the entry => crash ?
     }     
     
-    return NULL;
+    return nullptr;
 }
 
 void* ZipArchive::readEntry(const string& zipEntry, bool asText, State state, libzippp_uint64 size) const {
     ZipEntry entry = getEntry(zipEntry);
-    if (entry.isNull()) { return NULL; }
+    if (entry.isNull()) { return nullptr; }
     return readEntry(entry, asText, state, size);
 }
 
@@ -528,7 +528,7 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
     streampos end = in.tellg();
     
     zip_source* source = zip_source_file(zipHandle, filepath, 0, end);
-    if (source!=NULL) {
+    if (source!=nullptr) {
         libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
         if (result>=0) { return true; } 
         else { zip_source_free(source); } //unable to add the file
@@ -551,7 +551,7 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
     }
     
     zip_source* source = zip_source_buffer(zipHandle, data, length, freeData);
-    if (source!=NULL) {
+    if (source!=nullptr) {
         libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
         if (result>=0) { return true; } 
         else { zip_source_free(source); } //unable to add the file
@@ -593,7 +593,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
     
         if (maxSize<chunksize) {
             char* data = NEW_CHAR_ARRAY(maxSize)
-            if (data!=NULL) {
+            if (data!=nullptr) {
                 libzippp_int64 result = zip_fread(zipFile, data, maxSize);
                 if (result>0) {
                     if (result != static_cast<libzippp_int64>(maxSize)) {
@@ -613,7 +613,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
             libzippp_uint64 uWrittenBytes = 0;
             libzippp_int64 result = 0;
             char* data = NEW_CHAR_ARRAY(chunksize)
-            if (data!=NULL) {
+            if (data!=nullptr) {
                 int nbChunks = maxSize/chunksize;
                 for (int uiChunk=0 ; uiChunk<nbChunks ; ++uiChunk) {
                     result = zip_fread(zipFile, data, chunksize);
@@ -642,7 +642,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
             int leftOver = maxSize%chunksize;
             if (iRes==0 && leftOver>0) {
                 char* data = NEW_CHAR_ARRAY(leftOver);
-                if (data!=NULL) {
+                if (data!=nullptr) {
                     result = zip_fread(zipFile, data, leftOver);
                     if (result>0) {
                         if (result!=static_cast<libzippp_int64>(leftOver)) {

@@ -184,7 +184,7 @@ namespace libzippp {
         /**
          * Returns true if the ZipArchive is currently open.
          */
-        inline bool isOpen(void) const { return zipHandle!=NULL; }
+        inline bool isOpen(void) const { return zipHandle!=nullptr; }
         
         /**
          * Returns true if the ZipArchive is open and mutable.
@@ -290,7 +290,7 @@ namespace libzippp {
          * the returned array will be zipEntry.getSize()+1 or size+1 if the latter is specified).
          * The zip file must be open otherwise null will be returned. If the ZipEntry was not
          * created by this ZipArchive, null will be returned. If the zipEntry does not exist,
-         * this method returns NULL:
+         * this method returns nullptr:
          */
         void* readEntry(const std::string& zipEntry, bool asText=false, State state=CURRENT, libzippp_uint64 size=0) const;
         
@@ -416,7 +416,7 @@ namespace libzippp {
          * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
          * usable to read and modify an archive.
          */
-        explicit ZipEntry(void) : zipFile(NULL), index(0), time(0), compressionMethod(-1), encryptionMethod(-1), size(0), sizeComp(0), crc(0) {}
+        explicit ZipEntry(void) : zipFile(nullptr), index(0), time(0), compressionMethod(-1), encryptionMethod(-1), size(0), sizeComp(0), crc(0) {}
         virtual ~ZipEntry(void) {}
         
         /**
@@ -472,7 +472,7 @@ namespace libzippp {
         /**
          * Returns true if this entry is null (means no more entry is available).
          */
-        inline bool isNull(void) const { return zipFile==NULL; }
+        inline bool isNull(void) const { return zipFile==nullptr; }
         
         /**
          * Defines if the compression is enabled for this entry.
@@ -502,7 +502,7 @@ namespace libzippp {
         /**
          * Reads the content of this ZipEntry as binary. 
          * The returned void* will be of size getSize() if the latter is not specified or too big.
-         * If the ZipArchive is not open, this method returns NULL. 
+         * If the ZipArchive is not open, this method returns nullptr. 
          * The data must be deleted by the developer once not used anymore.
          * This method is a wrapper around ZipArchive::readEntry(...).
          */
