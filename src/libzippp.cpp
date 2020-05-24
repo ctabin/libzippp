@@ -249,7 +249,7 @@ bool ZipArchive::setEntryCompressionEnabled(const ZipEntry& entry, bool value) c
     if (mode==READ_ONLY) { return false; }
     
     libzippp_uint16 compMode = value ? ZIP_CM_DEFLATE : ZIP_CM_STORE;
-    return zip_set_file_compression(zipHandle, entry.index, compMode, 0);
+    return zip_set_file_compression(zipHandle, entry.index, compMode, 0)==0;
 }
 
 libzippp_int64 ZipArchive::getNbEntries(State state) const {
