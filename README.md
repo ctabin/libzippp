@@ -11,7 +11,7 @@ Compilation has been tested with:
 
 Underlying libraries:
 - [ZLib](http://zlib.net) 1.2.11
-- [libzip](http://www.nih.at/libzip) 1.6.1
+- [libzip](http://www.nih.at/libzip) 1.7.1
 - Optional: [BZip2](https://www.sourceware.org/bzip2/)
 
 ## Integration
