@@ -70,7 +70,7 @@ Set via commandline as `cmake -DNAME=VALUE <other opts>` or via CMake GUI or CCM
 
 Once installed libzipp can be used from any CMake project with ease:   
 Given that it was installed (via `CMAKE_INSTALL_PREFIX`) into a standard location or its install prefix is passed into your projects
-`CMAKE_PREFIX_PATH` you can simply call `find_package(libzippp 3.0 REQUIRED)` and link against `libzipp::libzipp`.
+`CMAKE_PREFIX_PATH` you can simply call `find_package(libzippp 3.0 REQUIRED)` and link against `libzippp::libzippp`.
 
 When not using CMake to consume libzipp you have to pass its include directory to your compiler and link against `libzippp.{a,so}`.
 Do not forget to also link against libzip libraries e.g. in *lib/libzip-1.7.1/lib/.libs/*).
