@@ -127,15 +127,41 @@ namespace libzippp {
             ORIGINAL,
             CURRENT
         };
+
+        /**
+         * Defines encryption methods to be used, when writing, by the underlying libzip library.
+         * These algorithms map to the types defined in libzip,
+         * with the addition of a "ZIP_" prefix. For details see:
+         * https://libzip.org/documentation/zip_file_set_encryption.html
+         * None will use no encryption.
+         * Aes128 will use Winzip AES-128 encryption.
+         * Aes192 will use Winzip AES-192 encryption.
+         * Aes256 will use Winzip AES-256 encryption.
+         * TradPkware will use  Traditional PKWare encryption. Do not use this method, it is not secure. It is only provided for backwards compatibility.
+         */
+        enum Encryption {
+            None,
+#ifdef LIBZIPPP_WITH_ENCRYPTION
+            Aes128,
+            Aes192,
+            Aes256,
+            TradPkware
+#endif
+        };
         
         /**
          * Creates a new ZipArchive with the given path. If the password is defined, it
-         * will be used to read encrypted archive. It won't affect the files added
+         * will be used to read/write an encrypted archive. It won't affect the files added
          * to the archive.
          * 
          * http://nih.at/listarchive/libzip-discuss/msg00219.html
+         *
+         * The zip file to be read/written
+         * The password to be used to encrypt/decrypt each file within the zip file
+         * The algorithm to be used by libzip when writing a zip file. The defined algorithm will use the password for each file within the zip file.
+         *
          */
-        explicit ZipArchive(const std::string& zipPath, const std::string& password="");
+        explicit ZipArchive(const std::string& zipPath, const std::string& password="", Encryption encryptionMethod=Encryption::None);
         virtual ~ZipArchive(void); //commit all the changes if open
         
         /**
@@ -395,6 +421,7 @@ namespace libzippp {
         zip_source* zipSource;
         OpenMode mode;
         std::string password;
+        int encryptionMethod;
         
         //open from a buffer
         bool openBuffer(const void* buffer, libzippp_uint32 sz, OpenMode mode=READ_ONLY, bool checkConsistency=false);

@@ -33,6 +33,9 @@ very easily integrated by running:
 - Windows:
   - Use precompile libraries from *libzip-\<version\>-windows-ready_to_compile.zip*
   - Install from source via CMake (similar to workflow below)
+  
+- All Operating systems
+  - If it is intended to be used with encryption it is necessary to compile libzip with any encryption and to enable it in libzippp through the cmake flag `LIBZIPPP_ENABLE_ENCRYPTION`
 
 ### Compile libzippp
 
@@ -61,6 +64,7 @@ Set via commandline as `cmake -DNAME=VALUE <other opts>` or via CMake GUI or CCM
 - `LIBZIPPP_INSTALL`: Enable/Disable installation of libzippp. Default is OFF when using via `add_subdirectory`, else ON
 - `LIBZIPPP_INSTALL_HEADERS`: Enable/Disable installation of libzippp headers. Default is OFF when using via `add_subdirectory`, else ON
 - `LIBZIPPP_BUILD_TESTS`: Enable/Disable building libzippp tests. Default is OFF when using via `add_subdirectory`, else ON
+- `LIBZIPPP_ENABLE_ENCRYPTION`: Enable/Disable building libzippp with encryption capabilities. Default is OFF.
 - `CMAKE_INSTALL_PREFIX`: Where to install the project to
 - `CMAKE_BUILD_TYPE`: Set to Release or Debug to build with or without optimizations
 - `BUILD_SHARED_LIBS`: Set to ON or OFF to build shared or static libs, uses platform default if not set

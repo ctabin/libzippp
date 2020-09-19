@@ -78,7 +78,27 @@ int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzi
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NOT_OPEN), password(password) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(NULL), zipSource(NULL), mode(NOT_OPEN), password(password){
+    switch(encryptionMethod) {
+#ifdef LIBZIPPP_WITH_ENCRYPTION
+        case Encryption::Aes128:
+            this->encryptionMethod = ZIP_EM_AES_128;
+            break;
+        case Encryption::Aes192:
+            this->encryptionMethod = ZIP_EM_AES_192;
+            break;
+        case Encryption::Aes256:
+            this->encryptionMethod = ZIP_EM_AES_256;
+            break;
+        case Encryption::TradPkware:
+            this->encryptionMethod = ZIP_EM_TRAD_PKWARE;
+            break;
+#endif
+        case Encryption::None:
+        default:
+            this->encryptionMethod = ZIP_EM_NONE;
+            break;
+    }
 }
 
 ZipArchive::~ZipArchive(void) { 
@@ -127,7 +147,7 @@ bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om,
         return false;
     }
     zip_error_fini(&error);
-
+#ifdef LIBZIPPP_WITH_ENCRYPTION
     if (isEncrypted()) {
         int result = zip_set_default_password(zipHandle, password.c_str());
         if (result != 0) {
@@ -135,7 +155,7 @@ bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om,
             return false;
         }
     }
-
+#endif
     mode = om;
     return true;
 }
@@ -168,6 +188,7 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     }
     
     if (zipHandle!=nullptr) {
+#ifdef LIBZIPPP_WITH_ENCRYPTION
         if (isEncrypted()) {
             int result = zip_set_default_password(zipHandle, password.c_str());
             if (result!=0) { 
@@ -175,6 +196,7 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
                 return false;
             }
         }
+#endif
         
         mode = om;
         return true;
@@ -530,8 +552,24 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
     zip_source* source = zip_source_file(zipHandle, filepath, 0, end);
     if (source!=nullptr) {
         libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
-        if (result>=0) { return true; } 
-        else { zip_source_free(source); } //unable to add the file
+        if (result>=0) {
+#ifdef LIBZIPPP_WITH_ENCRYPTION
+            if(isEncrypted()) {
+                if(zip_file_set_encryption(zipHandle,result,encryptionMethod,nullptr)!=0) { //unable to encrypt
+                    zip_source_free(source);
+                } else {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+#else
+            return true;
+#endif
+        } else {
+            //unable to add the file
+            zip_source_free(source);
+        }
     } else {
         //unable to create the zip_source
     }
@@ -553,8 +591,24 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
     zip_source* source = zip_source_buffer(zipHandle, data, length, freeData);
     if (source!=nullptr) {
         libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
-        if (result>=0) { return true; } 
-        else { zip_source_free(source); } //unable to add the file
+        if (result>=0) {
+#ifdef LIBZIPPP_WITH_ENCRYPTION
+            if(isEncrypted()) {
+                if(zip_file_set_encryption(zipHandle,result,encryptionMethod,nullptr)!=0) { //unable to encrypt
+                    zip_source_free(source);
+                } else {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+#else
+            return true;
+#endif
+        } else {
+            //unable to add the file
+            zip_source_free(source);
+        }
     } else {
         //unable to create the zip_source
     }
