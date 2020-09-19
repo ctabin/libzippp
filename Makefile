@@ -44,6 +44,7 @@ clean:
 	@rm -rf libzippp.a libzippp.so
 	@rm -rf $(OBJ)
 	@rm -rf test_shared test_static
+	@rm -f windows-ready_to_compile.zip
 
 mrproper: clean
 	@rm -rf $(LIBZIP)
@@ -82,8 +83,8 @@ libzip-unzip: libzip-download
 	cd $(LIB) && tar -xf libzip-$(LIBZIP_VERSION).tar.gz
 
 libzip-patch: libzip-unzip
-	if [ -f $(LIB)/libzip-$(LIBZIP_VERSION)-linux.patch ]; then \
-		cd $(LIB)/libzip-$(LIBZIP_VERSION) && patch -p1 < ../libzip-$(LIBZIP_VERSION)-linux.patch; \
+	if [ -f $(LIB)/libzip-$(LIBZIP_VERSION)-windows.patch ]; then \
+		cd $(LIB)/libzip-$(LIBZIP_VERSION) && patch -p1 < ../libzip-$(LIBZIP_VERSION)-windows.patch; \
 	fi;
 
 libzip-build-folder:
@@ -110,3 +111,8 @@ libzip: libzip-build-shared libzip-build-static
 libraries: zlib libzip
 
 libraries-download: zlib-download libzip-download
+
+# Windows compilation preparation
+
+windows: mrproper zlib-download zlib-unzip libzip-download libzip-unzip libzip-patch
+	zip -r windows-ready_to_compile.zip lib src tests cmake compile.bat CMakeLists.txt Config.cmake.in
