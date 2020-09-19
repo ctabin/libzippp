@@ -13,6 +13,7 @@ endif()
 option(LIBZIPPP_INSTALL "Install library" ${is_root_project})
 option(LIBZIPPP_INSTALL_HEADERS "Install the headers" ${is_root_project})
 option(LIBZIPPP_BUILD_TESTS "Build unit tests" ${is_root_project})
+option(LIBZIPPP_ENABLE_ENCRYPTION "Build with encryption enabled" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -27,6 +28,11 @@ target_include_directories(libzippp
 )
 set_target_properties(libzippp PROPERTIES PREFIX "") # Avoid duplicate "lib" prefix
 target_link_libraries(libzippp PRIVATE libzip::zip)
+
+if(LIBZIPPP_ENABLE_ENCRYPTION)
+  target_compile_definitions(libzippp PUBLIC LIBZIPPP_WITH_ENCRYPTION)
+endif()
+
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(libzippp PRIVATE LIBZIPPP_EXPORTS)
 else()
