@@ -53,7 +53,7 @@ void test1() {
     ZipArchive z1("test.zip");
     assert(!z1.isOpen());
     assert(!z1.isMutable());
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     assert(z1.isOpen());
     assert(z1.isMutable());
     bool result = z1.addEntry("folder/subfolder/finalfolder/");
@@ -63,7 +63,7 @@ void test1() {
     assert(!z1.isMutable());
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::READ_ONLY);
+    z2.open(ZipArchive::ReadOnly);
     assert(z2.isOpen());
     assert(!z2.isMutable());
     int nbEntries = z2.getNbEntries();
@@ -84,7 +84,7 @@ void test2() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata", txtFile, len);
     
     ZipEntry z1e1 = z1.getEntry("somedata");
@@ -93,7 +93,7 @@ void test2() {
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::READ_ONLY);
+    z2.open(ZipArchive::ReadOnly);
     assert(z2.getNbEntries()==1);
     assert(z2.hasEntry("somedata"));
     
@@ -119,7 +119,7 @@ void test3() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata/in/subfolder/data.txt", txtFile, len);
     assert(z1.addEntry("somedata/"));
     assert(z1.addEntry("in/"));
@@ -127,7 +127,7 @@ void test3() {
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::READ_ONLY);
+    z2.open(ZipArchive::ReadOnly);
     assert(z2.getNbEntries()==6);
     assert(z2.hasEntry("somedata/in/subfolder/data.txt"));
     
@@ -153,12 +153,12 @@ void test4() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata/test.txt", txtFile, len);
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::WRITE);
+    z2.open(ZipArchive::Write);
     assert(z2.getNbEntries()==2);
     
     ZipEntry d = z2.getEntry("somedata/test.txt");
@@ -177,12 +177,12 @@ void test5() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::WRITE);
+    z2.open(ZipArchive::Write);
     assert(z2.getNbEntries()==4);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -201,12 +201,12 @@ void test6() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::WRITE);
+    z2.open(ZipArchive::Write);
     assert(z2.getNbEntries()==4);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -225,12 +225,12 @@ void test7() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::WRITE);
+    z2.open(ZipArchive::Write);
     assert(z2.getNbEntries()==4);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -239,7 +239,7 @@ void test7() {
     z2.close();
     
     ZipArchive z3("test.zip");
-    z3.open(ZipArchive::READ_ONLY);
+    z3.open(ZipArchive::ReadOnly);
     assert(z3.getNbEntries()==5);
     z3.close();
     z3.unlink();
@@ -254,12 +254,12 @@ void test8() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::WRITE);
+    z2.open(ZipArchive::Write);
     assert(z2.getNbEntries()==4);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -268,7 +268,7 @@ void test8() {
     z2.close();
     
     ZipArchive z3("test.zip");
-    z3.open(ZipArchive::READ_ONLY);
+    z3.open(ZipArchive::ReadOnly);
     assert(z3.getNbEntries()==6);
     z3.close();
     z3.unlink();
@@ -283,13 +283,13 @@ void test9() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.addData("somedata/out/subfolders/other.txt", txtFile, len);
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::WRITE);
+    z2.open(ZipArchive::Write);
     assert(z2.getNbEntries()==7);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -298,7 +298,7 @@ void test9() {
     z2.close();
     
     ZipArchive z3("test.zip");
-    z3.open(ZipArchive::READ_ONLY);
+    z3.open(ZipArchive::ReadOnly);
     assert(z3.getNbEntries()==7);
     z3.close();
     z3.unlink();
@@ -313,12 +313,12 @@ void test10() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata/in/subfolders/test.txt", txtFile, len);
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::WRITE);
+    z2.open(ZipArchive::Write);
     assert(z2.getNbEntries()==4);
     
     ZipEntry d = z2.getEntry("somedata/in/");
@@ -327,7 +327,7 @@ void test10() {
     z2.discard();
     
     ZipArchive z3("test.zip");
-    z3.open(ZipArchive::READ_ONLY);
+    z3.open(ZipArchive::ReadOnly);
     assert(z3.getNbEntries()==4);
     z3.close();
     z3.unlink();
@@ -341,24 +341,24 @@ void test11() {
     string c = "a basic comment";
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addEntry("test/");
     z1.setComment(c);
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::READ_ONLY);
+    z2.open(ZipArchive::ReadOnly);
     string str = z2.getComment();
     assert(str == c);
     z2.close();
     
     ZipArchive z3("test.zip");
-    z3.open(ZipArchive::WRITE);
+    z3.open(ZipArchive::Write);
     z3.removeComment();
     z3.close();
     
     ZipArchive z4("test.zip");
-    z4.open(ZipArchive::READ_ONLY);
+    z4.open(ZipArchive::ReadOnly);
     string str2 = z4.getComment();
     assert(str2.empty());
     z4.close();
@@ -373,17 +373,17 @@ void test12() {
     string c = "a basic comment";
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addEntry("test/");
     z1.addData("file/data.txt", c.c_str(), c.length());
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::WRITE);
+    z2.open(ZipArchive::Write);
     z2.addEntry("content/new/");
     z2.addData("newfile.txt", c.c_str(), c.length());
-    assert(z2.getNbEntries(ZipArchive::CURRENT)==6);
-    assert(z2.getNbEntries(ZipArchive::ORIGINAL)==3);
+    assert(z2.getNbEntries(ZipArchive::Current)==6);
+    assert(z2.getNbEntries(ZipArchive::Original)==3);
     z2.close();
     z2.unlink();
     
@@ -396,16 +396,16 @@ void test13() {
     string c = "some example of text";
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addEntry("test/");
     z1.addData("file/data.txt", c.c_str(), c.length());
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::WRITE);
+    z2.open(ZipArchive::Write);
     z2.renameEntry(z2.getEntry("file/data.txt"), "file/subdir/data.txt");
-    assert(z2.getNbEntries(ZipArchive::CURRENT)==4);
-    assert(z2.getNbEntries(ZipArchive::ORIGINAL)==3);
+    assert(z2.getNbEntries(ZipArchive::Current)==4);
+    assert(z2.getNbEntries(ZipArchive::Original)==3);
     z2.close();
     z2.unlink();
     
@@ -418,16 +418,16 @@ void test14() {
     string c = "some example of text";
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addEntry("test/");
     z1.addData("file/data.txt", c.c_str(), c.length());
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::WRITE);
+    z2.open(ZipArchive::Write);
     z2.renameEntry(z2.getEntry("file/data.txt"), "content/data/file.txt");
-    assert(z2.getNbEntries(ZipArchive::CURRENT)==5);
-    assert(z2.getNbEntries(ZipArchive::ORIGINAL)==3);
+    assert(z2.getNbEntries(ZipArchive::Current)==5);
+    assert(z2.getNbEntries(ZipArchive::Original)==3);
     z2.close();
     z2.unlink();
     
@@ -441,7 +441,7 @@ void test15() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata/in/subfolder/data.txt", txtFile, len);
     assert(z1.addEntry("somedata/"));
     assert(z1.addEntry("in/"));
@@ -449,7 +449,7 @@ void test15() {
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::READ_ONLY);
+    z2.open(ZipArchive::ReadOnly);
     assert(z2.getNbEntries()==6);
     assert(z2.hasEntry("somedata/in/subfolder/data.txt"));
     
@@ -472,7 +472,7 @@ void test16() {
     string c = "some example of text";
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addEntry("dir/");
     z1.addData("file.txt", c.c_str(), c.length());
     
@@ -483,7 +483,7 @@ void test16() {
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::READ_ONLY);
+    z2.open(ZipArchive::ReadOnly);
     ZipEntry e12 = z2.getEntry("dir/");
     ZipEntry e22 = z2.getEntry("file.txt");
     assert(e12.getComment() == "commentDir");
@@ -498,7 +498,7 @@ void test17() {
     cout << "Running test 17...";
     
     ZipArchive z1("test.zip");
-    assert(z1.open(ZipArchive::READ_ONLY) == false);
+    assert(z1.open(ZipArchive::ReadOnly) == false);
     void* nil1 = z1.readEntry("an/absent/file.txt", true);
     void* nil2 = z1.readEntry("an/absent/file.txt", true);
     assert(nil1 == NULL);
@@ -517,13 +517,13 @@ void test18() {
     string text("File wiôth sömè tîxt");
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     assert(z1.addEntry(entry1));
     assert(z1.addData(entry2, text.c_str(), text.length()));
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::READ_ONLY);
+    z2.open(ZipArchive::ReadOnly);
     ZipEntry e1 = z2.getEntry(entry1);
     assert(!e1.isNull());
     assert(e1.getName() == entry1);
@@ -546,29 +546,29 @@ void test19() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata", txtFile, len);
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::READ_ONLY);
+    z2.open(ZipArchive::ReadOnly);
     assert(z2.getNbEntries()==1);
     assert(z2.hasEntry("somedata"));
     
     ZipEntry entry = z2.getEntry("somedata");
     assert(!entry.isNull());
     
-    string data = entry.readAsText(ZipArchive::CURRENT, 4);
+    string data = entry.readAsText(ZipArchive::Current, 4);
     int clen = data.size();
     assert(clen==4);
     assert(strncmp("this", data.c_str(), 4)==0);
     
-    string data2 = entry.readAsText(ZipArchive::CURRENT, 1);
+    string data2 = entry.readAsText(ZipArchive::Current, 1);
     int clen2 = data2.size();
     assert(clen2==1);
     assert(strncmp("t", data2.c_str(), 1)==0);
     
-    string data3 = entry.readAsText(ZipArchive::CURRENT, 999);
+    string data3 = entry.readAsText(ZipArchive::Current, 999);
     int clen3 = data3.size();
     assert(clen3==len);
     assert(strncmp("this is some data", data3.c_str(), len)==0);
@@ -588,13 +588,13 @@ void test20() {
     int len2 = strlen(txtFile2);
     
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata", txtFile, len);
     z1.addData("somedata2", txtFile2, len2);
     z1.close();
     
     ZipArchive z2("test.zip");
-    z2.open(ZipArchive::READ_ONLY);
+    z2.open(ZipArchive::ReadOnly);
     assert(z2.getNbEntries()==2);
     assert(z2.hasEntry("somedata"));
     assert(z2.hasEntry("somedata2"));
@@ -608,7 +608,7 @@ void test20() {
 		// Extract somedata with chunk of 2 bytes, which is not divisible by the file size (17 Bytes)
 		std::ofstream ofUnzippedFile("somedata.txt");
 		assert(static_cast<bool>(ofUnzippedFile));
-		assert(entry.readContent(ofUnzippedFile, ZipArchive::CURRENT, 2) == 0);
+		assert(entry.readContent(ofUnzippedFile, ZipArchive::Current, 2) == 0);
 		ofUnzippedFile.close();
 
 		std::ifstream ifUnzippedFile("somedata.txt");
@@ -623,7 +623,7 @@ void test20() {
 		// Extract somedata with chunk of 0 bytes (will be defaulted to 512KB).
 		std::ofstream ofUnzippedFile("somedata.txt");
 		assert(static_cast<bool>(ofUnzippedFile));
-		assert(entry.readContent(ofUnzippedFile, ZipArchive::CURRENT, 0) == 0);
+		assert(entry.readContent(ofUnzippedFile, ZipArchive::Current, 0) == 0);
 		ofUnzippedFile.close();
 
 		std::ifstream ifUnzippedFile("somedata.txt");
@@ -639,7 +639,7 @@ void test20() {
 		// is not accessed !
 		std::ofstream ofUnzippedFile("somedata2.txt");
 		assert(static_cast<bool>(ofUnzippedFile));
-		assert(entry2.readContent(ofUnzippedFile, ZipArchive::CURRENT, 2) == 0);
+		assert(entry2.readContent(ofUnzippedFile, ZipArchive::Current, 2) == 0);
 		ofUnzippedFile.close();
 
 		std::ifstream ifUnzippedFile("somedata2.txt");
@@ -664,7 +664,7 @@ void test21() {
     int len2 = strlen(txtFile2);
 
     ZipArchive z1("test.zip");
-    z1.open(ZipArchive::WRITE);
+    z1.open(ZipArchive::Write);
     z1.addData("somedata", txtFile, len);
     z1.addData("somedata2", txtFile2, len2);
     z1.close();

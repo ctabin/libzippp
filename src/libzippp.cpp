@@ -78,7 +78,7 @@ int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzi
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NOT_OPEN), password(password) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password) {
 }
 
 ZipArchive::~ZipArchive(void) { 
@@ -100,9 +100,9 @@ bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om,
 {
     if (isOpen()) { return om == mode; }
     int zipFlag = 0;
-    if (om == READ_ONLY) { zipFlag = 0; }
-    else if (om == WRITE) { zipFlag = ZIP_CREATE; }
-    else if (om == NEW) { zipFlag = ZIP_CREATE | ZIP_TRUNCATE; }
+    if (om == ReadOnly) { zipFlag = 0; }
+    else if (om == Write) { zipFlag = ZIP_CREATE; }
+    else if (om == New) { zipFlag = ZIP_CREATE | ZIP_TRUNCATE; }
     else { return false; }
     if (checkConsistency) {
         zipFlag = zipFlag | ZIP_CHECKCONS;
@@ -144,9 +144,9 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     if (isOpen()) { return om==mode; }
   
     int zipFlag = 0;
-    if (om==READ_ONLY) { zipFlag = 0; }
-    else if (om==WRITE) { zipFlag = ZIP_CREATE; }
-    else if (om==NEW) { zipFlag = ZIP_CREATE | ZIP_TRUNCATE; }
+    if (om==ReadOnly) { zipFlag = 0; }
+    else if (om==Write) { zipFlag = ZIP_CREATE; }
+    else if (om==New) { zipFlag = ZIP_CREATE | ZIP_TRUNCATE; }
     else { return false; }
     
     if (checkConsistency) {
@@ -194,7 +194,7 @@ int ZipArchive::close(void) {
 
         int result = zip_close(zipHandle);
         zipHandle = nullptr;
-        mode = NOT_OPEN;
+        mode = NotOpen;
         
         if(result!=0) { return result; }
     }
@@ -206,7 +206,7 @@ void ZipArchive::discard(void) {
     if (isOpen()) {
         zip_discard(zipHandle);
         zipHandle = nullptr;
-        mode = NOT_OPEN;
+        mode = NotOpen;
     }
 }
 
@@ -220,7 +220,7 @@ string ZipArchive::getComment(State state) const {
     if (!isOpen()) { return string(); }
     
     int flag = 0;
-    if (state==ORIGINAL) { flag = flag | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
+    if (state==Original) { flag = flag | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
     else { flag = flag | ZIP_FL_ENC_GUESS; }
     
     int length = 0;
@@ -231,7 +231,7 @@ string ZipArchive::getComment(State state) const {
 
 bool ZipArchive::setComment(const string& comment) const {
     if (!isOpen()) { return false; }
-    if (mode==READ_ONLY) { return false; }
+    if (mode==ReadOnly) { return false; }
     
     int size = comment.size();
     const char* data = comment.c_str();
@@ -246,7 +246,7 @@ bool ZipArchive::isEntryCompressionEnabled(const ZipEntry& entry) const {
 bool ZipArchive::setEntryCompressionEnabled(const ZipEntry& entry, bool value) const {
     if (!isOpen()) { return false; }
     if (entry.zipFile!=this) { return false; }
-    if (mode==READ_ONLY) { return false; }
+    if (mode==ReadOnly) { return false; }
     
     libzippp_uint16 compMode = value ? ZIP_CM_DEFLATE : ZIP_CM_STORE;
     return zip_set_file_compression(zipHandle, entry.index, compMode, 0)==0;
@@ -255,7 +255,7 @@ bool ZipArchive::setEntryCompressionEnabled(const ZipEntry& entry, bool value) c
 libzippp_int64 ZipArchive::getNbEntries(State state) const {
     if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
     
-    int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : 0;
+    int flag = state==Original ? LIBZIPPP_ORIGINAL_STATE_FLAGS : 0;
     return zip_get_num_entries(zipHandle, flag);
 }
 
@@ -279,7 +279,7 @@ vector<ZipEntry> ZipArchive::getEntries(State state) const {
     zip_stat_init(&stat);
 
     vector<ZipEntry> entries;
-    int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
+    int flag = state==Original ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
     libzippp_int64 nbEntries = getNbEntries(state);
     for(libzippp_int64 i=0 ; i<nbEntries ; ++i) {
         int result = zip_stat_index(zipHandle, i, flag, &stat);
@@ -299,7 +299,7 @@ bool ZipArchive::hasEntry(const string& name, bool excludeDirectories, bool case
     int flags = 0;
     if (excludeDirectories) { flags = flags | ZIP_FL_NODIR; }
     if (!caseSensitive) { flags = flags | ZIP_FL_NOCASE; }
-    if (state==ORIGINAL) { flags = flags | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
+    if (state==Original) { flags = flags | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
     else { flags = flags | ZIP_FL_ENC_GUESS; }
     
     libzippp_int64 index = zip_name_locate(zipHandle, name.c_str(), flags);
@@ -311,7 +311,7 @@ ZipEntry ZipArchive::getEntry(const string& name, bool excludeDirectories, bool 
         int flags = 0;
         if (excludeDirectories) { flags = flags | ZIP_FL_NODIR; }
         if (!caseSensitive) { flags = flags | ZIP_FL_NOCASE; }
-        if (state==ORIGINAL) { flags = flags | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
+        if (state==Original) { flags = flags | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
         else { flags = flags | ZIP_FL_ENC_GUESS; }
 
         libzippp_int64 index = zip_name_locate(zipHandle, name.c_str(), flags);
@@ -328,7 +328,7 @@ ZipEntry ZipArchive::getEntry(libzippp_int64 index, State state) const {
     if (isOpen()) {
         struct zip_stat stat;
         zip_stat_init(&stat);
-        int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
+        int flag = state==Original ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
         int result = zip_stat_index(zipHandle, index, flag, &stat);
         if (result==0) {
             return createEntry(&stat);
@@ -344,7 +344,7 @@ string ZipArchive::getEntryComment(const ZipEntry& entry, State state) const {
     if (entry.zipFile!=this) { return string(); }
     
     int flag = 0;
-    if (state==ORIGINAL) { flag = flag | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
+    if (state==Original) { flag = flag | LIBZIPPP_ORIGINAL_STATE_FLAGS; }
     else { flag = ZIP_FL_ENC_GUESS; }
     
     unsigned int clen;
@@ -365,7 +365,7 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state, 
     if (!isOpen()) { return nullptr; }
     if (zipEntry.zipFile!=this) { return nullptr; }
     
-    int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
+    int flag = state==Original ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
     struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
     if (zipFile) {
         libzippp_uint64 maxSize = zipEntry.getSize();
@@ -405,7 +405,7 @@ void* ZipArchive::readEntry(const string& zipEntry, bool asText, State state, li
 int ZipArchive::deleteEntry(const ZipEntry& entry) const {
     if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
     if (entry.zipFile!=this) { return LIBZIPPP_ERROR_INVALID_ENTRY; }
-    if (mode==READ_ONLY) { return LIBZIPPP_ERROR_NOT_ALLOWED; } //deletion not allowed
+    if (mode==ReadOnly) { return LIBZIPPP_ERROR_NOT_ALLOWED; } //deletion not allowed
     
     if (entry.isFile()) {
         int result = zip_delete(zipHandle, entry.getIndex());
@@ -437,7 +437,7 @@ int ZipArchive::deleteEntry(const string& e) const {
 int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const {
     if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
     if (entry.zipFile!=this) { return LIBZIPPP_ERROR_INVALID_ENTRY; }
-    if (mode==READ_ONLY) { return LIBZIPPP_ERROR_NOT_ALLOWED; } //renaming not allowed
+    if (mode==ReadOnly) { return LIBZIPPP_ERROR_NOT_ALLOWED; } //renaming not allowed
     if (newName.length()==0) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
     if (newName==entry.getName()) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
     
@@ -510,7 +510,7 @@ int ZipArchive::renameEntry(const string& e, const string& newName) const {
 
 bool ZipArchive::addFile(const string& entryName, const string& file) const {
     if (!isOpen()) { return false; }
-    if (mode==READ_ONLY) { return false; } //adding not allowed
+    if (mode==ReadOnly) { return false; } //adding not allowed
     if (LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
     int lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
@@ -540,7 +540,7 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
 
 bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uint64 length, bool freeData) const {
     if (!isOpen()) { return false; }
-    if (mode==READ_ONLY) { return false; } //adding not allowed
+    if (mode==ReadOnly) { return false; } //adding not allowed
     if (LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
     int lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
@@ -563,7 +563,7 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
 
 bool ZipArchive::addEntry(const string& entryName) const {
     if (!isOpen()) { return false; }
-    if (mode==READ_ONLY) { return false; } //adding not allowed
+    if (mode==ReadOnly) { return false; } //adding not allowed
     if (!LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
     int nextSlash = entryName.find(LIBZIPPP_ENTRY_PATH_SEPARATOR);
@@ -585,7 +585,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
     if (zipEntry.zipFile!=this) { return LIBZIPPP_ERROR_INVALID_ENTRY; }
     
     int iRes = LIBZIPPP_OK;
-    int flag = state==ORIGINAL ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
+    int flag = state==Original ? LIBZIPPP_ORIGINAL_STATE_FLAGS : ZIP_FL_ENC_GUESS;
     struct zip_file* zipFile = zip_fopen_index(zipHandle, zipEntry.getIndex(), flag);
     if (zipFile) {
         libzippp_uint64 maxSize = zipEntry.getSize();
