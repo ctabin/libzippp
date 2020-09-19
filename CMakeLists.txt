@@ -26,7 +26,7 @@ target_include_directories(libzippp
     $<INSTALL_INTERFACE:include/libzippp>
 )
 set_target_properties(libzippp PROPERTIES PREFIX "") # Avoid duplicate "lib" prefix
-target_link_libraries(libzippp PRIVATE libzip::libzip)
+target_link_libraries(libzippp PRIVATE libzip::zip)
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(libzippp PRIVATE LIBZIPPP_EXPORTS)
 else()
