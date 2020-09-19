@@ -5,9 +5,9 @@ project(libzippp VERSION 3.0.0)
 # Do not install or build tests by default when this file is included
 # as a sub-project (via add_subdirectory)
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    set(is_root_project ON)
+  set(is_root_project ON)
 else()
-    set(is_root_project OFF)
+  set(is_root_project OFF)
 endif()
 
 option(LIBZIPPP_INSTALL "Install library" ${is_root_project})
@@ -26,7 +26,7 @@ target_include_directories(libzippp
     $<INSTALL_INTERFACE:include/libzippp>
 )
 set_target_properties(libzippp PROPERTIES PREFIX "") # Avoid duplicate "lib" prefix
-target_link_libraries(libzippp PRIVATE libzip::libzip)
+target_link_libraries(libzippp PRIVATE libzip::zip)
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(libzippp PRIVATE LIBZIPPP_EXPORTS)
 else()
@@ -42,9 +42,9 @@ if(LIBZIPPP_BUILD_TESTS)
   add_test(NAME libzippp_tests COMMAND libzippp_test)
   
   if (BUILD_SHARED_LIBS)
-	set_target_properties(libzippp_test PROPERTIES OUTPUT_NAME "libzippp_shared_test")
+    set_target_properties(libzippp_test PROPERTIES OUTPUT_NAME "libzippp_shared_test")
   else()
-	set_target_properties(libzippp_test PROPERTIES OUTPUT_NAME "libzippp_static_test")
+    set_target_properties(libzippp_test PROPERTIES OUTPUT_NAME "libzippp_static_test")
   endif()
 endif()
 

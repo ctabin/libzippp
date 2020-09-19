@@ -23,9 +23,9 @@ find_package_handle_standard_args(
 )
 
 if (LIBZIP_FOUND)
-    if (NOT TARGET libzip::libzip)
-        add_library(libzip::libzip UNKNOWN IMPORTED)
-        set_target_properties(libzip::libzip
+    if (NOT TARGET libzip::zip)
+        add_library(libzip::zip UNKNOWN IMPORTED)
+        set_target_properties(libzip::zip
             PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES ${LIBZIP_INCLUDE_DIR}
                 INTERFACE_LINK_LIBRARIES ZLIB::ZLIB
@@ -35,7 +35,7 @@ if (LIBZIP_FOUND)
         file(STRINGS ${_libzip_pkgcfg} _have_bzip2 REGEX Libs)
         if(_have_bzip2 MATCHES "-lbz2")
             find_package(BZip2 REQUIRED)
-            set_property(TARGET libzip::libzip APPEND PROPERTY INTERFACE_LINK_LIBRARIES BZip2::BZip2)
+            set_property(TARGET libzip::zip APPEND PROPERTY INTERFACE_LINK_LIBRARIES BZip2::BZip2)
         endif()
     endif()
 endif()
