@@ -142,6 +142,8 @@ namespace libzippp {
          * Creates a new ZipArchive from the specified buffer. The archive will
          * directly be open with the given mode. If the archive fails to be open or
          * if the consistency check fails, this method will return null.
+         * The buffer data must remain valid while the ZipArchive is alive.
+         * The buffer won't be freed by the ZipArchive.
          */
         static ZipArchive* fromBuffer(const char* buffer, libzippp_uint32 size, OpenMode mode=READ_ONLY, bool checkConsistency=false);
         
