@@ -581,6 +581,11 @@ bool ZipArchive::addEntry(const string& entryName) const {
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state, libzippp_uint64 chunksize) const {
     if (!ofOutput) { return LIBZIPPP_ERROR_INVALID_PARAMETER; }
+    std::function<bool(const void*,libzippp_uint64)> writeFunc = [&ofOutput](const void* data,libzippp_uint64 size){ ofOutput.write((char*)data, size); return bool(ofOutput); };
+    return readEntry(zipEntry, writeFunc, state, chunksize);
+}
+
+int ZipArchive::readEntry(const ZipEntry& zipEntry, std::function<bool(const void*,libzippp_uint64)> writeFunc, State state, libzippp_uint64 chunksize) const {
     if (!isOpen()) { return LIBZIPPP_ERROR_NOT_OPEN; }
     if (zipEntry.zipFile!=this) { return LIBZIPPP_ERROR_INVALID_ENTRY; }
     
@@ -598,9 +603,8 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
                 if (result>0) {
                     if (result != static_cast<libzippp_int64>(maxSize)) {
                         iRes = LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE;
-                    } else {
-                        ofOutput.write(data, maxSize);
-                        if (!ofOutput) { iRes = LIBZIPPP_ERROR_OWRITE_FAILURE; }
+                    } else if (!writeFunc(data, maxSize)) {
+                        iRes = LIBZIPPP_ERROR_OWRITE_FAILURE;
                     }
                 } else {
                     iRes = LIBZIPPP_ERROR_FREAD_FAILURE;
@@ -622,8 +626,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
                             iRes = LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE;
                             break;
                         } else {
-                            ofOutput.write(data, chunksize);
-                            if (!ofOutput) {
+                            if (!writeFunc(data, chunksize)) {
                                 iRes = LIBZIPPP_ERROR_OWRITE_FAILURE;
                                 break;
                             }
@@ -648,8 +651,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, Stat
                         if (result!=static_cast<libzippp_int64>(leftOver)) {
                             iRes = LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE;
                         } else {
-                            ofOutput.write(data, leftOver);
-                            if (!ofOutput) {
+                            if (!writeFunc(data, leftOver)) {
                                 iRes = LIBZIPPP_ERROR_OWRITE_FAILURE;
                             } else {
                                 uWrittenBytes += result;
