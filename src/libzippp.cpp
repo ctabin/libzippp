@@ -85,7 +85,7 @@ ZipArchive::~ZipArchive(void) {
     close(); /* discard ??? */ 
 }
 
-ZipArchive* ZipArchive::fromBuffer(const char* data, libzippp_uint32 size, OpenMode om, bool checkConsistency)
+ZipArchive* ZipArchive::fromBuffer(const void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency)
 {
     ZipArchive* za = new ZipArchive("");
     bool o = za->openBuffer(data, size, om, checkConsistency);
@@ -96,7 +96,7 @@ ZipArchive* ZipArchive::fromBuffer(const char* data, libzippp_uint32 size, OpenM
     return za;
 }
 
-bool ZipArchive::openBuffer(const char* data, libzippp_uint32 size, OpenMode om, bool checkConsistency)
+bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency)
 {
     if (isOpen()) { return om == mode; }
     int zipFlag = 0;

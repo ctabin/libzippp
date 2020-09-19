@@ -672,7 +672,7 @@ void test21() {
     std::ifstream ifs("test.zip", std::ios::binary);
     ifs.seekg(0, std::ifstream::end);
     libzippp_uint32 bufferSize = (libzippp_uint32)ifs.tellg();
-    char* buffer =  (char*)malloc(bufferSize);
+    char* buffer = (char*)malloc(bufferSize);
     ifs.seekg(std::ifstream::beg);
     ifs.read(buffer, bufferSize);
     ifs.close();
