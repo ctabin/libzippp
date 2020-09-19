@@ -112,7 +112,7 @@ bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om,
     zip_error_init(&error);
 
     /* create source from buffer */
-    zipSource = zip_source_buffer_create(data, size, 1, &error);
+    zipSource = zip_source_buffer_create(data, size, 0, &error);
     if (zipSource == nullptr) {
         zip_error_fini(&error);
         return false;
