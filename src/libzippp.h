@@ -106,26 +106,26 @@ namespace libzippp {
         
         /**
          * Defines how the zip file must be open.
-         * NOT_OPEN is a special mode where the file is not open.
-         * READ_ONLY is the basic mode to only read the archive.
-         * WRITE will append to an existing archive or create a new one if it does not exist.
-         * NEW will create a new archive or erase all the data if a previous one exists.
+         * NotOpen is a special mode where the file is not open.
+         * ReadOnly is the basic mode to only read the archive.
+         * Write will append to an existing archive or create a new one if it does not exist.
+         * New will create a new archive or erase all the data if a previous one exists.
          */
         enum OpenMode {
-            NOT_OPEN,
-            READ_ONLY,
-            WRITE,
-            NEW
+            NotOpen,
+            ReadOnly,
+            Write,
+            New
         };
         
         /**
          * Defines how the reading of the data should be made in the archive.
-         * ORIGINAL will read the data of the original archive file, without any change.
-         * CURRENT will read the current content of the archive.
+         * Original will read the data of the original archive file, without any change.
+         * Current will read the current content of the archive.
          */
         enum State {
-            ORIGINAL,
-            CURRENT
+            Original,
+            Current
         };
         
         /**
@@ -145,7 +145,7 @@ namespace libzippp {
          * The buffer data must remain valid while the ZipArchive is alive.
          * The buffer won't be freed by the ZipArchive.
          */
-        static ZipArchive* fromBuffer(const void* buffer, libzippp_uint32 size, OpenMode mode=READ_ONLY, bool checkConsistency=false);
+        static ZipArchive* fromBuffer(const void* buffer, libzippp_uint32 size, OpenMode mode=ReadOnly, bool checkConsistency=false);
         
         /**
          * Returns the path of the ZipArchive.
@@ -158,7 +158,7 @@ namespace libzippp {
          * will be thrown. If the archive is already open, this method returns true only if the
          * mode is the same.
          */
-        bool open(OpenMode mode=READ_ONLY, bool checkConsistency=false);
+        bool open(OpenMode mode=ReadOnly, bool checkConsistency=false);
 
         /**
          * Closes the ZipArchive and releases all the resources held by it. If the ZipArchive was
@@ -191,7 +191,7 @@ namespace libzippp {
         /**
          * Returns true if the ZipArchive is open and mutable.
          */
-        inline bool isMutable(void) const { return isOpen() && mode!=NOT_OPEN && mode!=READ_ONLY; }
+        inline bool isMutable(void) const { return isOpen() && mode!=NotOpen && mode!=ReadOnly; }
         
         /**
          * Returns true if the ZipArchive is encrypted. This method returns true only if
@@ -204,7 +204,7 @@ namespace libzippp {
          * must have been open in WRITE or NEW mode. If the archive is not open, the getComment
          * method will return an empty string.
          */
-        std::string getComment(State state=CURRENT) const;
+        std::string getComment(State state=Current) const;
         bool setComment(const std::string& comment) const;
         
         /**
@@ -216,32 +216,32 @@ namespace libzippp {
         /**
          * Returns the number of entries in this zip file (folders are included).
          * The zip file must be open otherwise LIBZIPPP_ERROR_NOT_OPEN will be returned. 
-         * If the state is ORIGINAL, then the number entries of the original archive are returned.
+         * If the state is Original, then the number entries of the original archive are returned.
          * Any change will not be considered.
          * Note also that the deleted entries does not affect the result of this method
-         * with the CURRENT state. For instance, if there are 3 entries and you delete one,
+         * with the Current state. For instance, if there are 3 entries and you delete one,
          * this method will still return 3. However, if you add one entry, it will return
-         * 4 with the state CURRENT and 3 with the state ORIGINAL.
+         * 4 with the state Current and 3 with the state Original.
          * If you wanna know the "real" entries effectively in the archive, you might use
          * the getEntries method.
          */
-        libzippp_int64 getNbEntries(State state=CURRENT) const;
-        inline libzippp_int64 getEntriesCount(State state=CURRENT) const { return getNbEntries(state); }
-        //libzippp_int64 size(State state=CURRENT) const { return getNbEntries(state); } //not clear enough => could be the size of the file instead...
+        libzippp_int64 getNbEntries(State state=Current) const;
+        inline libzippp_int64 getEntriesCount(State state=Current) const { return getNbEntries(state); }
+        //libzippp_int64 size(State state=Current) const { return getNbEntries(state); } //not clear enough => could be the size of the file instead...
 
         /**
-         * Returns all the entries of the ZipArchive. If the state is ORIGINAL, then
+         * Returns all the entries of the ZipArchive. If the state is Original, then
          * returns the entries in the original archive, any change will not be considered.
          * The zip file must be open otherwise an empty vector will be returned.
          */
-        std::vector<ZipEntry> getEntries(State state=CURRENT) const;
+        std::vector<ZipEntry> getEntries(State state=Current) const;
         
         /**
          * Returns true if an entry with the specified name exists. If no such entry exists,
          * then false will be returned. If a directory is searched, the name must end with a '/' !
          * The zip file must be open otherwise false will be returned.
          */
-        bool hasEntry(const std::string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=CURRENT) const;
+        bool hasEntry(const std::string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=Current) const;
         
         /**
          * Returns the ZipEntry for the specified entry name. If no such entry exists,
@@ -249,21 +249,21 @@ namespace libzippp {
          * must end with a '/' !
          * The zip file must be open otherwise a null-ZipEntry will be returned.
          */
-        ZipEntry getEntry(const std::string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=CURRENT) const;
+        ZipEntry getEntry(const std::string& name, bool excludeDirectories=false, bool caseSensitive=true, State state=Current) const;
         
         /**
          * Returns the ZipEntry for the specified index. If the index is out of range,
          * then a null-ZipEntry will be returned.
          * The zip file must be open otherwise a null-ZipEntry will be returned.
          */
-        ZipEntry getEntry(libzippp_int64 index, State state=CURRENT) const;
+        ZipEntry getEntry(libzippp_int64 index, State state=Current) const;
         
         /**
          * Defines the comment of the entry. If the ZipArchive is not open or the
          * entry is not linked to this archive, then an empty string or false will 
          * be returned.
          */
-        std::string getEntryComment(const ZipEntry& entry, State state=CURRENT) const;
+        std::string getEntryComment(const ZipEntry& entry, State state=Current) const;
         bool setEntryComment(const ZipEntry& entry, const std::string& comment) const;
         
         /**
@@ -282,7 +282,7 @@ namespace libzippp {
          * The zip file must be open otherwise null will be returned. If the ZipEntry was not
          * created by this ZipArchive, null will be returned.
          */
-        void* readEntry(const ZipEntry& zipEntry, bool asText=false, State state=CURRENT, libzippp_uint64 size=0) const;
+        void* readEntry(const ZipEntry& zipEntry, bool asText=false, State state=Current, libzippp_uint64 size=0) const;
         
         /**
          * Reads the specified ZipEntry of the ZipArchive and returns its content within
@@ -294,7 +294,7 @@ namespace libzippp {
          * created by this ZipArchive, null will be returned. If the zipEntry does not exist,
          * this method returns nullptr:
          */
-        void* readEntry(const std::string& zipEntry, bool asText=false, State state=CURRENT, libzippp_uint64 size=0) const;
+        void* readEntry(const std::string& zipEntry, bool asText=false, State state=Current, libzippp_uint64 size=0) const;
         
         /**
          * Reads the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
@@ -308,7 +308,7 @@ namespace libzippp {
          * If the provided chunk size is zero, it will be defaulted to LIBZIPPP_DEFAULT_CHUNK_SIZE (512KB).
          * The method doesn't close the ofstream after the extraction.
          */
-        int readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state=CURRENT, libzippp_uint64 chunksize=LIBZIPPP_DEFAULT_CHUNK_SIZE) const;
+        int readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state=Current, libzippp_uint64 chunksize=LIBZIPPP_DEFAULT_CHUNK_SIZE) const;
 
         /**
          * Deletes the specified entry from the zip file. If the entry is a folder, all its
@@ -397,7 +397,7 @@ namespace libzippp {
         std::string password;
         
         //open from a buffer
-        bool openBuffer(const void* buffer, libzippp_uint32 sz, OpenMode mode=READ_ONLY, bool checkConsistency=false);
+        bool openBuffer(const void* buffer, libzippp_uint32 sz, OpenMode mode=ReadOnly, bool checkConsistency=false);
         
         //generic method to create ZipEntry
         ZipEntry createEntry(struct zip_stat* stat) const;
@@ -499,7 +499,7 @@ namespace libzippp {
          * If the ZipArchive is not open, this method returns an
          * empty string. This method is a wrapper around ZipArchive::readEntry(...).
          */
-        std::string readAsText(ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 size=0) const;
+        std::string readAsText(ZipArchive::State state=ZipArchive::Current, libzippp_uint64 size=0) const;
         
         /**
          * Reads the content of this ZipEntry as binary. 
@@ -508,7 +508,7 @@ namespace libzippp {
          * The data must be deleted by the developer once not used anymore.
          * This method is a wrapper around ZipArchive::readEntry(...).
          */
-        void* readAsBinary(ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 size=0) const;
+        void* readAsBinary(ZipArchive::State state=ZipArchive::Current, libzippp_uint64 size=0) const;
         
         /**
          * Reads the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
@@ -522,7 +522,7 @@ namespace libzippp {
          * If the provided chunk size is zero, it will be defaulted to LIBZIPPP_DEFAULT_CHUNK_SIZE (512KB).
          * The method doesn't close the ofstream after the extraction.
          */
-        int readContent(std::ostream& ofOutput, ZipArchive::State state=ZipArchive::CURRENT, libzippp_uint64 chunksize=LIBZIPPP_DEFAULT_CHUNK_SIZE) const;
+        int readContent(std::ostream& ofOutput, ZipArchive::State state=ZipArchive::Current, libzippp_uint64 chunksize=LIBZIPPP_DEFAULT_CHUNK_SIZE) const;
         
     private:
         const ZipArchive* zipFile;

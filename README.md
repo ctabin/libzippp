@@ -158,7 +158,7 @@ can be found [here](http://www.astorm.ch/blog).
 using namespace libzippp;
 
 ZipArchive zf("archive.zip");
-zf.open(ZipArchive::READ_ONLY);
+zf.open(ZipArchive::ReadOnly);
 
 vector<ZipEntry> entries = zf.getEntries();
 vector<ZipEntry>::iterator it;
@@ -200,7 +200,7 @@ delete zf;
 using namespace libzippp;
 
 ZipArchive zf("archive.zip");
-zf.open(ZipArchive::READ_ONLY);
+zf.open(ZipArchive::ReadOnly);
 
 //raw access
 char* data = (char*)zf.readEntry("myFile.txt", true);
@@ -221,7 +221,7 @@ zf.close();
 using namespace libzippp;
 
 ZipArchive zf("archive.zip");
-zf.open(ZipArchive::READ_ONLY);
+zf.open(ZipArchive::ReadOnly);
 
 ZipEntry largeEntry = z1.getEntry("largeentry");
 std::ofstream ofUnzippedFile("largeFileContent.data");
@@ -238,7 +238,7 @@ zf.close();
 using namespace libzippp;
 
 ZipArchive zf("archive.zip");
-zf.open(ZipArchive::WRITE);
+zf.open(ZipArchive::Write);
 zf.addEntry("folder/subdir/");
 
 const char* textData = "Hello,World!";
@@ -254,7 +254,7 @@ zf.close();
 using namespace libzippp;
 
 ZipArchive zf("archive.zip");
-zf.open(ZipArchive::WRITE);
+zf.open(ZipArchive::Write);
 zf.deleteEntry("myFile.txt");
 zf.deleteEntry("myDir/subDir/");
 zf.close();
