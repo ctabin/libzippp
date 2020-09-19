@@ -143,7 +143,7 @@ namespace libzippp {
          * directly be open with the given mode. If the archive fails to be open or
          * if the consistency check fails, this method will return null.
          */
-        static ZipArchive* fromBuffer(const char* buffer, libzippp_uint32 size, OpenMode mode=READ_ONLY, bool checkConsistency=false);
+        static ZipArchive* fromBuffer(const void* buffer, libzippp_uint32 size, OpenMode mode=READ_ONLY, bool checkConsistency=false);
         
         /**
          * Returns the path of the ZipArchive.
@@ -395,7 +395,7 @@ namespace libzippp {
         std::string password;
         
         //open from a buffer
-        bool openBuffer(const char* buffer, libzippp_uint32 sz, OpenMode mode=READ_ONLY, bool checkConsistency=false);
+        bool openBuffer(const void* buffer, libzippp_uint32 sz, OpenMode mode=READ_ONLY, bool checkConsistency=false);
         
         //generic method to create ZipEntry
         ZipEntry createEntry(struct zip_stat* stat) const;
