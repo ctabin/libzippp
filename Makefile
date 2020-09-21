@@ -1,4 +1,4 @@
-CFLAGS=-W -Wall -Wextra -ansi -pedantic -std=c++0x
+CFLAGS=-W -Wall -Wextra -ansi -pedantic -std=c++11
 OBJ=obj
 LIB=lib
 ZLIB_VERSION=1.2.11

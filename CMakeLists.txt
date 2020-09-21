@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.12.0)
 
 project(libzippp VERSION 3.0.0)
 
+# Use C++11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Do not install or build tests by default when this file is included
 # as a sub-project (via add_subdirectory)
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
