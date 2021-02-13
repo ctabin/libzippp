@@ -37,8 +37,8 @@ clean-tests:
 	@rm -rf *.zip
 
 tests: libzippp-tests clean-tests
-	LD_LIBRARY_PATH="$(LIBZIP)/build/lib" valgrind --suppressions=ld.supp ./test_shared
-	valgrind --suppressions=ld.supp ./test_static
+	LD_LIBRARY_PATH="$(LIBZIP)/build/lib" valgrind --suppressions=ld.supp --leak-check=full ./test_shared
+	valgrind --suppressions=ld.supp --leak-check=full ./test_static
 
 clean:
 	@rm -rf libzippp.a libzippp.so
