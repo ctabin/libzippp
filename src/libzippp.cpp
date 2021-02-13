@@ -177,7 +177,7 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     zipHandle = zip_open(path.c_str(), zipFlag, &errorFlag);
     
     //error during opening of the file
-    if(errorFlag!=ZIP_ER_OK) {
+    if (errorFlag!=ZIP_ER_OK) {
         /*char* errorStr = new char[256];
         zip_error_to_str(errorStr, 255, errorFlag, errno);
         errorStr[255] = '\0';
@@ -208,17 +208,17 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
 int ZipArchive::close(void) {
     if (isOpen()) {
 
-        if (zipSource){
-            //zip_source_close(zipSource);
-            //zip_source_free(zipSource);
-            //zipSource = nullptr;
+        if (zipSource) {
+            //no free here because it should not be done once successfully used in zip_open_from_source
+            zip_source_close(zipSource);
+            zipSource = nullptr;
         }
 
         int result = zip_close(zipHandle);
         zipHandle = nullptr;
         mode = NotOpen;
         
-        if(result!=0) { return result; }
+        if (result!=0) { return result; }
     }
     
     return LIBZIPPP_OK;

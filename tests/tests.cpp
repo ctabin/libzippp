@@ -692,6 +692,8 @@ void test21() {
     z2->close();
     delete z2;
 
+    free(buffer);
+
     cout << " done." << endl;
 }
 
