@@ -117,7 +117,7 @@ It may need some adjusting though.
 #### From Stage 1 - Use prepared environment
 
 
-0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual Studio.
+0. Make sure you have cmake 3.20 (*cmake.exe* must be in the PATH) and MS Visual Studio.
 
 1. Download the *libzip-\<version\>-windows-ready_to_compile.zip* file from the release 
   and extract it somewhere on your system. This will create a prepared structure, so *libzippp* can 
@@ -140,15 +140,13 @@ It may need some adjusting though.
   libzippp/lib/zlib-1.2.11
   libzippp/lib/libzip-1.8.0
   ```
-2. Apply the modifications described in libzippp/lib/libzip-1.8.0-windows.patch.
-
-3. Execute the *compile.bat* (simply double-click on it). The compilation should 
+2. Execute the *compile.bat* (simply double-click on it). The compilation should 
   go without error.
 
-4. You'll have a *dist* folder containing the *release* and *debug* folders 
+3. You'll have a *dist* folder containing the *release* and *debug* folders 
   where you can now execute the libzippp tests.
 
-5. You can either use *libzippp.dll* and *libzippp.lib* to link dynamically the 
+4. You can either use *libzippp.dll* and *libzippp.lib* to link dynamically the 
   library or simply use *libzippp_static.lib* to link it statically. Unless you 
   also link zlib and libzippp statically, you'll need the dll packaged with 
   your executable.
