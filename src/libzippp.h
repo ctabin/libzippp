@@ -53,7 +53,7 @@ struct zip_source;
 //- http://www.nih.at/libzip/libzip.html
 //- http://slash.developpez.com/tutoriels/c/utilisation-libzip/
 
-#ifdef WIN32
+#ifdef _WIN32
         typedef long long libzippp_int64;
         typedef unsigned long long libzippp_uint64;
         typedef unsigned int libzippp_uint32;
