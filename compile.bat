@@ -9,7 +9,7 @@ if not exist "%zlib%" goto error_zlib_not_found
 if not exist "%libzip%" goto error_libzip_not_found
 
 :compile_zlib
-if exist "%zlib%\build" goto compile_libzip
+if exist "%zlib%\build\.compiled" goto compile_libzip
 echo =============================
 echo Compiling zlib...
 echo =============================
@@ -22,10 +22,11 @@ cmake --build "." --config Debug --target install
 if %ERRORLEVEL% GEQ 1 goto error_zlib
 cmake --build "." --config Release --target install
 if %ERRORLEVEL% GEQ 1 goto error_zlib
+echo "OK" > ".compiled"
 cd "..\..\.."
 
 :compile_libzip
-if exist "%libzip%\build" goto compile_libzippp
+if exist "%libzip%\build\.compiled" goto compile_libzippp
 echo =============================
 echo Compiling libzip...
 echo =============================
@@ -38,6 +39,7 @@ cmake --build . --config Debug --target install
 if %ERRORLEVEL% GEQ 1 goto error_libzip
 cmake --build . --config Release --target install
 if %ERRORLEVEL% GEQ 1 goto error_libzip
+echo "OK" > ".compiled"
 cd "..\..\.."
 
 :compile_libzippp
@@ -99,7 +101,7 @@ goto end
 
 :error_zlib_not_found
 echo [ERROR] The path was not found: %zlib%.
-echo         You have to download zlib 1.2.8 and put in the folder %zlib%.
+echo         You have to download zlib 1.2.11 and put in the folder %zlib%.
 goto end
 
 :error_zlib
@@ -108,7 +110,7 @@ goto end
 
 :error_libzip_not_found
 echo [ERROR] The path was not found: %libzip%.
-echo         You have to download libzip 1.0.1 and put it in the folder %libzip%.
+echo         You have to download libzip 1.8.0 and put it in the folder %libzip%.
 goto end
 
 :error_libzip
