@@ -75,11 +75,11 @@ Set via commandline as `cmake -DNAME=VALUE <other opts>` or via CMake GUI or CCM
 
 ### Using libzippp
 
-Once installed libzipp can be used from any CMake project with ease:   
+Once installed libzippp can be used from any CMake project with ease:   
 Given that it was installed (via `CMAKE_INSTALL_PREFIX`) into a standard location or its install prefix is passed into your projects
 `CMAKE_PREFIX_PATH` you can simply call `find_package(libzippp 3.0 REQUIRED)` and link against `libzippp::libzippp`.
 
-When not using CMake to consume libzipp you have to pass its include directory to your compiler and link against `libzippp.{a,so}`.
+When not using CMake to consume libzippp you have to pass its include directory to your compiler and link against `libzippp.{a,so}`.
 Do not forget to also link against libzip libraries e.g. in *lib/libzip-1.8.0/lib/.libs/*).
 An example of compilation with g++:
   
@@ -103,7 +103,7 @@ See [here](https://github.com/nih-at/libzip/blob/master/INSTALL.md) for more inf
 
 ### WINDOWS - Alternative way
 
-The easiest way is to download zlib, libzip and libzipp sources and use CMake GUI to build each library in order:
+The easiest way is to download zlib, libzip and libzippp sources and use CMake GUI to build each library in order:
 
 - Open CMake GUI
 - Point `Source` to the libraries source folder, `Build` to a new folder `build` inside it
@@ -271,7 +271,7 @@ zf.close();
 
 You might already have libzip compiled elsewhere on your system. Hence, you
 don't need to run 'make libzip'. Instead, just put the libzip location when
-you compile libzipp:
+you compile libzippp:
 
 ```shell
 make LIBZIP=path/to/libzip
