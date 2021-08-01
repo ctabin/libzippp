@@ -162,26 +162,30 @@ can be found [here](http://www.astorm.ch/blog).
 #include "libzippp.h"
 using namespace libzippp;
 
-ZipArchive zf("archive.zip");
-zf.open(ZipArchive::ReadOnly);
+int main(int argc, char** argv) {
+  ZipArchive zf("archive.zip");
+  zf.open(ZipArchive::ReadOnly);
 
-vector<ZipEntry> entries = zf.getEntries();
-vector<ZipEntry>::iterator it;
-for(it=entries.begin() ; it!=entries.end(); ++it) {
-  ZipEntry entry = *it;
-  string name = entry.getName();
-  int size = entry.getSize();
+  vector<ZipEntry> entries = zf.getEntries();
+  vector<ZipEntry>::iterator it;
+  for(it=entries.begin() ; it!=entries.end(); ++it) {
+    ZipEntry entry = *it;
+    string name = entry.getName();
+    int size = entry.getSize();
 
-  //the length of binaryData will be size
-  void* binaryData = entry.readAsBinary();
+    //the length of binaryData will be size
+    void* binaryData = entry.readAsBinary();
 
-  //the length of textData will be size
-  string textData = entry.readAsText();
+    //the length of textData will be size
+    string textData = entry.readAsText();
 
-  //...
+    //...
+  }
+
+  zf.close();
+  
+  return 0;
 }
-
-zf.close();
 ```
 
 You can also create an archive directly from a buffer:
@@ -189,13 +193,17 @@ You can also create an archive directly from a buffer:
 #include "libzippp.h"
 using namespace libzippp;
 
-char* buffer = someData;
-uint32_t bufferSize = sizeOfBuffer;
+int main(int argc, char** argv) {
+  char* buffer = someData;
+  uint32_t bufferSize = sizeOfBuffer;
 
-ZipArchive* zf = ZipArchive::fromBuffer(buffer, bufferSize);
-/* work with zf */
-zf->close();
-delete zf;
+  ZipArchive* zf = ZipArchive::fromBuffer(buffer, bufferSize);
+  /* work with zf */
+  zf->close();
+  delete zf;
+  
+  return 0;
+}
 ```
 
 ### Read a specific entry from an archive:
@@ -204,19 +212,23 @@ delete zf;
 #include "libzippp.h"
 using namespace libzippp;
 
-ZipArchive zf("archive.zip");
-zf.open(ZipArchive::ReadOnly);
+int main(int argc, char** argv) {
+  ZipArchive zf("archive.zip");
+  zf.open(ZipArchive::ReadOnly);
 
-//raw access
-char* data = (char*)zf.readEntry("myFile.txt", true);
-ZipEntry entry1 = zf.getEntry("myFile.txt");
-string str1(data, entry1.getSize());
+  //raw access
+  char* data = (char*)zf.readEntry("myFile.txt", true);
+  ZipEntry entry1 = zf.getEntry("myFile.txt");
+  string str1(data, entry1.getSize());
 
-//text access
-ZipEntry entry2 = zf.getEntry("myFile.txt");
-string str2 = entry2.readAsText();
+  //text access
+  ZipEntry entry2 = zf.getEntry("myFile.txt");
+  string str2 = entry2.readAsText();
 
-zf.close();
+  zf.close();
+  
+  return 0;
+}
 ```
 
 ### Read a large entry from an archive:
@@ -225,15 +237,19 @@ zf.close();
 #include "libzippp.h"
 using namespace libzippp;
 
-ZipArchive zf("archive.zip");
-zf.open(ZipArchive::ReadOnly);
+int main(int argc, char** argv) {
+  ZipArchive zf("archive.zip");
+  zf.open(ZipArchive::ReadOnly);
 
-ZipEntry largeEntry = z1.getEntry("largeentry");
-std::ofstream ofUnzippedFile("largeFileContent.data");
-largeEntry.readContent(ofUnzippedFile);
-ofUnzippedFile.close();
+  ZipEntry largeEntry = z1.getEntry("largeentry");
+  std::ofstream ofUnzippedFile("largeFileContent.data");
+  largeEntry.readContent(ofUnzippedFile);
+  ofUnzippedFile.close();
 
-zf.close();
+  zf.close();
+
+  return 0;
+}
 ```
 
 ### Add data to an archive:
@@ -242,14 +258,18 @@ zf.close();
 #include "libzippp.h"
 using namespace libzippp;
 
-ZipArchive zf("archive.zip");
-zf.open(ZipArchive::Write);
-zf.addEntry("folder/subdir/");
+int main(int argc, char** argv) {
+  ZipArchive zf("archive.zip");
+  zf.open(ZipArchive::Write);
+  zf.addEntry("folder/subdir/");
 
-const char* textData = "Hello,World!";
-zf.addData("helloworld.txt", textData, 12);
+  const char* textData = "Hello,World!";
+  zf.addData("helloworld.txt", textData, 12);
 
-zf.close();
+  zf.close();
+
+  return 0;
+}
 ```
 
 ### Remove data from an archive:
@@ -258,11 +278,49 @@ zf.close();
 #include "libzippp.h"
 using namespace libzippp;
 
-ZipArchive zf("archive.zip");
-zf.open(ZipArchive::Write);
-zf.deleteEntry("myFile.txt");
-zf.deleteEntry("myDir/subDir/");
-zf.close();
+int main(int argc, char** argv) {
+  ZipArchive zf("archive.zip");
+  zf.open(ZipArchive::Write);
+  zf.deleteEntry("myFile.txt");
+  zf.deleteEntry("myDir/subDir/");
+  zf.close();
+  
+  return 0;
+}
+```
+
+### Progression of committed changes
+
+```C++
+#include "libzippp.h"
+using namespace libzippp;
+
+class SimpleProgressListener : public ZipProgressListener {
+public:
+    SimpleProgressListener(void) {}
+    virtual ~SimpleProgressListener(void) {}
+
+    void progression(double p) {
+        cout << "-- Progression: " << p << endl;
+    }
+};
+
+int main(int argc, char** argv) {
+  ZipArchive zf("archive.zip");
+  /* add/modify/delete entries in the archive */
+
+  //register the listener
+  SimpleProgressListener spl;
+  zf.addProgressListener(&spl);
+
+  //adjust how often the listener will be invoked
+  zf.setProgressPrecision(0.1);
+
+  //listener will be invoked
+  zf.close();
+
+  return 0;
+}
 ```
 
 ## Known issues

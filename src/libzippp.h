@@ -48,6 +48,7 @@ struct zip_source;
 #define LIBZIPPP_ENTRY_PATH_SEPARATOR '/'
 #define LIBZIPPP_ENTRY_IS_DIRECTORY(str) ((str).length()>0 && (str)[(str).length()-1]==LIBZIPPP_ENTRY_PATH_SEPARATOR)
 #define LIBZIPPP_DEFAULT_CHUNK_SIZE 524288
+#define LIBZIPPP_DEFAULT_PROGRESSION_PRECISION 0.5
 
 //libzip documentation
 //- http://www.nih.at/libzip/libzip.html
@@ -97,6 +98,7 @@ struct zip_source;
 
 namespace libzippp {
     class ZipEntry;
+    class ZipProgressListener;
     
     /**
      * Represents a ZIP archive. This class provides useful methods to handle an archive
@@ -193,6 +195,8 @@ namespace libzippp {
          * and some were done, they will be committed.
          * This method returns LIBZIPPP_OK if the archive was successfully closed, otherwise it 
          * returns the value returned by the zip_close() function.
+         * While being closed, all the registered ZipProgressListener instances will be invoked on
+         * a regular basis, depending on the progression precision.
          */
         int close(void);
         
@@ -441,6 +445,33 @@ namespace libzippp {
          * This value will be set only when fromBuffer is used.
          */
         inline zip_source* getZipSource(void) const { return zipSource; }
+        
+        /**
+         * Registers the specified listener to be notified when the ZipArchive is closed.
+         * A listener can be added even if the ZipArchive is not yet open.
+         */
+        inline void addProgressListener(ZipProgressListener* listener) { listeners.push_back(listener); }
+        
+        /**
+         * Removes the specified listener.
+         */
+        void removeProgressListener(ZipProgressListener* listener);
+        
+        /**
+         * Returns all the listeners registered to this ZipArchive.
+         */
+        inline std::vector<ZipProgressListener*> getProgressListeners(void) const { return listeners; }
+
+        /**
+         * Defines the progress precision (defaults to 0.5).
+         * This value is between 0.00 and 1.00 and determines how often the
+         * progression callback will be invoked while the ZipArchive is being closed.
+         * 
+         * From the libzip documentation: The precision argument is a double in the range from 0.00 to 1.00
+         * that defines the smallest change for which the callback should be called (to avoid too frequent calls).
+         */
+        inline double getProgressPrecision(void) const { return progressPrecision; }
+        void setProgressPrecision(double p) { progressPrecision = p; }
 
     private:
         std::string path;
@@ -449,6 +480,8 @@ namespace libzippp {
         OpenMode mode;
         std::string password;
         int encryptionMethod;
+        std::vector<ZipProgressListener*> listeners;
+        double progressPrecision;
         
         //open from a buffer
         bool openBuffer(const void* buffer, libzippp_uint32 sz, OpenMode mode=ReadOnly, bool checkConsistency=false);
@@ -459,6 +492,27 @@ namespace libzippp {
         //prevent copy across functions
         ZipArchive(const ZipArchive& zf);
         ZipArchive& operator=(const ZipArchive&);
+    };
+    
+    /**
+     * Implementation of a progression listener that will be notified when the
+     * ZipArchive is being closed and changes are being committed.
+     */
+    class LIBZIPPP_API ZipProgressListener {
+    public:
+    
+        /**
+         * This method is invoked during while the changes are being committed during
+         * the closing of the ZipArchive.
+         * The value p is a double between 0 and 1, representing the overall progression.
+         * The frequency of invocation of this method depends of the precision.
+         *
+         * Note that libzippp enforces the first invokation to be with a p-value of zero
+         * and the last invokation to be with a p-value of 1. Hence, it might be possible
+         * to receive multiple invokations with the same p-value, depending on the precsion
+         * set in libzip.
+         */
+        virtual void progression(double p) = 0;
     };
     
     /**
