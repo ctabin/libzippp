@@ -168,13 +168,30 @@ namespace libzippp {
         virtual ~ZipArchive(void); //commit all the changes if open
         
         /**
+         * Creates a new ZipArchive with the given source. The archive will directly
+         * be open with the given mode. If the archive fails to be open or
+         * if the consistency check fails, this method will return null.
+         */
+        static ZipArchive* fromSource(zip_source* source, OpenMode mode=ReadOnly, bool checkConsistency=false);
+        
+        /**
          * Creates a new ZipArchive from the specified buffer. The archive will
          * directly be open with the given mode. If the archive fails to be open or
          * if the consistency check fails, this method will return null.
          * The buffer data must remain valid while the ZipArchive is alive.
          * The buffer won't be freed by the ZipArchive.
+         * 
+         * If the mode is New or Write, then the buffer will be updated when the ZipArchive is
+         * closed and is new length will be available through the getBufferLength method.
          */
-        static ZipArchive* fromBuffer(const void* buffer, libzippp_uint32 size, OpenMode mode=ReadOnly, bool checkConsistency=false);
+        static ZipArchive* fromBuffer(void* buffer, libzippp_uint32 size, OpenMode mode=ReadOnly, bool checkConsistency=false);
+        
+        /**
+         * Returns the buffer length of the buffer when the fromBuffer method has been used to create
+         * the archive. Otherwise, this method returns -1.
+         * When the archive has been closed, this value will contains the new length of the buffer.
+         */
+        inline libzippp_uint32 getBufferLength(void) const { return bufferLength; }
         
         /**
          * Returns the path of the ZipArchive.
@@ -483,8 +500,12 @@ namespace libzippp {
         std::vector<ZipProgressListener*> listeners;
         double progressPrecision;
         
-        //open from a buffer
-        bool openBuffer(const void* buffer, libzippp_uint32 sz, OpenMode mode=ReadOnly, bool checkConsistency=false);
+        void* bufferData;
+        libzippp_uint32 bufferLength;
+        
+        //open from in-memory data
+        bool openBuffer(void* buffer, libzippp_uint32 sz, OpenMode mode=ReadOnly, bool checkConsistency=false);
+        bool openSource(zip_source* source, OpenMode mode=ReadOnly, bool checkConsistency=false);
         
         //generic method to create ZipEntry
         ZipEntry createEntry(struct zip_stat* stat) const;

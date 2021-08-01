@@ -323,6 +323,30 @@ int main(int argc, char** argv) {
 }
 ```
 
+### In-memory archives
+
+```C++
+#include "libzippp.h"
+using namespace libzippp;
+
+int main(int argc, char** argv) {
+  char* buffer = new char[4096];
+
+  ZipArchive* z1 = ZipArchive::fromBuffer(buffer, 4096, ZipArchive::New);
+  /* add content to the archive */
+  
+  //will update the content of the buffer
+  z1->close();
+
+  int bufferContentLength = z1->getBufferLength();
+
+  //read again from the archive:
+  ZipArchive z2 = ZipArchive::fromBuffer(buffer, bufferContentLength);
+
+  return 0;
+}
+```
+
 ## Known issues
 
 ### LINUX

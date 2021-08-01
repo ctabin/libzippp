@@ -78,7 +78,7 @@ int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzi
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION), bufferData(nullptr), bufferLength(-1) {
     switch(encryptionMethod) {
 #ifdef LIBZIPPP_WITH_ENCRYPTION
         case Encryption::Aes128:
@@ -107,10 +107,11 @@ ZipArchive::~ZipArchive(void) {
     // ensures all the values are clared
     zipHandle = nullptr;
     zipSource = nullptr;
+    bufferData = nullptr;
     listeners.clear();
 }
 
-ZipArchive* ZipArchive::fromBuffer(const void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency) {
+ZipArchive* ZipArchive::fromBuffer(void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency) {
     ZipArchive* za = new ZipArchive("");
     bool o = za->openBuffer(data, size, om, checkConsistency);
     if(!o) {
@@ -120,8 +121,40 @@ ZipArchive* ZipArchive::fromBuffer(const void* data, libzippp_uint32 size, OpenM
     return za;
 }
 
-bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency) {
-    if (isOpen()) { return om == mode; }
+ZipArchive* ZipArchive::fromSource(zip_source* source, OpenMode om, bool checkConsistency) {
+    ZipArchive* za = new ZipArchive("");
+    bool o = za->openSource(source, om, checkConsistency);
+    if(!o) {
+        delete za;
+        za = nullptr;
+    }
+    return za;
+}
+
+bool ZipArchive::openBuffer(void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency) {
+    zip_error_t error;
+    zip_error_init(&error);
+
+    /* create source from buffer */
+    zip_source* zipSource = zip_source_buffer_create(data, size, 0, &error);
+    if (zipSource == nullptr) {
+        fprintf(stderr, "can't create zip source: %s\n", zip_error_strerror(&error));
+        zip_error_fini(&error);
+        return false;
+    }
+    
+    bool open = openSource(zipSource, om, checkConsistency);
+    if(open && (om==Write || om==New)) {
+        bufferData = data;
+        bufferLength = size;
+        
+        //prevents libzip to delete the source
+        zip_source_keep(zipSource);
+    }
+    return open;
+}
+
+bool ZipArchive::openSource(zip_source* source, OpenMode om, bool checkConsistency) {
     int zipFlag = 0;
     if (om == ReadOnly) { zipFlag = 0; }
     else if (om == Write) { zipFlag = ZIP_CREATE; }
@@ -130,18 +163,12 @@ bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om,
     if (checkConsistency) {
         zipFlag = zipFlag | ZIP_CHECKCONS;
     }
-
+    
     zip_error_t error;
     zip_error_init(&error);
-
-    /* create source from buffer */
-    zipSource = zip_source_buffer_create(data, size, 0, &error);
-    if (zipSource == nullptr) {
-        zip_error_fini(&error);
-        return false;
-    }
+    
     /* open zip archive from source */
-    zipHandle = zip_open_from_source(zipSource, 0, &error);
+    zipHandle = zip_open_from_source(source, zipFlag, &error);
     if (zipHandle == nullptr) {
         fprintf(stderr, "can't open zip from source: %s\n", zip_error_strerror(&error));
         zip_source_free(zipSource);
@@ -150,6 +177,9 @@ bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om,
         return false;
     }
     zip_error_fini(&error);
+    
+    zipSource = source;
+
 #ifdef LIBZIPPP_WITH_ENCRYPTION
     if (isEncrypted()) {
         int result = zip_set_default_password(zipHandle, password.c_str());
@@ -159,6 +189,7 @@ bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om,
         }
     }
 #endif
+
     mode = om;
     return true;
 }
@@ -220,23 +251,37 @@ void progress_callback(zip* archive, double progression, void* ud) {
 int ZipArchive::close(void) {
     if (isOpen()) {
 
-        if (zipSource) {
-            //no free here because it should not be done once successfully used in zip_open_from_source
-            zip_source_close(zipSource);
-            zipSource = nullptr;
-        }
+        //do not handle zipSource at all because it will be deleted by libzip
+        //directly when not necessary anymore
 
         if(!listeners.empty()) {
             zip_register_progress_callback_with_state(zipHandle, progressPrecision, progress_callback, nullptr, this);
         }
 
         progress_callback(zipHandle, 0, this); //enforce the first progression call to be zero
+        
         int result = zip_close(zipHandle);
         zipHandle = nullptr;
-        mode = NotOpen;
         progress_callback(zipHandle, 1, this); //enforce the last progression call to be one
         
         if (result!=0) { return result; }
+
+        //push back the changes in the buffer
+        if(bufferData!=nullptr && (mode==New || mode==Write)) {
+            int srcOpen = zip_source_open(zipSource);
+            if(srcOpen==0) {            
+                int newLength = zip_source_read(zipSource, bufferData, bufferLength);
+                zip_source_close(zipSource);
+                zip_source_free(zipSource);
+            
+                bufferLength = newLength;
+            } else {
+                fprintf(stderr, "can't read back from source: %d\n", srcOpen);
+                return srcOpen;
+            }
+        }
+        
+        mode = NotOpen;
     }
     
     return LIBZIPPP_OK;

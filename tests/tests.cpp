@@ -752,12 +752,96 @@ void test22() {
     cout << "complete." << endl;
 }
 
+void test23() {
+    cout << "Running test 23...";
+    const char* txtFile = "this is some data";   // 17 Bytes
+    const char* txtFile2 = "this is some data!"; // 18 Bytes
+    int len = strlen(txtFile);
+    int len2 = strlen(txtFile2);
+
+    char* buffer = new char[4096];
+    for(int i=0 ; i<4096; ++i) {
+        buffer[i] = '\0';
+    }
+
+    ZipArchive* z1 = ZipArchive::fromBuffer(buffer, 4096, ZipArchive::New);
+    assert(z1!=nullptr);
+    z1->addData("somedata", txtFile, len);
+    z1->addData("somedata2", txtFile2, len2);
+    int rst = z1->close();
+    assert(rst==LIBZIPPP_OK);
+
+    /*cout << endl;
+    cout << "Buffer data: " << endl;
+    for(int i=0 ; i<4096; ++i) {
+        char c = buffer[i];
+        if(c == '\0') { c = '0'; }
+        
+        cout << c;
+        if((i+1)%8==0) cout << " ";
+        if((i+1)%64==0) cout << endl;
+    }*/
+
+    int newLength = z1->getBufferLength();
+    delete z1;
+    
+    ZipArchive* z2 = ZipArchive::fromBuffer(buffer, newLength, ZipArchive::ReadOnly, true);
+    assert(z2!=nullptr);
+    assert(z2->getNbEntries() == 2);
+    assert(z2->hasEntry("somedata"));
+    assert(z2->hasEntry("somedata2"));
+    delete z2;
+    
+    ZipArchive* z3 = new ZipArchive("within.zip");
+    z3->open(ZipArchive::New);
+    z3->addData("inside.zip", buffer, newLength);
+    z3->close();
+    z3->unlink();
+    
+    delete z3;
+    
+    delete[] buffer;
+
+    cout << " done." << endl;
+    
+    /*char buffer[4096] = {};
+    for(int i=0 ; i<4096; ++i) {
+        buffer[i] = '\0';
+    }
+    
+    zip_error_t error;
+    zip_source_t *zs = zip_source_buffer_create(buffer, sizeof(buffer), 0, &error);
+    assert(zs!=nullptr);
+    
+    zip_source_keep(zs);
+    
+    zip_t * zip = zip_open_from_source(zs, ZIP_TRUNCATE, &error);
+    assert(zip!=nullptr);
+    
+    zip_add_dir(zip, "mydir");
+    
+    zip_close(zip);
+    
+    zip_source_open(zs);
+    zip_source_read(zs, buffer, sizeof(buffer));
+    zip_source_close(zs);
+    
+    cout << "Buffer data: " << endl;
+    for(int i=0 ; i<4096; ++i) {
+        char c = buffer[i];
+        cout << (int)c;
+        if((i+1)%8==0) cout << " ";
+        if((i+1)%64==0) cout << endl;
+    }*/
+}
+
 int main(int argc, char** argv) {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();
     test16(); test17(); test18(); test19(); test20();
-    test21(); test22();
+    test21(); test22(); test23();
+    return 0;
 }
 
 
