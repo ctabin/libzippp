@@ -47,6 +47,21 @@
 using namespace std;
 using namespace libzippp;
 
+class SimpleProgressListener : public ZipProgressListener {
+public:
+    SimpleProgressListener(void) : firstValue(-1), lastValue(-1) {}
+    virtual ~SimpleProgressListener(void) {}
+
+    double firstValue;
+    double lastValue;
+
+    void progression(double p) {
+        cout << "-- Progression: " << p << endl;
+        if(firstValue<0) { firstValue = p; }
+        lastValue = p;
+    }
+};
+
 void test1() {
     cout << "Running test 1...";
     
@@ -697,12 +712,52 @@ void test21() {
     cout << " done." << endl;
 }
 
+void test22() {
+    cout << "Running test 22..." << endl;
+    const char* content1 = "This is some text that is a little bit longer, so I can test how the progression callback is invoked.";
+    const char* content2 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sed metus mollis, facilisis orci vitae, eleifend velit. Quisque et dolor vel nisl gravida vulputate. In iaculis viverra vehicula. Donec viverra euismod odio, sit amet tincidunt nisl aliquam sed. Integer lacinia augue vitae odio varius, at convallis diam molestie. Sed ac nisl at arcu convallis ultricies. Etiam eu metus interdum libero semper vulputate. Proin gravida malesuada justo vel ultrices. Etiam tellus ligula, maximus sed efficitur vitae, iaculis at turpis."
+                           "Aliquam eu finibus orci. Quisque maximus enim quis imperdiet vulputate. In vitae velit vel diam scelerisque sollicitudin ac et libero. Donec elit nisi, feugiat ut augue semper, cursus egestas libero. Nullam sed euismod ante. Integer gravida risus nulla, quis vestibulum lacus elementum a. Duis quis vulputate est. Ut elit ipsum, aliquet sit amet gravida et, porttitor quis metus. Vivamus vulputate sed ex ac vulputate. Donec venenatis auctor nulla, quis tempus lorem elementum vel. Suspendisse potenti. In sodales arcu enim, vitae imperdiet quam condimentum sagittis."
+                           "Fusce rutrum enim massa, eget ultricies nisi iaculis eu. Quisque erat metus, tempus at volutpat nec, interdum in ligula. Curabitur ullamcorper risus non lobortis vehicula. Proin leo sapien, congue vel metus quis, consectetur lacinia mi. Nunc suscipit erat ipsum, varius commodo risus finibus non. Nam viverra vulputate massa vel pulvinar. Quisque nec quam at lectus sagittis eleifend. Fusce vehicula lectus orci, eu rutrum risus finibus ac. Aenean sit amet mi in velit aliquet faucibus. Donec sit amet diam eget nisl rhoncus posuere eu sodales metus. Integer condimentum placerat neque vitae feugiat. Suspendisse metus velit, faucibus nec hendrerit cursus, pellentesque ut nibh. Duis accumsan mollis elit eget molestie. Donec sit amet congue nibh, quis iaculis lectus. Curabitur placerat sem ex, quis elementum leo sollicitudin sed. Etiam pulvinar turpis vitae ante consequat, vitae eleifend risus dapibus."
+                           "Fusce sollicitudin lorem consequat viverra blandit. Praesent feugiat eleifend nibh at eleifend. Etiam quis augue id tortor volutpat placerat. Curabitur id dolor aliquet, consequat eros nec, aliquet velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nulla ut nunc ex. Quisque finibus tincidunt sem, sit amet cursus enim hendrerit ut. Donec non interdum augue. Nunc vehicula viverra sem, at scelerisque sapien venenatis vel. Aliquam pretium, enim vel sodales condimentum, quam erat vehicula arcu, et tincidunt tortor justo aliquet lacus. Nulla dignissim pharetra nibh, at varius arcu tincidunt et. Vestibulum viverra velit tristique risus elementum, eu facilisis sapien sollicitudin. Nullam posuere imperdiet nibh sit amet malesuada. Cras ut dolor blandit, interdum lorem auctor, rhoncus dui. Sed mollis, mauris consequat malesuada pulvinar, dui elit pretium est, id euismod est quam in ex."
+                           "Ut euismod nisi in leo tempor fringilla. Praesent vel elit et dui facilisis sollicitudin sed non lacus. Etiam tempor ante a tortor pharetra sollicitudin. Nulla facilisi. Sed tincidunt justo urna, sed porttitor dolor aliquam ac. Duis id enim congue, consequat mauris eget, placerat elit. Maecenas eu leo quis tellus eleifend mattis. Suspendisse porttitor suscipit nunc non facilisis. Pellentesque mollis sapien nec purus consectetur interdum. Nunc efficitur neque rhoncus gravida vestibulum. Nullam at aliquet lorem.";
+    int len1 = strlen(content1);
+    int len2 = strlen(content2);
+
+    ZipArchive z1("test.zip");
+    assert(z1.getProgressPrecision() == LIBZIPPP_DEFAULT_PROGRESSION_PRECISION);
+    
+    SimpleProgressListener spl;
+    z1.setProgressPrecision(0);
+    z1.addProgressListener(&spl);
+    assert(z1.getProgressListeners().size() == 1);
+    
+    z1.open(ZipArchive::Write);
+    z1.addData("somedata", content1, len1);
+    z1.addData("somedata2", content2, len2);
+    z1.addData("somedata3", content2, len2);
+    z1.addData("somedata4", content1, len1);
+    z1.addData("somedata5", content1, len1);
+    z1.addData("somedata6", content2, len2);
+    z1.close();
+
+    assert(z1.getProgressListeners().size() == 1);
+    z1.removeProgressListener(&spl);
+    assert(z1.getProgressListeners().size() == 0);
+
+    assert(spl.firstValue==0);
+    assert(spl.lastValue=1);
+
+    z1.unlink();
+
+    cout << "complete." << endl;
+}
+
 int main(int argc, char** argv) {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();
     test16(); test17(); test18(); test19(); test20();
-    test21();
+    test21(); test22();
 }
 
 

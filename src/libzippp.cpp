@@ -78,7 +78,7 @@ int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzi
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password){
+ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION) {
     switch(encryptionMethod) {
 #ifdef LIBZIPPP_WITH_ENCRYPTION
         case Encryption::Aes128:
@@ -103,10 +103,14 @@ ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption
 
 ZipArchive::~ZipArchive(void) { 
     close(); /* discard ??? */ 
+    
+    // ensures all the values are clared
+    zipHandle = nullptr;
+    zipSource = nullptr;
+    listeners.clear();
 }
 
-ZipArchive* ZipArchive::fromBuffer(const void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency)
-{
+ZipArchive* ZipArchive::fromBuffer(const void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency) {
     ZipArchive* za = new ZipArchive("");
     bool o = za->openBuffer(data, size, om, checkConsistency);
     if(!o) {
@@ -116,8 +120,7 @@ ZipArchive* ZipArchive::fromBuffer(const void* data, libzippp_uint32 size, OpenM
     return za;
 }
 
-bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency)
-{
+bool ZipArchive::openBuffer(const void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency) {
     if (isOpen()) { return om == mode; }
     int zipFlag = 0;
     if (om == ReadOnly) { zipFlag = 0; }
@@ -205,6 +208,15 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     return false;
 }
 
+void progress_callback(zip* archive, double progression, void* ud) {
+    ZipArchive* za = static_cast<ZipArchive*>(ud);
+    vector<ZipProgressListener*> listeners = za->getProgressListeners();
+    for(vector<ZipProgressListener*>::const_iterator it=listeners.begin() ; it!=listeners.end() ; ++it) {
+        ZipProgressListener* listener = *it;
+        listener->progression(progression);
+    }
+}
+
 int ZipArchive::close(void) {
     if (isOpen()) {
 
@@ -214,9 +226,15 @@ int ZipArchive::close(void) {
             zipSource = nullptr;
         }
 
+        if(!listeners.empty()) {
+            zip_register_progress_callback_with_state(zipHandle, progressPrecision, progress_callback, nullptr, this);
+        }
+
+        progress_callback(zipHandle, 0, this); //enforce the first progression call to be zero
         int result = zip_close(zipHandle);
         zipHandle = nullptr;
         mode = NotOpen;
+        progress_callback(zipHandle, 1, this); //enforce the last progression call to be one
         
         if (result!=0) { return result; }
     }
@@ -631,6 +649,16 @@ bool ZipArchive::addEntry(const string& entryName) const {
     }
     
     return true;
+}
+
+void ZipArchive::removeProgressListener(ZipProgressListener* listener) {
+    for(vector<ZipProgressListener*>::const_iterator it=listeners.begin() ; it!=listeners.end() ; ++it) {
+        ZipProgressListener* l = *it;
+        if(l==listener) {
+            listeners.erase(it);
+            break;
+        }
+    }
 }
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state, libzippp_uint64 chunksize) const {
