@@ -430,6 +430,18 @@ namespace libzippp {
          */
         inline OpenMode getMode(void) const { return mode; }
 
+        /**
+         * Returns the underlying libzip handle used by this ZipArchive.
+         * This value will be set only when the ZipArchive is open.
+         */
+        inline zip* getZipHandle(void) const { return zipHandle; }
+
+        /**
+         * Returns the underlying libzip source used by this ZipArchive.
+         * This value will be set only when fromBuffer is used.
+         */
+        inline zip_source* getZipSource(void) const { return zipSource; }
+
     private:
         std::string path;
         zip* zipHandle;
