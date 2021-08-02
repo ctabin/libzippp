@@ -7,13 +7,13 @@ It is meant to be a portable and easy-to-use library for ZIP handling.
 
 Compilation has been tested with:
 - GCC 8 (Travis CI)
-- GCC 9.2.1 (GNU/Linux Debian) 
+- GCC 10.2.1 (GNU/Linux Debian) 
 - MS Visual Studio 2012 (Windows 7)
 
 Underlying libraries:
 - [ZLib](http://zlib.net) 1.2.11
 - [libzip](http://www.nih.at/libzip) 1.8.0
-- Optional: [BZip2](https://www.sourceware.org/bzip2/)
+- [BZip2](https://www.sourceware.org/bzip2/) 1.0.8 (optional)
 
 ## Integration
 
@@ -32,7 +32,7 @@ very easily integrated by running:
   - OR Install from source
   - OR Use the utility in the Makefile by executing `make libraries`
 - Windows:
-  - Use precompile libraries from *libzip-\<version\>-windows-ready_to_compile.zip*
+  - Use precompile libraries from *libzippp-\<version\>-windows-ready_to_compile.zip*
   - Install from source via CMake (similar to workflow below)
   
 - All Operating systems
@@ -70,8 +70,8 @@ Set via commandline as `cmake -DNAME=VALUE <other opts>` or via CMake GUI or CCM
 - `LIBZIPPP_ENABLE_ENCRYPTION`: Enable/Disable building libzippp with encryption capabilities. Default is OFF.
 - `CMAKE_INSTALL_PREFIX`: Where to install the project to
 - `CMAKE_BUILD_TYPE`: Set to Release or Debug to build with or without optimizations
-- `BUILD_SHARED_LIBS`: Set to ON or OFF to build shared or static libs, uses platform default if not set
 - `CMAKE_PREFIX_PATH`: Colon-separated list of prefix paths (paths containing `lib` and `include` folders) for installed libs to be used by this
+- `BUILD_SHARED_LIBS`: Set to ON or OFF to build shared or static libs, uses platform default if not set
 
 ### Using libzippp
 
@@ -84,7 +84,8 @@ Do not forget to also link against libzip libraries e.g. in *lib/libzip-1.8.0/li
 An example of compilation with g++:
   
 ```shell
-g++ -I./lib/libzip-1.8.0/lib -I./src \
+g++ -I./src \
+    -I./lib/libzip-1.8.0/lib I./lib/libzip-1.8.0/build \
     main.cpp libzippp.a \
     lib/libzip-1.8.0/lib/.libs/libzip.a \
     lib/zlib-1.2.11/libz.a
@@ -115,7 +116,6 @@ But there is also a prepared batch file to help automate this.
 It may need some adjusting though.
 
 #### From Stage 1 - Use prepared environment
-
 
 0. Make sure you have cmake 3.20 (*cmake.exe* must be in the PATH) and MS Visual Studio.
 
@@ -198,9 +198,11 @@ int main(int argc, char** argv) {
   uint32_t bufferSize = sizeOfBuffer;
 
   ZipArchive* zf = ZipArchive::fromBuffer(buffer, bufferSize);
-  /* work with zf */
-  zf->close();
-  delete zf;
+  if(zf!=nullptr) {
+    /* work with zf */
+    zf->close();
+    delete zf;
+  }
   
   return 0;
 }
