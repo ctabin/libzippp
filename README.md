@@ -27,30 +27,39 @@ very easily integrated by running:
 
 ### Install Prerequisites
 
-- Linux
-  - Install the development packages for zlib and libzip (e.g. `zlib1g-dev`, `libzip-dev`, `liblzma-dev`, `libbz2-dev`)
-  - OR Install from source
-  - OR Use the utility in the Makefile by executing `make libraries`
-- Windows:
-  - Use precompile libraries from *libzippp-\<version\>-windows-ready_to_compile.zip*
-  - Install from source via CMake (similar to workflow below)
-  
-- All Operating systems
-  - If it is intended to be used with encryption it is necessary to compile libzip with any encryption and to enable it in libzippp through the cmake flag `LIBZIPPP_ENABLE_ENCRYPTION`
+This library requires at least C++ 11 to be compiled.
 
-- This library requires at least C++ 11 to be compiled.
+- Linux
+  - Install the development packages for zlib and libzip (e.g. `zlib1g-dev`, `libzip-dev`, `liblzma-dev`, `libbz2-dev`).
+  - It is possible to use the Makefile by executing `make libraries`.
+
+- Windows:
+  - Use precompiled libraries from *libzippp-\<version\>-windows-ready_to_compile.zip*.
+  - Install from source via CMake (similar to workflow below).
+
+- All Operating systems
+  - If it is intended to be used with encryption it is necessary to compile libzip with any encryption and to enable it in libzippp through the cmake flag `LIBZIPPP_ENABLE_ENCRYPTION`.
 
 ### Compile libzippp
 
-TLDR: Use the standard CMake workflow: `mkdir build && cd build && cmake <-D...> .. && make install`
+#### Quick start
+
+```sh
+mkdir build
+cd build
+cmake ..
+make
+make install
+```
+
+#### Step by step
 
 - Make sure you have a compiler (MSVC, g++, ...) and CMake installed
 - Switch to the source folder
 - Create a build folder and switch to it, e.g.: `mkdir build && cd build`
 - Configure the build with cmake:
   - Commandline: `cmake .. -DCMAKE_BUILD_TYPE=Release`
-  - With the CMake GUI:
-    - Set source and build folder accordingly
+  - Within the CMake GUI, set source and build folder accordingly
 	- Click `Add Cache Entry` to add `CMAKE_BUILD_TYPE` if not building with MSVC
 	- Click `Configure` & `Generate`
   - If CMake can't find zlib and/or libzip you need to set `CMAKE_PREFIX_PATH` to the directories where you installed those into
@@ -60,7 +69,7 @@ TLDR: Use the standard CMake workflow: `mkdir build && cd build && cmake <-D...>
   - Linux: `make && make install`
   - Windows: Open generated project in MSVC. Build the `INSTALL` target to install.
 
-### CMake variables of interest
+#### CMake variables of interest
 
 Set via commandline as `cmake -DNAME=VALUE <other opts>` or via CMake GUI or CCMake `Add Cache Entry`.
 
@@ -73,7 +82,7 @@ Set via commandline as `cmake -DNAME=VALUE <other opts>` or via CMake GUI or CCM
 - `CMAKE_PREFIX_PATH`: Colon-separated list of prefix paths (paths containing `lib` and `include` folders) for installed libs to be used by this
 - `BUILD_SHARED_LIBS`: Set to ON or OFF to build shared or static libs, uses platform default if not set
 
-### Using libzippp
+### Referencing libzippp
 
 Once installed libzippp can be used from any CMake project with ease:   
 Given that it was installed (via `CMAKE_INSTALL_PREFIX`) into a standard location or its install prefix is passed into your projects
@@ -91,7 +100,7 @@ g++ -I./src \
     lib/zlib-1.2.11/libz.a
 ```
 
-#### Encryption
+### Encryption
 
 Since version 1.5, libzip uses an underlying cryptographic library (OpenSSL, GNUTLS or CommonCrypto) that
 is necessary for static compilation. By default, libzippp will use `-lssl -lcrypto` (OpenSSL) as default flags
@@ -119,7 +128,7 @@ It may need some adjusting though.
 
 0. Make sure you have cmake 3.20 (*cmake.exe* must be in the PATH) and MS Visual Studio.
 
-1. Download the *libzip-\<version\>-windows-ready_to_compile.zip* file from the release 
+1. Download the *libzippp-\<version\>-windows-ready_to_compile.zip* file from the release 
   and extract it somewhere on your system. This will create a prepared structure, so *libzippp* can 
   be compiled along with the needed libraries.
 
@@ -340,10 +349,16 @@ int main(int argc, char** argv) {
   //will update the content of the buffer
   z1->close();
 
+  //length of the buffer content
   int bufferContentLength = z1->getBufferLength();
 
   //read again from the archive:
-  ZipArchive z2 = ZipArchive::fromBuffer(buffer, bufferContentLength);
+  ZipArchive* z2 = ZipArchive::fromBuffer(buffer, bufferContentLength);
+  /* read/modify the archive */
+
+  delete z1;
+  delete z2;
+  delete buffer;
 
   return 0;
 }
