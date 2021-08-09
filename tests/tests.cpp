@@ -745,7 +745,7 @@ void test22() {
     assert(z1.getProgressListeners().size() == 0);
 
     assert(spl.firstValue==0);
-    assert(spl.lastValue=1);
+    assert(spl.lastValue==1);
 
     z1.unlink();
 
