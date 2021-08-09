@@ -93,9 +93,6 @@ struct zip_source;
 #define LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE -36
 #define LIBZIPPP_ERROR_UNKNOWN -99
 
-// flags to apply when reading original entries
-#define LIBZIPPP_ORIGINAL_STATE_FLAGS ZIP_FL_UNCHANGED | ZIP_FL_ENC_RAW
-
 namespace libzippp {
     class ZipEntry;
     class ZipProgressListener;
@@ -547,7 +544,7 @@ namespace libzippp {
          * Creates a new null-ZipEntry. Only a ZipArchive will create a valid ZipEntry
          * usable to read and modify an archive.
          */
-        explicit ZipEntry(void) : zipFile(nullptr), index(0), time(0), compressionMethod(-1), encryptionMethod(-1), size(0), sizeComp(0), crc(0) {}
+        explicit ZipEntry(void);
         virtual ~ZipEntry(void) {}
         
         /**
@@ -566,12 +563,14 @@ namespace libzippp {
         inline time_t getDate(void) const { return time; }
         
         /**
-         * Returns the compression method.
+         * Returns the compression method. By default, ZIP_CM_DEFAULT.
+         * Can be one of ZIP_CM_DEFAULT,ZIP_CM_STORE,ZIP_CM_BZIP2,ZIP_CM_DEFLATE,ZIP_CM_XZ or ZIP_CM_ZSTD.
          */
         inline libzippp_uint16 getCompressionMethod(void) const { return compressionMethod; }
         
         /**
          * Returns the encryption method.
+         * Can be one of ZIP_EM_NONE,ZIP_EM_AES_128,ZIP_EM_AES_192,ZIP_EM_AES_256 or ZIP_EM_TRAD_PKWARE.
          */
         inline libzippp_uint16 getEncryptionMethod(void) const { return encryptionMethod; }
         

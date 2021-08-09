@@ -42,7 +42,13 @@
 using namespace libzippp;
 using namespace std;
 
+// flags to apply when reading original entries
+#define LIBZIPPP_ORIGINAL_STATE_FLAGS ZIP_FL_UNCHANGED | ZIP_FL_ENC_RAW
+
 #define NEW_CHAR_ARRAY(nb) new (std::nothrow) char[(nb)];
+
+ZipEntry::ZipEntry(void) : zipFile(nullptr), index(0), time(0), compressionMethod(ZIP_CM_DEFAULT), encryptionMethod(ZIP_EM_NONE), size(0), sizeComp(0), crc(0) {
+}
 
 string ZipEntry::getComment(void) const {
     return zipFile->getEntryComment(*this);
