@@ -397,3 +397,15 @@ More information [here](http://www.codeproject.com/Articles/28969/HowTo-Export-C
 
 Extra explanations can be found [here](http://hostagebrain.blogspot.com/search/label/zlib).
 
+## Donate
+
+This project is completely developed during my spare time.
+
+Since I'm a big fan of cryptocurrencies and especially [Cardano](https://cardano.org) (ADA), you can send me
+some coins at the address below (check it [here](https://cardanoscan.io/address/addr1q9sgms4vc038nq7hu4499yeszy0rsq3hjeu2k9wraksle8arg0n953hlsrtdzpfnxxw996l4t6qu5xsx8cmmakjcqhksaqpj66)):
+
+```
+addr1q9sgms4vc038nq7hu4499yeszy0rsq3hjeu2k9wraksle8arg0n953hlsrtdzpfnxxw996l4t6qu5xsx8cmmakjcqhksaqpj66
+```
+
+
