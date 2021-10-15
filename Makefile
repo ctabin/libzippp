@@ -77,7 +77,7 @@ libzip-init:
 	mkdir -p $(LIB)
 
 libzip-download: libzip-init
-	wget -c -O "$(LIBZIP).tar.gz" "https://www.nih.at/libzip/libzip-$(LIBZIP_VERSION).tar.gz"
+	wget --no-check-certificate -c -O "$(LIBZIP).tar.gz" "https://www.nih.at/libzip/libzip-$(LIBZIP_VERSION).tar.gz"
 
 libzip-unzip: libzip-download
 	cd $(LIB) && tar -xf libzip-$(LIBZIP_VERSION).tar.gz
