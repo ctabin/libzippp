@@ -94,14 +94,14 @@ struct zip_source;
 #define LIBZIPPP_ERROR_UNKNOWN -99
 
 #ifdef __cplusplus
-        #define LIBZIPPP_EXTERN_C_BEGIN extern "C" {
-        #define LIBZIPPP_EXTERN_C_END   }
+        #define LIBZIPPP_EXTERN_CPP_BEGIN extern "C++" {
+        #define LIBZIPPP_EXTERN_CPP_END   }
 #else
-        #define LIBZIPPP_EXTERN_C_BEGIN
-        #define LIBZIPPP_EXTERN_C_END
+        #define LIBZIPPP_EXTERN_CPP_BEGIN
+        #define LIBZIPPP_EXTERN_CPP_END
 #endif
 
-LIBZIPPP_EXTERN_C_BEGIN
+LIBZIPPP_EXTERN_CPP_BEGIN
 namespace libzippp {
     class ZipEntry;
     class ZipProgressListener;
@@ -676,7 +676,7 @@ namespace libzippp {
                 zipFile(zipFile), name(name), index(index), time(time), compressionMethod(compMethod), encryptionMethod(encMethod), size(size), sizeComp(sizeComp), crc(crc) {}
     };
 }
-LIBZIPPP_EXTERN_C_END
+LIBZIPPP_EXTERN_CPP_END
 
 #endif
 
