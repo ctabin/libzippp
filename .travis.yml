@@ -4,24 +4,25 @@ language: cpp
 compiler: gcc
 addons:
   apt:
+    update: true
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-8
+      - g++-9
       - liblzma-dev
       - libbz2-dev
       - libssl-dev
       - valgrind
 
 env:
-  - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug LIBZIPPP_BUILD_SHARED_LIBS=OFF
-  - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release LIBZIPPP_BUILD_SHARED_LIBS=OFF
-  - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Debug LIBZIPPP_BUILD_SHARED_LIBS=ON
-  - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8" BUILD_TYPE=Release LIBZIPPP_BUILD_SHARED_LIBS=ON
+  - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Debug LIBZIPPP_BUILD_SHARED_LIBS=OFF
+  - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Release LIBZIPPP_BUILD_SHARED_LIBS=OFF
+  - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Debug LIBZIPPP_BUILD_SHARED_LIBS=ON
+  - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Release LIBZIPPP_BUILD_SHARED_LIBS=ON
 
 jobs:
   include:
-    - env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+    - env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
       install:
         - make libraries
       script:
