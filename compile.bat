@@ -2,7 +2,7 @@
 @echo off
 
 SET root=%cd%
-SET zlib=lib\zlib-1.2.11
+SET zlib=lib\zlib-1.2.12
 SET libzip=lib\libzip-1.8.0
 
 if not exist "%zlib%" goto error_zlib_not_found
@@ -101,7 +101,7 @@ goto end
 
 :error_zlib_not_found
 echo [ERROR] The path was not found: %zlib%.
-echo         You have to download zlib 1.2.11 and put in the folder %zlib%.
+echo         You have to download zlib 1.2.12 and put in the folder %zlib%.
 goto end
 
 :error_zlib
