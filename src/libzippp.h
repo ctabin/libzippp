@@ -176,7 +176,8 @@ namespace libzippp {
         /**
          * Creates a new ZipArchive with the given source. The archive will directly
          * be open with the given mode. If the archive fails to be open or
-         * if the consistency check fails, this method will return null.
+         * if the consistency check fails, this method will return null and the source
+         * is left untouched.
          */
         static ZipArchive* fromSource(zip_source* source, OpenMode mode=ReadOnly, bool checkConsistency=false);
         
@@ -529,7 +530,7 @@ namespace libzippp {
     public:
     
         /**
-         * This method is invoked during while the changes are being committed during
+         * This method is invoked while the changes are being committed during
          * the closing of the ZipArchive.
          * The value p is a double between 0 and 1, representing the overall progression.
          * The frequency of invocation of this method depends of the precision.

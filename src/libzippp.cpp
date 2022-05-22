@@ -142,20 +142,22 @@ bool ZipArchive::openBuffer(void* data, libzippp_uint32 size, OpenMode om, bool 
     zip_error_init(&error);
 
     /* create source from buffer */
-    zip_source* zipSource = zip_source_buffer_create(data, size, 0, &error);
-    if (zipSource == nullptr) {
+    zip_source* localZipSource = zip_source_buffer_create(data, size, 0, &error);
+    if (localZipSource == nullptr) {
         fprintf(stderr, "can't create zip source: %s\n", zip_error_strerror(&error));
         zip_error_fini(&error);
+        zip_source_free(localZipSource);
+        localZipSource = nullptr;
         return false;
     }
     
-    bool open = openSource(zipSource, om, checkConsistency);
+    bool open = openSource(localZipSource, om, checkConsistency);
     if(open && (om==Write || om==New)) {
         bufferData = data;
         bufferLength = size;
         
         //prevents libzip to delete the source
-        zip_source_keep(zipSource);
+        zip_source_keep(localZipSource);
     }
     return open;
 }
@@ -177,8 +179,6 @@ bool ZipArchive::openSource(zip_source* source, OpenMode om, bool checkConsisten
     zipHandle = zip_open_from_source(source, zipFlag, &error);
     if (zipHandle == nullptr) {
         fprintf(stderr, "can't open zip from source: %s\n", zip_error_strerror(&error));
-        zip_source_free(zipSource);
-        zipSource = nullptr;
         zip_error_fini(&error);
         return false;
     }
