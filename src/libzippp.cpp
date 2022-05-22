@@ -117,6 +117,10 @@ ZipArchive::~ZipArchive(void) {
     listeners.clear();
 }
 
+void ZipArchive::free(ZipArchive* archive) {
+    delete archive;
+}
+
 ZipArchive* ZipArchive::fromBuffer(void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency) {
     ZipArchive* za = new ZipArchive("");
     bool o = za->openBuffer(data, size, om, checkConsistency);

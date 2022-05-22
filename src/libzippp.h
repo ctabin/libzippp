@@ -168,19 +168,28 @@ namespace libzippp {
          * 
          * http://nih.at/listarchive/libzip-discuss/msg00219.html
          *
-         * The zip file to be read/written
-         * The password to be used to encrypt/decrypt each file within the zip file
-         * The algorithm to be used by libzip when writing a zip file. The defined algorithm will use the password for each file within the zip file.
-         *
+         * The arguments are:
+         * - The zip file to be read/written.
+         * - The password to be used to encrypt/decrypt each file within the zip file.
+         * - The algorithm to be used by libzip when writing a zip file. The defined algorithm will use the password for each file within the zip file.
          */
         explicit ZipArchive(const std::string& zipPath, const std::string& password="", Encryption encryptionMethod=Encryption::None);
-        virtual ~ZipArchive(void); //commit all the changes if open
+        
+        /**
+         * Commit all the changes of the archive and deletes the pointer.
+         * It is recommended to use ZipArchive::free instead of deleting directly the pointer
+         * especially if the ZipArchive was created with the ZipArchive::fromSource or ZipArchive::fromBuffer
+         * methods.
+         */
+        virtual ~ZipArchive(void);
         
         /**
          * Creates a new ZipArchive with the given source. The archive will directly
          * be open with the given mode. If the archive fails to be open or
          * if the consistency check fails, this method will return null and the source
          * is left untouched.
+         * 
+         * Use ZipArchive::free to delete the returned pointer.
          */
         static ZipArchive* fromSource(zip_source* source, OpenMode mode=ReadOnly, bool checkConsistency=false);
         
@@ -193,8 +202,18 @@ namespace libzippp {
          * 
          * If the mode is New or Write, then the buffer will be updated when the ZipArchive is
          * closed and is new length will be available through the getBufferLength method.
+         * 
+         * Use ZipArchive::free to delete the returned pointer.
          */
         static ZipArchive* fromBuffer(void* buffer, libzippp_uint32 size, OpenMode mode=ReadOnly, bool checkConsistency=false);
+        
+        /**
+         * Deletes a ZipArchive.
+         * In order to ensure boundaries between DLLs it is recommended to always use this function
+         * in order to delete a ZipArchive pointer.
+         * This will commit all the pending changes to the archive.
+         */
+        static void free(ZipArchive* archive);
         
         /**
          * Returns the buffer length of the buffer when the fromBuffer method has been used to create
