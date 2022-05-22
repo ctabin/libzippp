@@ -705,7 +705,7 @@ void test21() {
     assert(!entry2.isNull());
 
     z2->close();
-    delete z2;
+    ZipArchive::free(z2);
 
     free(buffer);
 
@@ -783,22 +783,21 @@ void test23() {
     }*/
 
     int newLength = z1->getBufferLength();
-    delete z1;
+    ZipArchive::free(z1);
     
     ZipArchive* z2 = ZipArchive::fromBuffer(buffer, newLength, ZipArchive::ReadOnly, true);
     assert(z2!=nullptr);
     assert(z2->getNbEntries() == 2);
     assert(z2->hasEntry("somedata"));
     assert(z2->hasEntry("somedata2"));
-    delete z2;
+    ZipArchive::free(z2);
     
     ZipArchive* z3 = new ZipArchive("within.zip");
     z3->open(ZipArchive::New);
     z3->addData("inside.zip", buffer, newLength);
     z3->close();
     z3->unlink();
-    
-    delete z3;
+    ZipArchive::free(z3);
     
     delete[] buffer;
 

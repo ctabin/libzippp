@@ -356,8 +356,8 @@ int main(int argc, char** argv) {
   ZipArchive* z2 = ZipArchive::fromBuffer(buffer, bufferContentLength);
   /* read/modify the archive */
 
-  delete z1;
-  delete z2;
+  ZipArchive::free(z1);
+  ZipArchive::free(z2);
   delete buffer;
 
   return 0;
