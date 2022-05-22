@@ -144,10 +144,11 @@ bool ZipArchive::openBuffer(void* data, libzippp_uint32 size, OpenMode om, bool 
     /* create source from buffer */
     zip_source* localZipSource = zip_source_buffer_create(data, size, 0, &error);
     if (localZipSource == nullptr) {
-        fprintf(stderr, "can't create zip source: %s\n", zip_error_strerror(&error));
-        zip_error_fini(&error);
         zip_source_free(localZipSource);
         localZipSource = nullptr;
+        
+        LIBZIPPP_ERROR_DEBUG("can't create zip source: %s\n", zip_error_strerror(&error));
+        zip_error_fini(&error);
         return false;
     }
     
@@ -178,7 +179,7 @@ bool ZipArchive::openSource(zip_source* source, OpenMode om, bool checkConsisten
     /* open zip archive from source */
     zipHandle = zip_open_from_source(source, zipFlag, &error);
     if (zipHandle == nullptr) {
-        fprintf(stderr, "can't open zip from source: %s\n", zip_error_strerror(&error));
+        LIBZIPPP_ERROR_DEBUG("can't open zip from source: %s", zip_error_strerror(&error))
         zip_error_fini(&error);
         return false;
     }
@@ -218,12 +219,15 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     
     //error during opening of the file
     if (errorFlag!=ZIP_ER_OK) {
-        /*char* errorStr = new char[256];
+        zipHandle = nullptr;
+      
+        char* errorStr = new char[256];
         zip_error_to_str(errorStr, 255, errorFlag, errno);
         errorStr[255] = '\0';
-        cout << "Error: " << errorStr << endl;*/
+        LIBZIPPP_ERROR_DEBUG("Unable to open archive", errorStr)
+        delete errorStr;
+        errorStr = nullptr;
         
-        zipHandle = nullptr;
         return false;
     }
     
@@ -282,7 +286,7 @@ int ZipArchive::close(void) {
             
                 bufferLength = newLength;
             } else {
-                fprintf(stderr, "can't read back from source: %d\n", srcOpen);
+                LIBZIPPP_ERROR_DEBUG("can't read back from source", "changes were not pushed by in the buffer")
                 return srcOpen;
             }
         }
