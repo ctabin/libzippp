@@ -364,6 +364,16 @@ int main(int argc, char** argv) {
 }
 ```
 
+### Error handling
+
+Actually the error handling is pretty basic and the errors details are dumped to `stderr`.
+It is possible to override the macro `LIBZIPPP_ERROR_DEBUG` in order to handle the errors in
+some custom way.
+
+```C++
+#define LIBZIPPP_ERROR_DEBUG(str, errormsg) fprintf(stderr, str "\n", errormsg);
+```
+
 ## Known issues
 
 ### LINUX
