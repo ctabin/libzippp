@@ -11,7 +11,7 @@ Compilation has been tested with:
 - MS Visual Studio 2012 (Windows 7)
 
 Underlying libraries:
-- [ZLib](http://zlib.net) 1.2.11
+- [ZLib](http://zlib.net) 1.2.12
 - [libzip](http://www.nih.at/libzip) 1.8.0
 - [BZip2](https://www.sourceware.org/bzip2/) 1.0.8 (optional)
 
@@ -64,7 +64,7 @@ make install
 	- Click `Configure` & `Generate`
   - If CMake can't find zlib and/or libzip you need to set `CMAKE_PREFIX_PATH` to the directories where you installed those into
   (either via `-DCMAKE_PREFIX_PATH=<...>` or via the GUI)
-    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.8.0:/home/user/zlib-1.2.11`
+    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.8.0:/home/user/zlib-1.2.12`
 - Compile as usual
   - Linux: `make && make install`
   - Windows: Open generated project in MSVC. Build the `INSTALL` target to install.
@@ -97,7 +97,7 @@ g++ -I./src \
     -I./lib/libzip-1.8.0/lib I./lib/libzip-1.8.0/build \
     main.cpp libzippp.a \
     lib/libzip-1.8.0/lib/.libs/libzip.a \
-    lib/zlib-1.2.11/libz.a
+    lib/zlib-1.2.12/libz.a
 ```
 
 ### Encryption
@@ -146,7 +146,7 @@ It may need some adjusting though.
   You should end up with the following structure:
   ```
   libzippp/compile.bat
-  libzippp/lib/zlib-1.2.11
+  libzippp/lib/zlib-1.2.12
   libzippp/lib/libzip-1.8.0
   ```
 2. Execute the *compile.bat* (simply double-click on it). The compilation should 
