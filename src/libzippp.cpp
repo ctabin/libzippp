@@ -229,7 +229,7 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
         zip_error_to_str(errorStr, 255, errorFlag, errno);
         errorStr[255] = '\0';
         LIBZIPPP_ERROR_DEBUG("Unable to open archive", errorStr)
-        delete errorStr;
+        delete[] errorStr;
         errorStr = nullptr;
         
         return false;
