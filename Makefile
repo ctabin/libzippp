@@ -1,5 +1,6 @@
 OBJ=obj
 LIB=$(realpath .)/lib
+ZLIB_CFLAGS=-fPIC
 ZLIB_VERSION=1.2.12
 ZLIB_NAME=zlib-$(ZLIB_VERSION)
 ZLIB=$(LIB)/$(ZLIB_NAME)
@@ -18,7 +19,7 @@ all: libzippp-static libzippp-shared
 libzippp-compile:
 	rm -rf $(OBJ)
 	mkdir $(OBJ)
-	$(CXX) -g -fPIC -c -I$(LIBZIP)/lib -I$(LIBZIP)/build -o $(OBJ)/libzippp.o $(LIBZIPPP_CFLAGS) src/libzippp.cpp
+	$(CXX) -O3 -fPIC -c -I$(LIBZIP)/lib -I$(LIBZIP)/build -o $(OBJ)/libzippp.o $(LIBZIPPP_CFLAGS) src/libzippp.cpp
 
 libzippp-static: libzippp-compile
 	ar rvs libzippp.a $(OBJ)/libzippp.o
@@ -66,10 +67,10 @@ zlib-unzip: zlib-download
 	cd $(LIB) && tar -xf zlib-$(ZLIB_VERSION).tar.gz
 
 zlib-configure: zlib-unzip
-	cd $(ZLIB) && CFLAGS="-fPIC" ./configure
+	cd $(ZLIB) && CFLAGS="$(ZLIB_CFLAGS)" ./configure
 
 zlib-compile: zlib-configure
-	cd $(ZLIB) && CFLAGS="-fPIC" make -j$(NBPROC)
+	cd $(ZLIB) && CFLAGS="$(ZLIB_CFLAGS)" make -j$(NBPROC)
 
 zlib: zlib-compile
 
