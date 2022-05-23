@@ -15,6 +15,14 @@ else()
   set(is_root_project OFF)
 endif()
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS "-W -Wall -Wextra -ansi -pedantic -std=c++11")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 option(LIBZIPPP_INSTALL "Install library" ${is_root_project})
 option(LIBZIPPP_INSTALL_HEADERS "Install the headers" ${is_root_project})
 option(LIBZIPPP_BUILD_TESTS "Build unit tests" ${is_root_project})
