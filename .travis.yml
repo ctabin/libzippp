@@ -14,6 +14,10 @@ addons:
       - libssl-dev
       - valgrind
 
+branches:
+  only:
+    - master
+
 env:
   - MATRIX_EVAL="CMAKE_VERSION=3.23.1 && CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Debug   LIBZIPPP_BUILD_SHARED_LIBS=OFF
   - MATRIX_EVAL="CMAKE_VERSION=3.23.1 && CC=gcc-9 && CXX=g++-9" BUILD_TYPE=Release LIBZIPPP_BUILD_SHARED_LIBS=OFF
