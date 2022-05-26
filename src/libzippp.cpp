@@ -230,7 +230,7 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
         char* errorStr = new char[256];
         zip_error_to_str(errorStr, 255, errorFlag, errno);
         errorStr[255] = '\0';
-        LIBZIPPP_ERROR_DEBUG("Unable to open archive", errorStr)
+        LIBZIPPP_ERROR_DEBUG("Unable to open archive: %s", errorStr)
         delete[] errorStr;
         errorStr = nullptr;
         
@@ -292,7 +292,7 @@ int ZipArchive::close(void) {
             
                 bufferLength = newLength;
             } else {
-                LIBZIPPP_ERROR_DEBUG("can't read back from source", "changes were not pushed by in the buffer")
+                LIBZIPPP_ERROR_DEBUG("can't read back from source: %s", "changes were not pushed by in the buffer")
                 return srcOpen;
             }
         }
