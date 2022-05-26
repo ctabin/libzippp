@@ -10,6 +10,7 @@ LIBZIP=$(LIB)/$(LIBZIP_NAME)
 LIBZIP_CMAKE=-DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF 
 LIBZIPPP_CFLAGS=-W -Wall -Wextra -ansi -pedantic -std=c++11
 LIBZIPPP_CRYPTO_FLAGS=-lssl -lcrypto
+LIBZIPPP_TESTS_FLAGS=-g
 
 # for optimal compilation speed, should be <nb_proc>+1
 NBPROC=5
@@ -29,11 +30,11 @@ libzippp-shared: libzippp-compile
 
 libzippp-tests: libzippp-static libzippp-shared
 	if [ -d $(ZLIB) ]; then \
-		$(CXX) -o test_static -g -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS); \
-		$(CXX) -o test_shared -g -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
+		$(CXX) -o test_static $(LIBZIPPP_TESTS_FLAGS) -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS); \
+		$(CXX) -o test_shared $(LIBZIPPP_TESTS_FLAGS) -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
 	else \
-		$(CXX) -o test_static -g -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS); \
-		$(CXX) -o test_shared -g -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
+		$(CXX) -o test_static $(LIBZIPPP_TESTS_FLAGS) -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS); \
+		$(CXX) -o test_shared $(LIBZIPPP_TESTS_FLAGS) -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
 	fi;
 
 clean-tests:
@@ -42,6 +43,10 @@ clean-tests:
 tests: libzippp-tests clean-tests
 	LD_LIBRARY_PATH="$(LIBZIP)/build/lib" valgrind --suppressions=ld.supp --leak-check=full ./test_shared
 	valgrind --suppressions=ld.supp --leak-check=full ./test_static
+	
+tests-direct: libzippp-tests clean-tests
+	LD_LIBRARY_PATH="$(LIBZIP)/build/lib" ./test_shared
+	./test_static
 
 clean:
 	@rm -rf libzippp.a libzippp.so

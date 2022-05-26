@@ -672,7 +672,7 @@ void test20() {
 }
 
 void test21() {
-    cout << "Running test 21...";
+    cout << "Running test 21..." << endl << fflush;
     const char* txtFile = "this is some data";   // 17 Bytes
     const char* txtFile2 = "this is some data!"; // 18 Bytes
     int len = strlen(txtFile);
@@ -687,7 +687,7 @@ void test21() {
     std::ifstream ifs("test.zip", std::ios::binary);
     ifs.seekg(0, std::ifstream::end);
     libzippp_uint32 bufferSize = (libzippp_uint32)ifs.tellg();
-    char* buffer = (char*)malloc(bufferSize);
+    char* buffer = (char*)malloc(bufferSize * sizeof(char));
     ifs.seekg(std::ifstream::beg);
     ifs.read(buffer, bufferSize);
     ifs.close();
@@ -695,6 +695,8 @@ void test21() {
     z1.unlink();
 
     ZipArchive* z2 = ZipArchive::fromBuffer(buffer, bufferSize);
+    assert(!z2->isMutable());
+    
     assert(z2->getNbEntries() == 2);
     assert(z2->hasEntry("somedata"));
     assert(z2->hasEntry("somedata2"));
@@ -704,8 +706,44 @@ void test21() {
     assert(!entry.isNull());
     assert(!entry2.isNull());
 
-    z2->close();
+    int zx2 = z2->close();
+    assert(zx2 == LIBZIPPP_OK);
+    
     ZipArchive::free(z2);
+
+    const char* txtFile3 = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    const char* txtFile4 = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).";
+    const char* txtFile5 = "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of 'de Finibus Bonorum et Malorum' (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, 'Lorem ipsum dolor sit amet..', comes from a line in section 1.10.32. The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from 'de Finibus Bonorum et Malorum' by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham.";
+    int len3 = strlen(txtFile3);
+    int len4 = strlen(txtFile4);
+    int len5 = strlen(txtFile5);
+
+    ZipArchive* z3 = ZipArchive::fromWriteableBuffer((void**)&buffer, bufferSize);
+    assert(z3->isMutable());
+    
+    z3->addData("someNewDataFromBuffer.txt", txtFile3, len3);
+    z3->addData("newContent/andAnotherFile.txt", txtFile4, len4);
+    z3->addData("newContent/yetAnotherContent.txt", txtFile5, len5);
+
+    int zx3 = z3->close();
+    assert(zx3 == LIBZIPPP_OK);
+    
+    libzippp_uint32 newLength = z3->getBufferLength();
+
+    ZipArchive::free(z3);
+
+fprintf(stderr, "### BUFFER2 %p (%d)\n", buffer, newLength);
+    ZipArchive* z4 = ZipArchive::fromWriteableBuffer((void**)&buffer, newLength);
+    assert(z4->getNbEntries() == 6);
+    assert(z4->hasEntry("somedata"));
+    assert(z4->hasEntry("somedata2"));
+    assert(z4->hasEntry("someNewDataFromBuffer.txt"));
+    assert(z4->hasEntry("newContent/"));
+    assert(z4->hasEntry("newContent/andAnotherFile.txt"));
+    assert(z4->hasEntry("newContent/yetAnotherContent.txt"));
+    z4->addData("anotherNewDataFromBuffer.txt", txtFile3, len3);
+    z4->discard();
+    ZipArchive::free(z4);
 
     free(buffer);
 
@@ -759,12 +797,9 @@ void test23() {
     int len = strlen(txtFile);
     int len2 = strlen(txtFile2);
 
-    char* buffer = new char[4096];
-    for(int i=0 ; i<4096; ++i) {
-        buffer[i] = '\0';
-    }
+    char* buffer = (char*)calloc(4096, sizeof(char));
 
-    ZipArchive* z1 = ZipArchive::fromBuffer(buffer, 4096, ZipArchive::New);
+    ZipArchive* z1 = ZipArchive::fromWriteableBuffer((void**)&buffer, 4096, ZipArchive::New);
     assert(z1!=nullptr);
     z1->addData("somedata", txtFile, len);
     z1->addData("somedata2", txtFile2, len2);
@@ -785,7 +820,7 @@ void test23() {
     int newLength = z1->getBufferLength();
     ZipArchive::free(z1);
     
-    ZipArchive* z2 = ZipArchive::fromBuffer(buffer, newLength, ZipArchive::ReadOnly, true);
+    ZipArchive* z2 = ZipArchive::fromBuffer(buffer, newLength, true);
     assert(z2!=nullptr);
     assert(z2->getNbEntries() == 2);
     assert(z2->hasEntry("somedata"));
@@ -799,7 +834,7 @@ void test23() {
     z3->unlink();
     ZipArchive::free(z3);
     
-    delete[] buffer;
+    free(buffer);
 
     cout << " done." << endl;
     

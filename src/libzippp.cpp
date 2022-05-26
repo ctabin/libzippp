@@ -121,9 +121,20 @@ void ZipArchive::free(ZipArchive* archive) {
     delete archive;
 }
 
-ZipArchive* ZipArchive::fromBuffer(void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency) {
+ZipArchive* ZipArchive::fromBuffer(const void* data, libzippp_uint32 size, bool checkConsistency) {
+    void* mutableData = const_cast<void*>(data);
     ZipArchive* za = new ZipArchive("");
-    bool o = za->openBuffer(data, size, om, checkConsistency);
+    bool o = za->openBuffer(&mutableData, size, ZipArchive::ReadOnly, checkConsistency);
+    if(!o) {
+        delete za;
+        za = nullptr;
+    }
+    return za;
+}
+
+ZipArchive* ZipArchive::fromWriteableBuffer(void** data, libzippp_uint32 size, OpenMode mode, bool checkConsistency) {
+    ZipArchive* za = new ZipArchive("");
+    bool o = za->openBuffer(data, size, mode, checkConsistency);
     if(!o) {
         delete za;
         za = nullptr;
@@ -141,12 +152,12 @@ ZipArchive* ZipArchive::fromSource(zip_source* source, OpenMode om, bool checkCo
     return za;
 }
 
-bool ZipArchive::openBuffer(void* data, libzippp_uint32 size, OpenMode om, bool checkConsistency) {
+bool ZipArchive::openBuffer(void** data, libzippp_uint32 size, OpenMode om, bool checkConsistency) {
     zip_error_t error;
     zip_error_init(&error);
 
     /* create source from buffer */
-    zip_source* localZipSource = zip_source_buffer_create(data, size, 0, &error);
+    zip_source* localZipSource = zip_source_buffer_create(*data, size, 0, &error);
     if (localZipSource == nullptr) {
         LIBZIPPP_ERROR_DEBUG("can't create zip source: %s\n", zip_error_strerror(&error));
         zip_error_fini(&error);
@@ -285,16 +296,44 @@ int ZipArchive::close(void) {
         //push back the changes in the buffer
         if(bufferData!=nullptr && (mode==New || mode==Write)) {
             int srcOpen = zip_source_open(zipSource);
-            if(srcOpen==0) {            
-                int newLength = zip_source_read(zipSource, bufferData, bufferLength);
+            if(srcOpen==0) {
+                void* sourceBuffer = *bufferData;
+                void* tempBuffer = sourceBuffer;
+                zip_int64_t increment = 1024;
+                zip_int64_t tempBufferSize = bufferLength;
+                zip_int64_t read = zip_source_read(zipSource, tempBuffer, tempBufferSize);
+                zip_int64_t totalRead = 0;
+                while(read>0) {
+                    totalRead += read;
+                    tempBufferSize -= read;
+                    if(tempBufferSize<=0) {
+                        zip_int64_t newLength = bufferLength + increment;
+                        sourceBuffer = realloc(sourceBuffer, newLength * sizeof(char));
+                        if(sourceBuffer==nullptr) {
+                            LIBZIPPP_ERROR_DEBUG("can't read back from source: %s", "unable to extend buffer")
+                            return LIBZIPPP_ERROR_MEMORY_ALLOCATION;
+                        }
+                        
+                        tempBuffer = static_cast<char*>(sourceBuffer)+bufferLength;
+                        tempBufferSize = increment;
+                        bufferLength = newLength;
+                    } else {
+                        tempBuffer = static_cast<char*>(tempBuffer)+read;
+                    }
+                    read = zip_source_read(zipSource, tempBuffer, tempBufferSize);
+                }
+                
                 zip_source_close(zipSource);
-                zip_source_free(zipSource);
-            
-                bufferLength = newLength;
+                
+                *bufferData = sourceBuffer;
+                bufferLength = totalRead;
             } else {
-                LIBZIPPP_ERROR_DEBUG("can't read back from source: %s", "changes were not pushed by in the buffer")
+                LIBZIPPP_ERROR_DEBUG("can't read back from source: %s", "changes were not pushed in the buffer")
                 return srcOpen;
             }
+            
+            zip_source_free(zipSource);
+            zipSource = nullptr;
         }
         
         mode = NotOpen;
@@ -310,6 +349,7 @@ void ZipArchive::discard(void) {
         
         if(bufferData!=nullptr && (mode==New || mode==Write)) {
             zip_source_free(zipSource);
+            zipSource = nullptr;
         }
         
         mode = NotOpen;

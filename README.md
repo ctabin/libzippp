@@ -341,9 +341,10 @@ int main(int argc, char** argv) {
 using namespace libzippp;
 
 int main(int argc, char** argv) {
-  char* buffer = new char[4096];
+  //important to use calloc/malloc for the fromWriteableBuffer !
+  char* buffer = (char*)calloc(4096, sizeof(char));
 
-  ZipArchive* z1 = ZipArchive::fromBuffer(buffer, 4096, ZipArchive::New);
+  ZipArchive* z1 = ZipArchive::fromWriteableBuffer(&buffer, 4096, ZipArchive::New);
   /* add content to the archive */
   
   //will update the content of the buffer
@@ -351,14 +352,20 @@ int main(int argc, char** argv) {
 
   //length of the buffer content
   int bufferContentLength = z1->getBufferLength();
+  
+  ZipArchive::free(z1);
 
   //read again from the archive:
   ZipArchive* z2 = ZipArchive::fromBuffer(buffer, bufferContentLength);
-  /* read/modify the archive */
-
-  ZipArchive::free(z1);
+  /* read the archive - no modification allowed */
   ZipArchive::free(z2);
-  delete buffer;
+  
+  //read again from the archive, for modification:
+  ZipArchive* z3 = ZipArchive::fromWriteableBuffer(&buffer, bufferContentLength);
+  /* read/write the archive */
+  ZipArchive::free(z3);
+  
+  free(buffer);
 
   return 0;
 }
