@@ -51,7 +51,7 @@ struct zip_source;
 #define LIBZIPPP_DEFAULT_PROGRESSION_PRECISION 0.5
 
 // allow custom debug handling when errors occurs in libzippp
-#define LIBZIPPP_ERROR_DEBUG(str, errormsg) fprintf(stderr, str "\n", errormsg);
+#define LIBZIPPP_ERROR_DEBUG(str, errormsg) fprintf(stderr, (str"\n"), (errormsg));
 
 //libzip documentation
 //- http://www.nih.at/libzip/libzip.html
