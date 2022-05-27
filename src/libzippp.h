@@ -194,18 +194,34 @@ namespace libzippp {
         static ZipArchive* fromSource(zip_source* source, OpenMode mode=ReadOnly, bool checkConsistency=false);
         
         /**
-         * Creates a new ZipArchive from the specified buffer. The archive will
-         * directly be open with the given mode. If the archive fails to be open or
+         * Creates a new ZipArchive from the specified data. The archive will
+         * directly be open in ReadOnly mode. If the archive fails to be open or
          * if the consistency check fails, this method will return null.
-         * The buffer data must remain valid while the ZipArchive is alive.
-         * The buffer won't be freed by the ZipArchive.
-         * 
-         * If the mode is New or Write, then the buffer will be updated when the ZipArchive is
-         * closed and is new length will be available through the getBufferLength method.
+         * The data pointer must remain valid while the ZipArchive is alive.
+         * The data pointer won't be freed by the ZipArchive and won't be modified,
+         * even when ZipArchive::close is used.
          * 
          * Use ZipArchive::free to delete the returned pointer.
          */
-        static ZipArchive* fromBuffer(void* buffer, libzippp_uint32 size, OpenMode mode=ReadOnly, bool checkConsistency=false);
+        static ZipArchive* fromBuffer(const void* data, libzippp_uint32 size, bool checkConsistency=false);
+        
+        /**
+         * Creates a new ZipArchive from the specified data. The archive will
+         * directly be open with the given mode. If the archive fails to be open or
+         * if the consistency check fails, this method will return null.
+         * The data pointer must remain valid while the ZipArchive is alive.
+         * The data pointer won't be freed by the ZipArchive.
+         * 
+         * If the mode is New or Write, then the data pointer will be updated when the ZipArchive is
+         * closed and its new length will be available through the ZipArchive::getBufferLength method.
+         * 
+         * WARNING: do NOT use dynamicly allocated memory with the 'new' keyword as data, because since
+         * the data array might be extended by realloc, it *might* not be compatible with C++ 'new' keyword.
+         * Use the standard malloc/calloc instead.
+         * 
+         * Use ZipArchive::free to delete the returned pointer.
+         */
+        static ZipArchive* fromWriteableBuffer(void** data, libzippp_uint32 size, OpenMode mode=Write, bool checkConsistency=false);
         
         /**
          * Deletes a ZipArchive.
@@ -488,7 +504,7 @@ namespace libzippp {
 
         /**
          * Returns the underlying libzip source used by this ZipArchive.
-         * This value will be set only when fromBuffer is used.
+         * This value will be available only when the archive has been created with ZipArchive::fromBuffer.
          */
         inline zip_source* getZipSource(void) const { return zipSource; }
         
@@ -529,11 +545,11 @@ namespace libzippp {
         std::vector<ZipProgressListener*> listeners;
         double progressPrecision;
         
-        void* bufferData;
+        void** bufferData;
         libzippp_uint32 bufferLength;
         
         //open from in-memory data
-        bool openBuffer(void* buffer, libzippp_uint32 sz, OpenMode mode=ReadOnly, bool checkConsistency=false);
+        bool openBuffer(void** buffer, libzippp_uint32 sz, OpenMode mode=ReadOnly, bool checkConsistency=false);
         bool openSource(zip_source* source, OpenMode mode=ReadOnly, bool checkConsistency=false);
         
         //generic method to create ZipEntry

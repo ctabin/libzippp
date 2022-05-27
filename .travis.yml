@@ -39,6 +39,7 @@ jobs:
       script:
         - make NBPROC=1
         - make tests
+        - make tests-direct
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -74,19 +75,19 @@ script:
   - mkdir build && cd build
   - cmake .. -DCMAKE_PREFIX_PATH=${THIRD_PARTY_PREFIX} -DCMAKE_INSTALL_PREFIX=$HOME/libzippp -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=$LIBZIPPP_BUILD_SHARED_LIBS
   - make -j3 install
-  - make test
+  - make CTEST_OUTPUT_ON_FAILURE=1 test
   - rm -r *
   - cmake ../tests/exampleProject -DCMAKE_PREFIX_PATH="${THIRD_PARTY_PREFIX};$HOME/libzippp" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$THIRD_PARTY_PREFIX/lib" # For shared libs
   - make -j3
-  - make test
+  - make CTEST_OUTPUT_ON_FAILURE=1 test
   - rm -r *
   - |
     cmake .. -DCMAKE_PREFIX_PATH=${THIRD_PARTY_PREFIX} -DCMAKE_INSTALL_PREFIX=$HOME/libzippp-enc -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=$LIBZIPPP_BUILD_SHARED_LIBS -DLIBZIPPP_ENABLE_ENCRYPTION=ON
   - make -j3 install
-  - make test
+  - make CTEST_OUTPUT_ON_FAILURE=1 test
   - rm -r *
   - cmake ../tests/exampleProject -DCMAKE_PREFIX_PATH="${THIRD_PARTY_PREFIX};$HOME/libzippp-enc" -DCMAKE_BUILD_TYPE=$BUILD_TYPE
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$THIRD_PARTY_PREFIX/lib" # For shared libs
   - make -j3
-  - make test
+  - make CTEST_OUTPUT_ON_FAILURE=1 test
