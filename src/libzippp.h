@@ -224,10 +224,10 @@ namespace libzippp {
         
         /**
          * Returns the buffer length of the buffer when the fromBuffer method has been used to create
-         * the archive. Otherwise, this method returns -1.
+         * the archive. Otherwise, this method returns 0.
          * When the archive has been closed, this value will contains the new length of the buffer.
          */
-        inline libzippp_uint32 getBufferLength(void) const { return bufferLength; }
+        inline libzippp_uint64 getBufferLength(void) const { return bufferLength; }
         
         /**
          * Returns the path of the ZipArchive.
@@ -537,7 +537,7 @@ namespace libzippp {
         double progressPrecision;
         
         void** bufferData;
-        libzippp_uint32 bufferLength;
+        libzippp_uint64 bufferLength;
         
         //open from in-memory data
         bool openBuffer(void** buffer, libzippp_uint32 sz, OpenMode mode=ReadOnly, bool checkConsistency=false);
