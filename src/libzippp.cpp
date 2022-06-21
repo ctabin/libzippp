@@ -379,7 +379,7 @@ bool ZipArchive::setComment(const string& comment) const {
     if (!isOpen()) { return false; }
     if (mode==ReadOnly) { return false; }
     
-    int size = comment.size();
+    string::size_type size = comment.size();
     const char* data = comment.c_str();
     int result = zip_set_archive_comment(zipHandle, data, size);
     return result==0;
@@ -563,7 +563,7 @@ int ZipArchive::deleteEntry(const ZipEntry& entry) const {
         vector<ZipEntry>::const_iterator eit;
         for(eit=allEntries.begin() ; eit!=allEntries.end() ; ++eit) {
             ZipEntry ze = *eit;
-            int startPosition = ze.getName().find(entry.getName());
+            string::size_type startPosition = ze.getName().find(entry.getName());
             if (startPosition==0) {
                 int result = zip_delete(zipHandle, ze.getIndex());
                 if (result==0) { ++counter; }
@@ -590,8 +590,8 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
     if (entry.isFile()) {
         if (LIBZIPPP_ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
-        int lastSlash = newName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
-        if (lastSlash!=1) { 
+        string::size_type lastSlash = newName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
+        if (lastSlash!=1) {
             bool dadded = addEntry(newName.substr(0, lastSlash+1)); 
             if (!dadded) { return LIBZIPPP_ERROR_UNKNOWN; } //the hierarchy hasn't been created
         }
@@ -602,7 +602,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
     } else {
         if (!LIBZIPPP_ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
-        int parentSlash = newName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR, newName.length()-2);
+      string::size_type parentSlash = newName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR, newName.length()-2);
         if (parentSlash!=-1) { //updates the dir hierarchy
             string parent = newName.substr(0, parentSlash+1);
             bool dadded = addEntry(parent);
@@ -617,7 +617,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
             ZipEntry ze = *eit;
             string currentName = ze.getName();
             
-            int startPosition = currentName.find(originalName);
+            string::size_type startPosition = currentName.find(originalName);
             if (startPosition==0) {
                 if (currentName == originalName) {
                     int result = zip_file_rename(zipHandle, entry.getIndex(), newName.c_str(), ZIP_FL_ENC_GUESS);
@@ -659,7 +659,7 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
     if (mode==ReadOnly) { return false; } //adding not allowed
     if (LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
-    int lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
+    string::size_type lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
     if (lastSlash!=-1) { //creates the needed parent directories
         string dirEntry = entryName.substr(0, lastSlash+1);
         bool dadded = addEntry(dirEntry);
@@ -699,7 +699,7 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
     if (mode==ReadOnly) { return false; } //adding not allowed
     if (LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
-    int lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
+    string::size_type lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
     if (lastSlash!=-1) { //creates the needed parent directories
         string dirEntry = entryName.substr(0, lastSlash+1);
         bool dadded = addEntry(dirEntry);
@@ -738,7 +738,7 @@ bool ZipArchive::addEntry(const string& entryName) const {
     if (mode==ReadOnly) { return false; } //adding not allowed
     if (!LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
-    int nextSlash = entryName.find(LIBZIPPP_ENTRY_PATH_SEPARATOR);
+    string::size_type nextSlash = entryName.find(LIBZIPPP_ENTRY_PATH_SEPARATOR);
     while (nextSlash!=-1) {
         string pathToCreate = entryName.substr(0, nextSlash+1);
         if (!hasEntry(pathToCreate)) {
@@ -800,7 +800,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::function<bool(const voi
             libzippp_int64 result = 0;
             char* data = NEW_CHAR_ARRAY(chunksize)
             if (data!=nullptr) {
-                int nbChunks = maxSize/chunksize;
+                string::size_type nbChunks = maxSize/chunksize;
                 for (int uiChunk=0 ; uiChunk<nbChunks ; ++uiChunk) {
                     result = zip_fread(zipFile, data, chunksize);
                     if (result>0) {
@@ -824,7 +824,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::function<bool(const voi
                 iRes = LIBZIPPP_ERROR_MEMORY_ALLOCATION;
             }
             
-            int leftOver = maxSize%chunksize;
+            libzippp_uint64 leftOver = maxSize%chunksize;
             if (iRes==0 && leftOver>0) {
                 char* data = NEW_CHAR_ARRAY(leftOver);
                 if (data!=nullptr) {
