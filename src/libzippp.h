@@ -614,14 +614,14 @@ namespace libzippp {
         inline libzippp_uint16 getEncryptionMethod(void) const { return encryptionMethod; }
         
         /**
-         * Returns the size of the file (not deflated).
+         * Returns the size of the file (uncompressed).
          */
         inline libzippp_uint64 getSize(void) const { return size; }
         
         /**
-         * Returns the size of the inflated file.
+         * Returns the size of the deflated file (compressed).
          */
-        inline libzippp_uint64 getInflatedSize(void) const { return sizeComp; }
+        inline libzippp_uint64 getDeflatedSize(void) const { return sizeComp; }
         
         /**
          * Returns the CRC of the file.
