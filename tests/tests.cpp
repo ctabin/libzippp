@@ -732,7 +732,6 @@ void test21() {
 
     ZipArchive::free(z3);
 
-fprintf(stderr, "### BUFFER2 %p (%d)\n", buffer, newLength);
     ZipArchive* z4 = ZipArchive::fromWriteableBuffer((void**)&buffer, newLength);
     assert(z4->getNbEntries() == 6);
     assert(z4->hasEntry("somedata"));
