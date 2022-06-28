@@ -3,7 +3,7 @@
 
 SET root=%cd%
 SET zlib=lib\zlib-1.2.12
-SET libzip=lib\libzip-1.9.0
+SET libzip=lib\libzip-1.9.2
 
 if not exist "%zlib%" goto error_zlib_not_found
 if not exist "%libzip%" goto error_libzip_not_found
@@ -110,7 +110,7 @@ goto end
 
 :error_libzip_not_found
 echo [ERROR] The path was not found: %libzip%.
-echo         You have to download libzip 1.9.0 and put it in the folder %libzip%.
+echo         You have to download libzip 1.9.2 and put it in the folder %libzip%.
 goto end
 
 :error_libzip
