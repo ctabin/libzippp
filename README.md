@@ -12,7 +12,7 @@ Compilation has been tested with:
 
 Underlying libraries:
 - [ZLib](http://zlib.net) 1.2.12
-- [libzip](http://www.nih.at/libzip) 1.9.0
+- [libzip](http://www.nih.at/libzip) 1.9.2
 - [BZip2](https://www.sourceware.org/bzip2/) 1.0.8 (optional)
 
 ## Integration
@@ -64,7 +64,7 @@ make install
 	- Click `Configure` & `Generate`
   - If CMake can't find zlib and/or libzip you need to set `CMAKE_PREFIX_PATH` to the directories where you installed those into
   (either via `-DCMAKE_PREFIX_PATH=<...>` or via the GUI)
-    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.9.0:/home/user/zlib-1.2.12`
+    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.9.2:/home/user/zlib-1.2.12`
 - Compile as usual
   - Linux: `make && make install`
   - Windows: Open generated project in MSVC. Build the `INSTALL` target to install.
@@ -89,14 +89,14 @@ Given that it was installed (via `CMAKE_INSTALL_PREFIX`) into a standard locatio
 `CMAKE_PREFIX_PATH` you can simply call `find_package(libzippp 3.0 REQUIRED)` and link against `libzippp::libzippp`.
 
 When not using CMake to consume libzippp you have to pass its include directory to your compiler and link against `libzippp.{a,so}`.
-Do not forget to also link against libzip libraries e.g. in *lib/libzip-1.9.0/lib/.libs/*).
+Do not forget to also link against libzip libraries e.g. in *lib/libzip-1.9.2/lib/.libs/*).
 An example of compilation with g++:
   
 ```shell
 g++ -I./src \
-    -I./lib/libzip-1.9.0/lib I./lib/libzip-1.9.0/build \
+    -I./lib/libzip-1.9.2/lib I./lib/libzip-1.9.2/build \
     main.cpp libzippp.a \
-    lib/libzip-1.9.0/lib/.libs/libzip.a \
+    lib/libzip-1.9.2/lib/.libs/libzip.a \
     lib/zlib-1.2.12/libz.a
 ```
 
@@ -142,12 +142,12 @@ It may need some adjusting though.
 
 0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual Studio 2012.
   
-1. Download [libzip](http://www.nih.at/libzip/libzip-1.9.0.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
+1. Download [libzip](http://www.nih.at/libzip/libzip-1.9.2.tar.gz) and [zlib](http://zlib.net/zlib1211.zip) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
   ```
   libzippp/compile.bat
   libzippp/lib/zlib-1.2.12
-  libzippp/lib/libzip-1.9.0
+  libzippp/lib/libzip-1.9.2
   ```
 2. Execute the *compile.bat* (simply double-click on it). The compilation should 
   go without error.
