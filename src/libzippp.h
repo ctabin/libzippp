@@ -355,6 +355,7 @@ namespace libzippp {
          * or the entry is not linked to this archive, false will be returned.
          **/
         bool isEntryCompressionEnabled(const ZipEntry& entry) const;
+        bool setEntryCompressionEnabled(const ZipEntry& entry, bool value) const;
         bool setEntryCompressionMode(const ZipEntry& entry, libzippp_uint16 compMode) const;
         
         /**
