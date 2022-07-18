@@ -62,8 +62,8 @@ bool ZipEntry::isCompressionEnabled(void) const {
     return zipFile->isEntryCompressionEnabled(*this);
 }
 
-bool ZipEntry::setCompressionEnabled(bool value) const {
-    return zipFile->setEntryCompressionEnabled(*this, value);
+bool ZipEntry::setCompressionMode(libzippp_uint16 compMode) const {
+    return zipFile->setEntryCompressionMode(*this, compMode);
 }
 
 string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const {
@@ -389,12 +389,10 @@ bool ZipArchive::isEntryCompressionEnabled(const ZipEntry& entry) const {
     return entry.compressionMethod==ZIP_CM_DEFLATE;
 }
 
-bool ZipArchive::setEntryCompressionEnabled(const ZipEntry& entry, bool value) const {
+bool ZipArchive::setEntryCompressionMode(const ZipEntry& entry, libzippp_uint16 compMode) const {
     if (!isOpen()) { return false; }
     if (entry.zipFile!=this) { return false; }
     if (mode==ReadOnly) { return false; }
-    
-    libzippp_uint16 compMode = value ? ZIP_CM_DEFLATE : ZIP_CM_STORE;
     return zip_set_file_compression(zipHandle, entry.index, compMode, 0)==0;
 }
 

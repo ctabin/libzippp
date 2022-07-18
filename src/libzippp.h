@@ -355,7 +355,7 @@ namespace libzippp {
          * or the entry is not linked to this archive, false will be returned.
          **/
         bool isEntryCompressionEnabled(const ZipEntry& entry) const;
-        bool setEntryCompressionEnabled(const ZipEntry& entry, bool value) const;
+        bool setEntryCompressionMode(const ZipEntry& entry, libzippp_uint16 compMode) const;
         
         /**
          * Reads the specified ZipEntry of the ZipArchive and returns its content within
@@ -646,10 +646,10 @@ namespace libzippp {
         /**
          * Defines if the compression is enabled for this entry.
          * Those methods are wrappers arount ZipArchive::isEntryCompressionEnabled and
-         * ZipArchive::setEntryCompressionEnabled.
+         * ZipArchive::setEntryCompressionMode.
          */
         bool isCompressionEnabled(void) const;
-        bool setCompressionEnabled(bool value) const;
+        bool setCompressionMode(libzippp_uint16 compMode) const;
         
         /**
          * Defines the comment of the entry. In order to call either one of those

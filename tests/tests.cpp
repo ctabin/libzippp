@@ -43,6 +43,7 @@
 #include <string>
 
 #include "libzippp.h"
+#include <zip.h> // ZIP_CM_DEFLATE
 
 using namespace std;
 using namespace libzippp;
@@ -103,7 +104,7 @@ void test2() {
     z1.addData("somedata", txtFile, len);
     
     ZipEntry z1e1 = z1.getEntry("somedata");
-    z1e1.setCompressionEnabled(true);
+    z1e1.setCompressionMode(ZIP_CM_DEFLATE);
     
     z1.close();
     
