@@ -59,7 +59,7 @@ export(TARGETS libzippp NAMESPACE libzippp:: FILE ${PROJECT_BINARY_DIR}/libzippp
 if(LIBZIPPP_BUILD_TESTS)
   enable_testing()
   add_executable(libzippp_test "tests/tests.cpp")
-  target_link_libraries(libzippp_test PRIVATE libzippp libzip::zip)
+  target_link_libraries(libzippp_test PRIVATE libzippp)
   add_test(NAME libzippp_tests COMMAND libzippp_test)
   
   if (BUILD_SHARED_LIBS)
