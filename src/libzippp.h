@@ -99,7 +99,26 @@ struct zip_source;
 namespace libzippp {
     class ZipEntry;
     class ZipProgressListener;
-    
+
+  /**
+   * Compression algorithm to use. See https://libzip.org/documentation/zip_set_file_compression.html
+   *
+   */
+  enum Compression {
+    DEFAULT = 0,
+    STORE,
+#ifdef ZIP_CM_BZIP2
+    BZIP2,
+#endif
+    DEFLATE,
+#ifdef ZIP_CM_XZ
+    XZ,
+#endif
+#ifdef ZIP_CM_ZSTD
+    ZSTD
+#endif
+  };
+  
     /**
      * Represents a ZIP archive. This class provides useful methods to handle an archive
      * content. It is simply a wrapper around libzip.
@@ -354,8 +373,7 @@ namespace libzippp {
          * Defines the compression method of an entry. If the ZipArchive is not open
          * or the entry is not linked to this archive, false will be returned.
          **/
-        bool isEntryCompressionEnabled(const ZipEntry& entry) const;
-        bool setEntryCompressionMode(const ZipEntry& entry, libzippp_uint16 compMode) const;
+        bool setEntryCompressionMethod(const ZipEntry& entry, Compression compMode = Compression::DEFAULT) const;
         
         /**
          * Reads the specified ZipEntry of the ZipArchive and returns its content within
@@ -605,7 +623,7 @@ namespace libzippp {
          * Returns the compression method. By default, ZIP_CM_DEFAULT.
          * Can be one of ZIP_CM_DEFAULT,ZIP_CM_STORE,ZIP_CM_BZIP2,ZIP_CM_DEFLATE,ZIP_CM_XZ or ZIP_CM_ZSTD.
          */
-        inline libzippp_uint16 getCompressionMethod(void) const { return compressionMethod; }
+        Compression getCompressionMethod(void) const;
         
         /**
          * Returns the encryption method.
@@ -644,12 +662,11 @@ namespace libzippp {
         inline bool isNull(void) const { return zipFile==nullptr; }
         
         /**
-         * Defines if the compression is enabled for this entry.
-         * Those methods are wrappers arount ZipArchive::isEntryCompressionEnabled and
-         * ZipArchive::setEntryCompressionMode.
+         * Defines the compression method to be used
+         * Those methods are wrappers around setEntryCompressionMethod and
+         * getCompressionMethod.
          */
-        bool isCompressionEnabled(void) const;
-        bool setCompressionMode(libzippp_uint16 compMode) const;
+        bool setCompressionMethod(Compression compMode) const;
         
         /**
          * Defines the comment of the entry. In order to call either one of those
