@@ -373,7 +373,7 @@ namespace libzippp {
          * Defines the compression method of an entry. If the ZipArchive is not open
          * or the entry is not linked to this archive, false will be returned.
          **/
-        bool setEntryCompressionMethod(const ZipEntry& entry, Compression compMode = Compression::DEFAULT) const;
+        bool setEntryCompressionMethod(const ZipEntry& entry, Compression compMethod = Compression::DEFAULT) const;
         
         /**
          * Reads the specified ZipEntry of the ZipArchive and returns its content within
@@ -666,7 +666,7 @@ namespace libzippp {
          * Those methods are wrappers around setEntryCompressionMethod and
          * getCompressionMethod.
          */
-        bool setCompressionMethod(Compression compMode) const;
+        bool setCompressionMethod(Compression compMethod) const;
         
         /**
          * Defines the comment of the entry. In order to call either one of those

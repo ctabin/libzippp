@@ -104,8 +104,8 @@ bool ZipEntry::setComment(const string& str) const {
     return zipFile->setEntryComment(*this, str);
 }
 
-bool ZipEntry::setCompressionMethod(Compression compMode) const {
-    return zipFile->setEntryCompressionMethod(*this, compMode);
+bool ZipEntry::setCompressionMethod(Compression compMethod) const {
+    return zipFile->setEntryCompressionMethod(*this, compMethod);
 }
 
 Compression ZipEntry::getCompressionMethod(void) const {
