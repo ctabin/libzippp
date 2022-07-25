@@ -47,6 +47,19 @@ using namespace std;
 
 #define NEW_CHAR_ARRAY(nb) new (std::nothrow) char[(nb)];
 
+static void callErrorHandlingCb(zip* zipHandle, const ErrorHandlerCallback& cb) {
+    int error_code_zip, error_code_system;
+    zip_error_get(zipHandle, &error_code_zip, &error_code_system);
+    cb(error_code_zip, error_code_system);
+}
+
+static void callErrorHandlingCb(zip_error_t* error, const ErrorHandlerCallback& cb) {
+    int error_code_zip, error_code_system;
+    error_code_zip = zip_error_code_zip(error);
+    error_code_system = zip_error_code_system(error);
+    cb(error_code_zip, error_code_system);
+}
+
 ZipEntry::ZipEntry(void) : zipFile(nullptr), index(0), time(0), compressionMethod(ZIP_CM_DEFAULT), encryptionMethod(ZIP_EM_NONE), size(0), sizeComp(0), crc(0) {
 }
 
@@ -159,7 +172,11 @@ bool ZipArchive::openBuffer(void** data, libzippp_uint32 size, OpenMode om, bool
     /* create source from buffer */
     zip_source* localZipSource = zip_source_buffer_create(*data, size, 0, &error);
     if (localZipSource == nullptr) {
-        LIBZIPPP_ERROR_DEBUG("can't create zip source: %s\n", zip_error_strerror(&error));
+        if (errorHandlingCallback) {
+           callErrorHandlingCb(zipHandle, errorHandlingCallback);
+        } else {
+           LIBZIPPP_ERROR_DEBUG("can't create zip source: %s\n", zip_error_strerror(&error));
+        }
         zip_error_fini(&error);
         return false;
     }
@@ -236,14 +253,16 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     
     //error during opening of the file
     if (errorFlag!=ZIP_ER_OK) {
-        zipHandle = nullptr;
-      
-        {
+        if (errorHandlingCallback) {
+           callErrorHandlingCb(zipHandle, errorHandlingCallback);
+        } else {
             zip_error_t error;
             zip_error_init_with_code(&error, errorFlag);
             LIBZIPPP_ERROR_DEBUG("Unable to open archive: %s", zip_error_strerror(&error));
             zip_error_fini(&error);
         }
+
+        zipHandle = nullptr;              
         return false;
     }
     
@@ -309,7 +328,11 @@ int ZipArchive::close(void) {
                         zip_int64_t newLength = bufferLength + increment;
                         sourceBuffer = realloc(sourceBuffer, newLength * sizeof(char));
                         if(sourceBuffer==nullptr) {
+                          if (errorHandlingCallback) {
+                            callErrorHandlingCb(zipHandle, errorHandlingCallback);
+                            } else {
                             LIBZIPPP_ERROR_DEBUG("can't read back from source: %s", "unable to extend buffer")
+                            }
                             return LIBZIPPP_ERROR_MEMORY_ALLOCATION;
                         }
                         
@@ -327,7 +350,11 @@ int ZipArchive::close(void) {
                 *bufferData = sourceBuffer;
                 bufferLength = totalRead;
             } else {
+              if (errorHandlingCallback) {
+                callErrorHandlingCb(zipHandle, errorHandlingCallback);
+              } else {
                 LIBZIPPP_ERROR_DEBUG("can't read back from source: %s", "changes were not pushed in the buffer")
+                }
                 return srcOpen;
             }
             
