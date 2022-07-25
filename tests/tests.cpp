@@ -43,7 +43,6 @@
 #include <string>
 
 #include "libzippp.h"
-#include <zip.h> // ZIP_CM_DEFLATE
 
 using namespace std;
 using namespace libzippp;
