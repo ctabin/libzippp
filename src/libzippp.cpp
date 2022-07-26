@@ -238,13 +238,12 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     if (errorFlag!=ZIP_ER_OK) {
         zipHandle = nullptr;
       
-        char* errorStr = new char[256];
-        zip_error_to_str(errorStr, 255, errorFlag, errno);
-        errorStr[255] = '\0';
-        LIBZIPPP_ERROR_DEBUG("Unable to open archive: %s", errorStr)
-        delete[] errorStr;
-        errorStr = nullptr;
-        
+        {
+            zip_error_t error;
+            zip_error_init_with_code(&error, errorFlag);
+            LIBZIPPP_ERROR_DEBUG("Unable to open archive: %s", zip_error_strerror(&error));
+            zip_error_fini(&error);
+        }
         return false;
     }
     
