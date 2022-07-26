@@ -103,8 +103,8 @@ namespace libzippp {
      * User-defined error-handler.
      * See https://libzip.org/documentation/zip_error_system_type.html
      */
-    using ErrorHandlerCallback = std::function<void(int /* error_code_zip */,
-                                                    int /* error_code_system */)>;
+    using ErrorHandlerCallback = std::function<void(int zip_error_code,
+                                                    int system_error_code)>;
 
     /**
      * Represents a ZIP archive. This class provides useful methods to handle an archive
