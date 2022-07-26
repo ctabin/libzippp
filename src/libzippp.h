@@ -101,8 +101,8 @@ namespace libzippp {
     class ZipProgressListener;
 
   /**
-   * Compression algorithm to use. See https://libzip.org/documentation/zip_set_file_compression.html
-   *
+   * Compression algorithm to use.
+   * See https://libzip.org/documentation/zip_set_file_compression.html
    */
   enum Compression {
     DEFAULT = 0,
