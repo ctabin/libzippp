@@ -175,20 +175,19 @@ int main(int argc, char** argv) {
   ZipArchive zf("archive.zip");
   zf.open(ZipArchive::ReadOnly);
 
-  vector<ZipEntry> entries = zf.getEntries();
-  vector<ZipEntry>::iterator it;
-  for(it=entries.begin() ; it!=entries.end(); ++it) {
-    ZipEntry entry = *it;
-    string name = entry.getName();
-    int size = entry.getSize();
-
-    //the length of binaryData will be size
+  std::vector<ZipEntry> entries = zf.getEntries();
+  for (const auto& entry : entries) {
+    std::string name = entry.getName();
+    
+    //binary read example
+    libzippp_uint64 size = entry.getSize();
     void* binaryData = entry.readAsBinary();
+    
+    //when done with the binary data, free the memory
+    delete[] binaryData;
 
-    //the length of textData will be size
-    string textData = entry.readAsText();
-
-    //...
+    //you can also read the content in a string
+    std::string textData = entry.readAsText();
   }
 
   zf.close();
