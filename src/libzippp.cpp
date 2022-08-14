@@ -47,49 +47,49 @@ using namespace std;
 
 #define NEW_CHAR_ARRAY(nb) new (std::nothrow) char[(nb)];
 
-static libzippp_uint16 convertCompressionToLibzip(Compression comp) {
+static libzippp_uint16 convertCompressionToLibzip(CompressionMethod comp) {
   switch(comp) {
-  case Compression::STORE:
-    return ZIP_CM_STORE;
+    case CompressionMethod::STORE:
+        return ZIP_CM_STORE;
 #ifdef ZIP_CM_BZIP2
-  case Compression::BZIP2:
-    return ZIP_CM_BZIP2;
+    case CompressionMethod::BZIP2:
+        return ZIP_CM_BZIP2;
 #endif
-  case Compression::DEFLATE:
-    return ZIP_CM_DEFLATE;
+    case CompressionMethod::DEFLATE:
+        return ZIP_CM_DEFLATE;
 #ifdef ZIP_CM_XZ
-  case Compression::XZ:
-    return ZIP_CM_XZ;
+    case CompressionMethod::XZ:
+        return ZIP_CM_XZ;
 #endif
 #ifdef ZIP_CM_ZSTD
-  case Compression::ZSTD:
-    return ZIP_CM_ZSTD;
+    case CompressionMethod::ZSTD:
+        return ZIP_CM_ZSTD;
 #endif
-  default: // Compression::DEFAULT
-    return ZIP_CM_DEFAULT;
+    default: // CompressionMethod::DEFAULT
+        return ZIP_CM_DEFAULT;
   }
 }
 
-static Compression convertCompressionFromLibzip(libzippp_uint16 comp) {
+static CompressionMethod convertCompressionFromLibzip(libzippp_uint16 comp) {
   switch(comp) {
-  case ZIP_CM_STORE:
-    return Compression::STORE;
+      case ZIP_CM_STORE:
+          return CompressionMethod::STORE;
 #ifdef ZIP_CM_BZIP2
-  case ZIP_CM_BZIP2:
-    return Compression::BZIP2;
+      case ZIP_CM_BZIP2:
+          return CompressionMethod::BZIP2;
 #endif
-  case ZIP_CM_DEFLATE:
-    return Compression::DEFLATE;
+    case ZIP_CM_DEFLATE:
+        return CompressionMethod::DEFLATE;
 #ifdef ZIP_CM_XZ
-  case ZIP_CM_XZ:
-    return Compression::XZ;
+    case ZIP_CM_XZ:
+        return CompressionMethod::XZ;
 #endif
 #ifdef ZIP_CM_ZSTD
-  case ZIP_CM_ZSTD:
-    return Compression::ZSTD;
+    case ZIP_CM_ZSTD:
+        return CompressionMethod::ZSTD;
 #endif
-  default: // Compression::DEFAULT
-    return Compression::DEFAULT;
+    default: // CompressionMethod::DEFAULT
+        return CompressionMethod::DEFAULT;
   }
 }
 
@@ -104,11 +104,11 @@ bool ZipEntry::setComment(const string& str) const {
     return zipFile->setEntryComment(*this, str);
 }
 
-bool ZipEntry::setCompressionMethod(Compression compMethod) const {
+bool ZipEntry::setCompressionMethod(CompressionMethod compMethod) const {
     return zipFile->setEntryCompressionMethod(*this, compMethod);
 }
 
-Compression ZipEntry::getCompressionMethod(void) const {
+CompressionMethod ZipEntry::getCompressionMethod(void) const {
     return convertCompressionFromLibzip(compressionMethod);
 }
 
@@ -431,7 +431,7 @@ bool ZipArchive::setComment(const string& comment) const {
     return result==0;
 }
 
-bool ZipArchive::setEntryCompressionMethod(const ZipEntry& entry, Compression comp) const {
+bool ZipArchive::setEntryCompressionMethod(const ZipEntry& entry, CompressionMethod comp) const {
     if (!isOpen()) { return false; }
     if (entry.zipFile!=this) { return false; }
     if (mode==ReadOnly) { return false; }
