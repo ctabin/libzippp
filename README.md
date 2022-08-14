@@ -373,12 +373,28 @@ int main(int argc, char** argv) {
 
 ### Error handling
 
-Actually the error handling is pretty basic and the errors details are dumped to `stderr`.
-It is possible to override the macro `LIBZIPPP_ERROR_DEBUG` in order to handle the errors in
-some custom way.
+By default, the error handling is pretty basic and the errors details are dumped to `stderr` using macro `LIBZIPPP_ERROR_DEBUG`. However, it is possible to provide a callback method to override this behavior.
 
 ```C++
-#define LIBZIPPP_ERROR_DEBUG(str, errormsg) fprintf(stderr, str "\n", errormsg);
+#include "libzippp.h"
+using namespace libzippp;
+
+int main(int argc, char** argv) {
+  ZipArchive zf("archive.zip");
+  zf.setErrorHandlerCallback([](int zip_error_code, int system_error_code) {
+    // Handle error here
+  });
+
+  zf.open(ZipArchive::Write);
+  zf.addEntry("folder/subdir/");
+
+  const char* textData = "Hello,World!";
+  zf.addData("helloworld.txt", textData, 12);
+
+  zf.close();
+
+  return 0;
+}
 ```
 
 ## Known issues
