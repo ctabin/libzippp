@@ -14,6 +14,10 @@ Underlying libraries:
 - [ZLib](http://zlib.net) 1.2.12
 - [libzip](http://www.nih.at/libzip) 1.9.2
 - [BZip2](https://www.sourceware.org/bzip2/) 1.0.8 (optional)
+- [ZSTD](https://github.com/facebook/zstd) 1.5.2 (optional)
+- [XZ-utils](https://tukaani.org/xz/) (optional)
+
+For more info on available compression methods, see [here](https://libzip.org/documentation/zip_set_file_compression.html).
 
 ## Integration
 
@@ -270,13 +274,19 @@ int main(int argc, char** argv) {
 using namespace libzippp;
 
 int main(int argc, char** argv) {
+  const bool useBzip2 = true;
+
   ZipArchive zf("archive.zip");
   zf.open(ZipArchive::Write);
   zf.addEntry("folder/subdir/");
 
   const char* textData = "Hello,World!";
   zf.addData("helloworld.txt", textData, 12);
-
+  // Advanced usage : change the compression method. Default is DEFLATE.
+  if (useBzip2) {
+    auto entry = zf.getEntry("helloworld.txt");
+    zf.setEntryCompressionMethod(entry, CompressionMethod::BZIP2);
+  }
   zf.close();
 
   return 0;
