@@ -97,7 +97,7 @@ int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzi
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION), bufferData(nullptr), bufferLength(0) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION), bufferData(nullptr), bufferLength(0), errorHandlingCallback(nullptr) {
     switch(encryptionMethod) {
 #ifdef LIBZIPPP_WITH_ENCRYPTION
         case Encryption::Aes128:

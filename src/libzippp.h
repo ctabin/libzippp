@@ -548,7 +548,8 @@ namespace libzippp {
         void** bufferData;
         libzippp_uint64 bufferLength;
 
-        ErrorHandlerCallback errorHandlingCallback = nullptr;
+        // User-defined error handler
+        ErrorHandlerCallback errorHandlingCallback;
         
         //open from in-memory data
         bool openBuffer(void** buffer, libzippp_uint32 sz, OpenMode mode=ReadOnly, bool checkConsistency=false);
