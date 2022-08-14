@@ -262,16 +262,12 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     
     //error during opening of the file
     if (errorFlag!=ZIP_ER_OK) {
-        if (errorHandlingCallback) {
+        zip_error_t error;
+        zip_error_init_with_code(&error, errorFlag);
+        Helper::callErrorHandlingCallback(&error, "unable to open archive: %s", errorHandlingCallback);
+        zip_error_fini(&error);
 
-        } else {
-            zip_error_t error;
-            zip_error_init_with_code(&error, errorFlag);
-            Helper::callErrorHandlingCallback(&error, "unable to open archive: %s", errorHandlingCallback);
-            zip_error_fini(&error);
-        }
-
-        zipHandle = nullptr;              
+        zipHandle = nullptr;
         return false;
     }
     
