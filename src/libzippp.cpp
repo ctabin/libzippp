@@ -47,17 +47,30 @@ using namespace std;
 
 #define NEW_CHAR_ARRAY(nb) new (std::nothrow) char[(nb)];
 
-static void callErrorHandlingCb(zip* zipHandle, const ErrorHandlerCallback& cb) {
-    int error_code_zip, error_code_system;
-    zip_error_get(zipHandle, &error_code_zip, &error_code_system);
-    cb(error_code_zip, error_code_system);
+namespace Helper {
+    static void callErrorHandlingCallback(zip* zipHandle, const std::string& msg, const ErrorHandlerCallback& callback) {
+        int error_code_zip, error_code_system;
+        zip_error_get(zipHandle, &error_code_zip, &error_code_system);
+        callback(msg, error_code_zip, error_code_system);
+    }
+
+    static void callErrorHandlingCallback(zip_error_t* error, const std::string& msg, const ErrorHandlerCallback& callback) {
+        int error_code_zip, error_code_system;
+        error_code_zip = zip_error_code_zip(error);
+        error_code_system = zip_error_code_system(error);
+        callback(msg, error_code_zip, error_code_system);
+    }
 }
 
-static void callErrorHandlingCb(zip_error_t* error, const ErrorHandlerCallback& cb) {
-    int error_code_zip, error_code_system;
-    error_code_zip = zip_error_code_zip(error);
-    error_code_system = zip_error_code_system(error);
-    cb(error_code_zip, error_code_system);
+static void defaultErrorHandler(const std::string& message,
+                                int zip_error_code,
+                                int system_error_code)
+{
+    zip_error_t error;
+    zip_error_init(&error);
+    zip_error_set(&error, zip_error_code, system_error_code);
+    fprintf(stderr, message.c_str(), zip_error_strerror(&error));
+    zip_error_fini(&error);
 }
 
 ZipEntry::ZipEntry(void) : zipFile(nullptr), index(0), time(0), compressionMethod(ZIP_CM_DEFAULT), encryptionMethod(ZIP_EM_NONE), size(0), sizeComp(0), crc(0) {
@@ -97,7 +110,7 @@ int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzi
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION), bufferData(nullptr), bufferLength(0), errorHandlingCallback(nullptr) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION), bufferData(nullptr), bufferLength(0), errorHandlingCallback(defaultErrorHandler) {
     switch(encryptionMethod) {
 #ifdef LIBZIPPP_WITH_ENCRYPTION
         case Encryption::Aes128:
@@ -172,11 +185,7 @@ bool ZipArchive::openBuffer(void** data, libzippp_uint32 size, OpenMode om, bool
     /* create source from buffer */
     zip_source* localZipSource = zip_source_buffer_create(*data, size, 0, &error);
     if (localZipSource == nullptr) {
-        if (errorHandlingCallback) {
-             callErrorHandlingCb(zipHandle, errorHandlingCallback);
-        } else {
-             LIBZIPPP_ERROR_DEBUG("can't create zip source: %s\n", zip_error_strerror(&error));
-        }
+        Helper::callErrorHandlingCallback(&error, "can't create zip source: %s\n", errorHandlingCallback);
         zip_error_fini(&error);
         return false;
     }
@@ -213,11 +222,7 @@ bool ZipArchive::openSource(zip_source* source, OpenMode om, bool checkConsisten
     /* open zip archive from source */
     zipHandle = zip_open_from_source(source, zipFlag, &error);
     if (zipHandle == nullptr) {
-        if (errorHandlingCallback) {
-            callErrorHandlingCb(&error, errorHandlingCallback);
-        } else {
-            LIBZIPPP_ERROR_DEBUG("can't open zip from source: %s", zip_error_strerror(&error))
-        }
+        Helper::callErrorHandlingCallback(&error, "can't open zip from source: %s",errorHandlingCallback);
         zip_error_fini(&error);
         return false;
     }
@@ -258,11 +263,11 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     //error during opening of the file
     if (errorFlag!=ZIP_ER_OK) {
         if (errorHandlingCallback) {
-           callErrorHandlingCb(zipHandle, errorHandlingCallback);
+
         } else {
             zip_error_t error;
             zip_error_init_with_code(&error, errorFlag);
-            LIBZIPPP_ERROR_DEBUG("Unable to open archive: %s", zip_error_strerror(&error));
+            Helper::callErrorHandlingCallback(&error, "unable to open archive: %s", errorHandlingCallback);
             zip_error_fini(&error);
         }
 
@@ -332,11 +337,7 @@ int ZipArchive::close(void) {
                         zip_int64_t newLength = bufferLength + increment;
                         sourceBuffer = realloc(sourceBuffer, newLength * sizeof(char));
                         if(sourceBuffer==nullptr) {
-                          if (errorHandlingCallback) {
-                            callErrorHandlingCb(zipHandle, errorHandlingCallback);
-                            } else {
-                            LIBZIPPP_ERROR_DEBUG("can't read back from source: %s", "unable to extend buffer")
-                            }
+                            Helper::callErrorHandlingCallback(zipHandle, "can't read back from source: unable to extend buffer", errorHandlingCallback);
                             return LIBZIPPP_ERROR_MEMORY_ALLOCATION;
                         }
                         
@@ -354,11 +355,7 @@ int ZipArchive::close(void) {
                 *bufferData = sourceBuffer;
                 bufferLength = totalRead;
             } else {
-              if (errorHandlingCallback) {
-                callErrorHandlingCb(zipHandle, errorHandlingCallback);
-              } else {
-                LIBZIPPP_ERROR_DEBUG("can't read back from source: %s", "changes were not pushed in the buffer")
-                }
+                Helper::callErrorHandlingCallback(zipHandle, "can't read back from source: changes were not pushed in the buffer", errorHandlingCallback);
                 return srcOpen;
             }
             
