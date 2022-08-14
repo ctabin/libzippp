@@ -382,7 +382,7 @@ using namespace libzippp;
 int main(int argc, char** argv) {
   ZipArchive zf("archive.zip");
   zf.setErrorHandlerCallback([](int zip_error_code, int system_error_code) {
-    // Handle error here
+      // Handle error here
   });
 
   zf.open(ZipArchive::Write);

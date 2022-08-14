@@ -173,9 +173,9 @@ bool ZipArchive::openBuffer(void** data, libzippp_uint32 size, OpenMode om, bool
     zip_source* localZipSource = zip_source_buffer_create(*data, size, 0, &error);
     if (localZipSource == nullptr) {
         if (errorHandlingCallback) {
-           callErrorHandlingCb(zipHandle, errorHandlingCallback);
+             callErrorHandlingCb(zipHandle, errorHandlingCallback);
         } else {
-           LIBZIPPP_ERROR_DEBUG("can't create zip source: %s\n", zip_error_strerror(&error));
+             LIBZIPPP_ERROR_DEBUG("can't create zip source: %s\n", zip_error_strerror(&error));
         }
         zip_error_fini(&error);
         return false;
