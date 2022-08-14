@@ -213,7 +213,11 @@ bool ZipArchive::openSource(zip_source* source, OpenMode om, bool checkConsisten
     /* open zip archive from source */
     zipHandle = zip_open_from_source(source, zipFlag, &error);
     if (zipHandle == nullptr) {
-        LIBZIPPP_ERROR_DEBUG("can't open zip from source: %s", zip_error_strerror(&error))
+        if (errorHandlingCallback) {
+            callErrorHandlingCb(&error, errorHandlingCallback);
+        } else {
+            LIBZIPPP_ERROR_DEBUG("can't open zip from source: %s", zip_error_strerror(&error))
+        }
         zip_error_fini(&error);
         return false;
     }
