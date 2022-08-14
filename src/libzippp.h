@@ -99,6 +99,7 @@ struct zip_source;
 namespace libzippp {
     class ZipEntry;
     class ZipProgressListener;
+
     /**
      * User-defined error-handler.
      * See https://libzip.org/documentation/zip_error_system_type.html
@@ -112,6 +113,7 @@ namespace libzippp {
      */
     class LIBZIPPP_API ZipArchive {
     public:
+
         /**
          * Defines how the zip file must be open.
          * NotOpen is a special mode where the file is not open.
