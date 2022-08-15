@@ -373,7 +373,7 @@ int main(int argc, char** argv) {
 
 ### Error handling
 
-By default, the error handling is pretty basic and the errors details are dumped to `stderr`. However, it is possible to provide a callback method to override this behavior by providing a callback. If some context is required, you may use `std::bind` or lambda-functions.
+By default, the error handling is pretty basic and the errors details are dumped to `stderr`. However, it is possible to provide a callback method to override this behavior. If some context is required, you may use `std::bind` or lambda-functions.
 
 ```C++
 #include "libzippp.h"
