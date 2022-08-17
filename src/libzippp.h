@@ -50,9 +50,6 @@ struct zip_source;
 #define LIBZIPPP_DEFAULT_CHUNK_SIZE 524288
 #define LIBZIPPP_DEFAULT_PROGRESSION_PRECISION 0.5
 
-// allow custom debug handling when errors occurs in libzippp
-#define LIBZIPPP_ERROR_DEBUG(str, errormsg) fprintf(stderr, (str"\n"), (errormsg));
-
 //libzip documentation
 //- http://www.nih.at/libzip/libzip.html
 //- http://slash.developpez.com/tutoriels/c/utilisation-libzip/
@@ -99,14 +96,22 @@ struct zip_source;
 namespace libzippp {
     class ZipEntry;
     class ZipProgressListener;
-    
+
+    /**
+     * User-defined error-handler.
+     * See https://libzip.org/documentation/zip_error_system_type.html
+     */
+    using ErrorHandlerCallback = std::function<void(const std::string& message,
+                                                    int zip_error_code,
+                                                    int system_error_code)>;
+
     /**
      * Represents a ZIP archive. This class provides useful methods to handle an archive
      * content. It is simply a wrapper around libzip.
      */
     class LIBZIPPP_API ZipArchive {
     public:
-        
+
         /**
          * Defines how the zip file must be open.
          * NotOpen is a special mode where the file is not open.
@@ -526,6 +531,10 @@ namespace libzippp {
         inline double getProgressPrecision(void) const { return progressPrecision; }
         void setProgressPrecision(double p) { progressPrecision = p; }
 
+        void setErrorHandlerCallback(const ErrorHandlerCallback& callback) {
+           errorHandlingCallback = callback;
+        }
+
     private:
         std::string path;
         zip* zipHandle;
@@ -538,6 +547,9 @@ namespace libzippp {
         
         void** bufferData;
         libzippp_uint64 bufferLength;
+
+        // User-defined error handler
+        ErrorHandlerCallback errorHandlingCallback;
         
         //open from in-memory data
         bool openBuffer(void** buffer, libzippp_uint32 sz, OpenMode mode=ReadOnly, bool checkConsistency=false);
