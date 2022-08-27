@@ -130,7 +130,7 @@ bool ZipEntry::setComment(const string& str) const {
     return zipFile->setEntryComment(*this, str);
 }
 
-bool ZipEntry::setCompressionMethod(CompressionMethod compMethod) const {
+bool ZipEntry::setCompressionMethod(CompressionMethod compMethod) {
     return zipFile->setEntryCompressionMethod(*this, compMethod);
 }
 
@@ -454,11 +454,12 @@ bool ZipArchive::setComment(const string& comment) const {
     return result==0;
 }
 
-bool ZipArchive::setEntryCompressionMethod(const ZipEntry& entry, CompressionMethod comp) const {
+bool ZipArchive::setEntryCompressionMethod(ZipEntry& entry, CompressionMethod comp) const {
     if (!isOpen()) { return false; }
     if (entry.zipFile!=this) { return false; }
     if (mode==ReadOnly) { return false; }
     const libzippp_uint16 comp_libzip = convertCompressionToLibzip(comp);
+    entry.compressionMethod = comp;
     return zip_set_file_compression(zipHandle, entry.index, comp_libzip, 0)==0;
 }
 
