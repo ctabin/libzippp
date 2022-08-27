@@ -116,6 +116,22 @@ namespace libzippp {
 #endif
      };
 
+// BZIP2
+#ifdef ZIP_CM_BZIP2
+#define LIBZIPPP_USE_BZIP2
+#endif
+
+// XZ
+#ifdef ZIP_CM_XZ
+#define LIBZIPPP_USE_XZ
+#endif
+
+// ZSTD
+#ifdef ZIP_CM_ZSTD
+#define LIBZIPPP_USE_ZSTD
+#endif
+
+
     /**
      * User-defined error-handler.
      * See https://libzip.org/documentation/zip_error_system_type.html

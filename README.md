@@ -278,9 +278,9 @@ int main(int argc, char** argv) {
   zf.open(ZipArchive::Write);
 
   // Advanced usage : change the compression method. Default is DEFLATE.
-  const bool bzip2 = false;
-  if (bzip2)
+#ifdef LIBZIPPP_USE_BZIP2
     zf.setCompressionMethod(entry, CompressionMethod::BZIP2);
+#endif
 
   zf.addEntry("folder/subdir/");
 
