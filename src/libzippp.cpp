@@ -91,6 +91,8 @@ static CompressionMethod convertCompressionFromLibzip(libzippp_uint16 comp) {
     default: // CompressionMethod::DEFAULT
         return CompressionMethod::DEFAULT;
   }
+}
+
 namespace Helper {
     static void callErrorHandlingCallback(zip* zipHandle, const std::string& msg, const ErrorHandlerCallback& callback) {
         int error_code_zip, error_code_system;

@@ -281,7 +281,7 @@ int main(int argc, char** argv) {
   const char* textData = "Hello,World!";
   zf.addData("helloworld.txt", textData, 12);
 
-  auto entry = zf.getEntry("helloworld.txt");
+  ZipEntry entry = zf.getEntry("helloworld.txt");
   // Advanced usage : change the compression method. Default is DEFLATE.
 #ifdef ZIP_CM_BZIP2
   zf.setEntryCompressionMethod(entry, CompressionMethod::BZIP2);
