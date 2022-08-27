@@ -286,8 +286,6 @@ int main(int argc, char** argv) {
   const char* textData = "Hello,World!";
   zf.addData("helloworld.txt", textData, 12);
 
-  ZipEntry entry = zf.getEntry("helloworld.txt");
-  }
   zf.close();
 
   return 0;
