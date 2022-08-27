@@ -568,6 +568,7 @@ namespace libzippp {
         void** bufferData;
         libzippp_uint64 bufferLength;
 
+        bool useArchiveCompressionMethod;
         libzippp_uint16 compressionMethod;
 
         // User-defined error handler

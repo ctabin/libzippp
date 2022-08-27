@@ -156,7 +156,7 @@ int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzi
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION), bufferData(nullptr), bufferLength(0), errorHandlingCallback(defaultErrorHandler) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION), bufferData(nullptr), bufferLength(0), useArchiveCompressionMethod(false), compressionMethod(ZIP_CM_DEFAULT), errorHandlingCallback(defaultErrorHandler) {
     switch(encryptionMethod) {
 #ifdef LIBZIPPP_WITH_ENCRYPTION
         case Encryption::Aes128:
@@ -474,7 +474,12 @@ ZipEntry ZipArchive::createEntry(struct zip_stat* stat) const {
     string name(stat->name);
     libzippp_uint64 index = stat->index;
     libzippp_uint64 size = stat->size;
-    libzippp_uint16 compMethod = this->compressionMethod;
+    libzippp_uint16 compMethod;
+    if (useArchiveCompressionMethod) {
+      compMethod = this->compressionMethod;
+    } else {
+      compMethod = stat->comp_method;
+    }
     libzippp_uint16 encMethod = stat->encryption_method;
     libzippp_uint64 sizeComp = stat->comp_size;
     int crc = stat->crc;
@@ -828,7 +833,10 @@ void ZipArchive::removeProgressListener(ZipProgressListener* listener) {
 
 void ZipArchive::setCompressionMethod(CompressionMethod comp)
 {
-  if (mode==New || mode==Write) { this->compressionMethod = convertCompressionToLibzip(comp);}
+  if (mode==New || mode==Write) {
+    useArchiveCompressionMethod = true;
+    compressionMethod = convertCompressionToLibzip(comp);
+  }
 }
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state, libzippp_uint64 chunksize) const {
