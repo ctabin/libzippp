@@ -116,11 +116,6 @@ namespace libzippp {
 #endif
      };
 
-    /* Export availability of compression methods */
-    const extern bool bzip2_available;
-    const extern bool xz_available;
-    const extern bool zstd_available;
-
     /**
      * User-defined error-handler.
      * See https://libzip.org/documentation/zip_error_system_type.html

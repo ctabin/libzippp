@@ -34,7 +34,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(LIBZIP MODULE REQUIRED)
 
-add_library(libzippp "src/libzippp.cpp" "src/compression_methods.cpp")
+add_library(libzippp "src/libzippp.cpp")
 add_library(libzippp::libzippp ALIAS libzippp) # Convenience alias
 target_include_directories(libzippp 
   PUBLIC  
