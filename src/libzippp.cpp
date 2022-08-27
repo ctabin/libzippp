@@ -474,7 +474,7 @@ ZipEntry ZipArchive::createEntry(struct zip_stat* stat) const {
     string name(stat->name);
     libzippp_uint64 index = stat->index;
     libzippp_uint64 size = stat->size;
-    libzippp_uint16 compMethod = stat->comp_method;
+    libzippp_uint16 compMethod = this->compressionMethod;
     libzippp_uint16 encMethod = stat->encryption_method;
     libzippp_uint64 sizeComp = stat->comp_size;
     int crc = stat->crc;
@@ -824,6 +824,11 @@ void ZipArchive::removeProgressListener(ZipProgressListener* listener) {
             break;
         }
     }
+}
+
+void ZipArchive::setCompressionMethod(CompressionMethod comp)
+{
+  if (mode==New || mode==Write) { this->compressionMethod = convertCompressionToLibzip(comp);}
 }
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state, libzippp_uint64 chunksize) const {

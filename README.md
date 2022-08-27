@@ -276,16 +276,18 @@ using namespace libzippp;
 int main(int argc, char** argv) {
   ZipArchive zf("archive.zip");
   zf.open(ZipArchive::Write);
+
+  // Advanced usage : change the compression method. Default is DEFLATE.
+#ifdef ZIP_CM_BZIP2
+  zf.setCompressionMethod(entry, CompressionMethod::BZIP2);
+#endif
+
   zf.addEntry("folder/subdir/");
 
   const char* textData = "Hello,World!";
   zf.addData("helloworld.txt", textData, 12);
 
   ZipEntry entry = zf.getEntry("helloworld.txt");
-  // Advanced usage : change the compression method. Default is DEFLATE.
-#ifdef ZIP_CM_BZIP2
-  zf.setEntryCompressionMethod(entry, CompressionMethod::BZIP2);
-#endif
   }
   zf.close();
 

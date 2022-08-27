@@ -553,6 +553,8 @@ namespace libzippp {
            errorHandlingCallback = callback;
         }
 
+        void setCompressionMethod(CompressionMethod comp);
+
     private:
         std::string path;
         zip* zipHandle;
@@ -565,6 +567,8 @@ namespace libzippp {
         
         void** bufferData;
         libzippp_uint64 bufferLength;
+
+        libzippp_uint16 compressionMethod;
 
         // User-defined error handler
         ErrorHandlerCallback errorHandlingCallback;
