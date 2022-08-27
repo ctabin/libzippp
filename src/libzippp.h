@@ -104,10 +104,10 @@ namespace libzippp {
     enum CompressionMethod {
       DEFAULT = 0,
       STORE,
+      DEFLATE,
 #ifdef ZIP_CM_BZIP2
       BZIP2,
 #endif
-      DEFLATE,
 #ifdef ZIP_CM_XZ
       XZ,
 #endif
@@ -115,7 +115,8 @@ namespace libzippp {
       ZSTD
 #endif
      };
-  
+
+    /**
      * User-defined error-handler.
      * See https://libzip.org/documentation/zip_error_system_type.html
      */
