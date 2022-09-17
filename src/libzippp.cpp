@@ -47,6 +47,52 @@ using namespace std;
 
 #define NEW_CHAR_ARRAY(nb) new (std::nothrow) char[(nb)];
 
+static libzippp_uint16 convertCompressionToLibzip(CompressionMethod comp) {
+  switch(comp) {
+    case CompressionMethod::STORE:
+        return ZIP_CM_STORE;
+#ifdef ZIP_CM_BZIP2
+    case CompressionMethod::BZIP2:
+        return ZIP_CM_BZIP2;
+#endif
+    case CompressionMethod::DEFLATE:
+        return ZIP_CM_DEFLATE;
+#ifdef ZIP_CM_XZ
+    case CompressionMethod::XZ:
+        return ZIP_CM_XZ;
+#endif
+#ifdef ZIP_CM_ZSTD
+    case CompressionMethod::ZSTD:
+        return ZIP_CM_ZSTD;
+#endif
+    default: // CompressionMethod::DEFAULT
+        return ZIP_CM_DEFAULT;
+  }
+}
+
+static CompressionMethod convertCompressionFromLibzip(libzippp_uint16 comp) {
+  switch(comp) {
+      case ZIP_CM_STORE:
+          return CompressionMethod::STORE;
+#ifdef ZIP_CM_BZIP2
+      case ZIP_CM_BZIP2:
+          return CompressionMethod::BZIP2;
+#endif
+    case ZIP_CM_DEFLATE:
+        return CompressionMethod::DEFLATE;
+#ifdef ZIP_CM_XZ
+    case ZIP_CM_XZ:
+        return CompressionMethod::XZ;
+#endif
+#ifdef ZIP_CM_ZSTD
+    case ZIP_CM_ZSTD:
+        return CompressionMethod::ZSTD;
+#endif
+    default: // CompressionMethod::DEFAULT
+        return CompressionMethod::DEFAULT;
+  }
+}
+
 namespace Helper {
     static void callErrorHandlingCallback(zip* zipHandle, const std::string& msg, const ErrorHandlerCallback& callback) {
         int error_code_zip, error_code_system;
@@ -84,12 +130,12 @@ bool ZipEntry::setComment(const string& str) const {
     return zipFile->setEntryComment(*this, str);
 }
 
-bool ZipEntry::isCompressionEnabled(void) const {
-    return zipFile->isEntryCompressionEnabled(*this);
+bool ZipEntry::setCompressionMethod(CompressionMethod compMethod) {
+    return zipFile->setEntryCompressionMethod(*this, compMethod);
 }
 
-bool ZipEntry::setCompressionEnabled(bool value) const {
-    return zipFile->setEntryCompressionEnabled(*this, value);
+CompressionMethod ZipEntry::getCompressionMethod(void) const {
+    return convertCompressionFromLibzip(compressionMethod);
 }
 
 string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const {
@@ -110,7 +156,7 @@ int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzi
    return zipFile->readEntry(*this, ofOutput, state, chunksize);
 }
 
-ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION), bufferData(nullptr), bufferLength(0), errorHandlingCallback(defaultErrorHandler) {
+ZipArchive::ZipArchive(const string& zipPath, const string& password, Encryption encryptionMethod) : path(zipPath), zipHandle(nullptr), zipSource(nullptr), mode(NotOpen), password(password), progressPrecision(LIBZIPPP_DEFAULT_PROGRESSION_PRECISION), bufferData(nullptr), bufferLength(0), useArchiveCompressionMethod(false), compressionMethod(ZIP_CM_DEFAULT), errorHandlingCallback(defaultErrorHandler) {
     switch(encryptionMethod) {
 #ifdef LIBZIPPP_WITH_ENCRYPTION
         case Encryption::Aes128:
@@ -408,17 +454,13 @@ bool ZipArchive::setComment(const string& comment) const {
     return result==0;
 }
 
-bool ZipArchive::isEntryCompressionEnabled(const ZipEntry& entry) const {
-    return entry.compressionMethod==ZIP_CM_DEFLATE;
-}
-
-bool ZipArchive::setEntryCompressionEnabled(const ZipEntry& entry, bool value) const {
+bool ZipArchive::setEntryCompressionMethod(ZipEntry& entry, CompressionMethod comp) const {
     if (!isOpen()) { return false; }
     if (entry.zipFile!=this) { return false; }
     if (mode==ReadOnly) { return false; }
-    
-    libzippp_uint16 compMode = value ? ZIP_CM_DEFLATE : ZIP_CM_STORE;
-    return zip_set_file_compression(zipHandle, entry.index, compMode, 0)==0;
+    const libzippp_uint16 comp_libzip = convertCompressionToLibzip(comp);
+    entry.compressionMethod = comp;
+    return zip_set_file_compression(zipHandle, entry.index, comp_libzip, 0)==0;
 }
 
 libzippp_int64 ZipArchive::getNbEntries(State state) const {
@@ -432,7 +474,12 @@ ZipEntry ZipArchive::createEntry(struct zip_stat* stat) const {
     string name(stat->name);
     libzippp_uint64 index = stat->index;
     libzippp_uint64 size = stat->size;
-    libzippp_uint16 compMethod = stat->comp_method;
+    libzippp_uint16 compMethod;
+    if (useArchiveCompressionMethod) {
+      compMethod = this->compressionMethod;
+    } else {
+      compMethod = stat->comp_method;
+    }
     libzippp_uint16 encMethod = stat->encryption_method;
     libzippp_uint64 sizeComp = stat->comp_size;
     int crc = stat->crc;
@@ -782,6 +829,14 @@ void ZipArchive::removeProgressListener(ZipProgressListener* listener) {
             break;
         }
     }
+}
+
+void ZipArchive::setCompressionMethod(CompressionMethod comp)
+{
+  if (mode==New || mode==Write) {
+    useArchiveCompressionMethod = true;
+    compressionMethod = convertCompressionToLibzip(comp);
+  }
 }
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state, libzippp_uint64 chunksize) const {

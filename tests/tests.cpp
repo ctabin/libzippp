@@ -103,7 +103,7 @@ void test2() {
     z1.addData("somedata", txtFile, len);
     
     ZipEntry z1e1 = z1.getEntry("somedata");
-    z1e1.setCompressionEnabled(true);
+    z1e1.setCompressionMethod(DEFLATE);
     
     z1.close();
     
@@ -114,7 +114,7 @@ void test2() {
     
     ZipEntry entry = z2.getEntry("somedata");
     assert(!entry.isNull());
-    assert(entry.isCompressionEnabled());
+    assert(entry.getCompressionMethod() == DEFLATE);
     
     string data = entry.readAsText();
     int clen = data.size();
@@ -148,7 +148,7 @@ void test3() {
     
     ZipEntry entry = z2.getEntry("somedata/in/subfolder/data.txt");
     assert(!entry.isNull());
-    assert(!entry.isCompressionEnabled());
+    assert(entry.getCompressionMethod() != DEFAULT);
     
     string data = entry.readAsText();
     int clen = data.size();

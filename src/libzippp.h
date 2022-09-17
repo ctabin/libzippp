@@ -98,6 +98,41 @@ namespace libzippp {
     class ZipProgressListener;
 
     /**
+     * Compression algorithm to use.
+     * See https://libzip.org/documentation/zip_set_file_compression.html
+     */
+    enum CompressionMethod {
+      DEFAULT = 0,
+      STORE,
+      DEFLATE,
+#ifdef ZIP_CM_BZIP2
+      BZIP2,
+#endif
+#ifdef ZIP_CM_XZ
+      XZ,
+#endif
+#ifdef ZIP_CM_ZSTD
+      ZSTD
+#endif
+     };
+
+// BZIP2
+#ifdef ZIP_CM_BZIP2
+#define LIBZIPPP_USE_BZIP2
+#endif
+
+// XZ
+#ifdef ZIP_CM_XZ
+#define LIBZIPPP_USE_XZ
+#endif
+
+// ZSTD
+#ifdef ZIP_CM_ZSTD
+#define LIBZIPPP_USE_ZSTD
+#endif
+
+
+    /**
      * User-defined error-handler.
      * See https://libzip.org/documentation/zip_error_system_type.html
      */
@@ -359,8 +394,7 @@ namespace libzippp {
          * Defines the compression method of an entry. If the ZipArchive is not open
          * or the entry is not linked to this archive, false will be returned.
          **/
-        bool isEntryCompressionEnabled(const ZipEntry& entry) const;
-        bool setEntryCompressionEnabled(const ZipEntry& entry, bool value) const;
+        bool setEntryCompressionMethod(ZipEntry& entry, CompressionMethod compMethod = CompressionMethod::DEFAULT) const;
         
         /**
          * Reads the specified ZipEntry of the ZipArchive and returns its content within
@@ -535,6 +569,8 @@ namespace libzippp {
            errorHandlingCallback = callback;
         }
 
+        void setCompressionMethod(CompressionMethod comp);
+
     private:
         std::string path;
         zip* zipHandle;
@@ -547,6 +583,9 @@ namespace libzippp {
         
         void** bufferData;
         libzippp_uint64 bufferLength;
+
+        bool useArchiveCompressionMethod;
+        libzippp_uint16 compressionMethod;
 
         // User-defined error handler
         ErrorHandlerCallback errorHandlingCallback;
@@ -617,7 +656,7 @@ namespace libzippp {
          * Returns the compression method. By default, ZIP_CM_DEFAULT.
          * Can be one of ZIP_CM_DEFAULT,ZIP_CM_STORE,ZIP_CM_BZIP2,ZIP_CM_DEFLATE,ZIP_CM_XZ or ZIP_CM_ZSTD.
          */
-        inline libzippp_uint16 getCompressionMethod(void) const { return compressionMethod; }
+        CompressionMethod getCompressionMethod(void) const;
         
         /**
          * Returns the encryption method.
@@ -656,12 +695,11 @@ namespace libzippp {
         inline bool isNull(void) const { return zipFile==nullptr; }
         
         /**
-         * Defines if the compression is enabled for this entry.
-         * Those methods are wrappers arount ZipArchive::isEntryCompressionEnabled and
-         * ZipArchive::setEntryCompressionEnabled.
+         * Defines the compression method to be used
+         * Those methods are wrappers around setEntryCompressionMethod and
+         * getCompressionMethod.
          */
-        bool isCompressionEnabled(void) const;
-        bool setCompressionEnabled(bool value) const;
+        bool setCompressionMethod(CompressionMethod compMethod);
         
         /**
          * Defines the comment of the entry. In order to call either one of those
