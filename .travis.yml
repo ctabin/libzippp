@@ -57,7 +57,7 @@ install:
   - THIRD_PARTY_PREFIX=$THIRD_PARTY/install
   - |
     mkdir -p $THIRD_PARTY/zlib && cd $THIRD_PARTY/zlib
-    travis_retry wget -O zlib.tar.gz "https://github.com/madler/zlib/archive/v1.2.12.tar.gz"
+    travis_retry wget -O zlib.tar.gz "https://github.com/madler/zlib/archive/v1.2.13.tar.gz"
     tar xzf zlib.tar.gz --strip-components=1
     mkdir build && cd build
     cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_PREFIX}
