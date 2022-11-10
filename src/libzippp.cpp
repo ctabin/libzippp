@@ -353,8 +353,11 @@ int ZipArchive::close(void) {
         if(!listeners.empty()) {
             zip_register_progress_callback_with_state(zipHandle, progressPrecision, progress_callback, nullptr, this);
         }
-
-        progress_callback(zipHandle, 0, this); //enforce the first progression call to be zero
+          
+        //avoid to reset the progress when unzipping           
+        if(mode != ReadOnly) {
+          progress_callback(zipHandle, 0, this); //enforce the first progression call to be zero
+        }
         
         int result = zip_close(zipHandle);
         zipHandle = nullptr;
