@@ -32,6 +32,11 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef WIN32
+   // Disable compiler warning for strcpy
+   #define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <zip.h>
 #include <errno.h>
 #include <fstream>
@@ -465,7 +470,7 @@ bool ZipArchive::setComment(const string& comment) const {
     
     string::size_type size = comment.size();
     const char* data = comment.c_str();
-    int result = zip_set_archive_comment(zipHandle, data, size);
+    int result = zip_set_archive_comment(zipHandle, data, (zip_uint16_t)size);
     return result==0;
 }
 
@@ -588,7 +593,7 @@ bool ZipArchive::setEntryComment(const ZipEntry& entry, const string& comment) c
     if (!isOpen()) { return false; }
     if (entry.zipFile!=this) { return false; }
     
-    bool result = zip_file_set_comment(zipHandle, entry.getIndex(), comment.c_str(), comment.size(), ZIP_FL_ENC_GUESS);
+    bool result = zip_file_set_comment(zipHandle, entry.getIndex(), comment.c_str(), (zip_uint16_t)comment.size(), ZIP_FL_ENC_GUESS) != 0;
     return result==0;
 }
 
