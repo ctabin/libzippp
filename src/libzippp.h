@@ -621,6 +621,12 @@ namespace libzippp {
          * set in libzip.
          */
         virtual void progression(double p) = 0;
+        /**
+         * This method is invoked during zip/unzip operations.
+         * If this function return 1 the operation is cancelled.
+         * If this function return 0 the operation will continue.
+         */
+        virtual int cancel() = 0;
     };
     
     /**
