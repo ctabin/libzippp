@@ -60,6 +60,9 @@ public:
         if(firstValue<0) { firstValue = p; }
         lastValue = p;
     }
+    int cancel() {
+      return 0;
+    }
 };
 
 void test1() {
