@@ -344,6 +344,17 @@ void progress_callback(zip* archive, double progression, void* ud) {
     }
 }
 
+int progress_cancel_callback(zip *archive, void *ud) {
+    ZipArchive* za = static_cast<ZipArchive*>(ud);
+    vector<ZipProgressListener*> listeners = za->getProgressListeners();
+    for(vector<ZipProgressListener*>::const_iterator it=listeners.begin() ; it!=listeners.end() ; ++it) {
+        ZipProgressListener* listener = *it;
+        if(listener->cancel())
+          return 1;
+    }
+    return 0;
+}
+
 int ZipArchive::close(void) {
     if (isOpen()) {
 
@@ -352,6 +363,7 @@ int ZipArchive::close(void) {
 
         if(!listeners.empty()) {
             zip_register_progress_callback_with_state(zipHandle, progressPrecision, progress_callback, nullptr, this);
+            zip_register_cancel_callback_with_state(zipHandle, progress_cancel_callback, nullptr, this);
         }
           
         //avoid to reset the progress when unzipping           
