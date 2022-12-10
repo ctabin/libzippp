@@ -693,7 +693,7 @@ int ZipArchive::renameEntry(const ZipEntry& entry, const string& newName) const 
         if (!LIBZIPPP_ENTRY_IS_DIRECTORY(newName)) { return LIBZIPPP_ERROR_INVALID_PARAMETER; } //invalid new name
         
       string::size_type parentSlash = newName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR, newName.length()-2);
-        if (parentSlash!=-1) { //updates the dir hierarchy
+        if (parentSlash!=string::npos) { //updates the dir hierarchy
             string parent = newName.substr(0, parentSlash+1);
             bool dadded = addEntry(parent);
             if (!dadded) { return LIBZIPPP_ERROR_UNKNOWN; }
@@ -750,7 +750,7 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
     if (LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
     string::size_type lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
-    if (lastSlash!=-1) { //creates the needed parent directories
+    if (lastSlash!=string::npos) { //creates the needed parent directories
         string dirEntry = entryName.substr(0, lastSlash+1);
         bool dadded = addEntry(dirEntry);
         if (!dadded) { return false; }
@@ -793,7 +793,7 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
     if (LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
     string::size_type lastSlash = entryName.rfind(LIBZIPPP_ENTRY_PATH_SEPARATOR);
-    if (lastSlash!=-1) { //creates the needed parent directories
+    if (lastSlash!=string::npos) { //creates the needed parent directories
         string dirEntry = entryName.substr(0, lastSlash+1);
         bool dadded = addEntry(dirEntry);
         if (!dadded) { return false; }
@@ -832,7 +832,7 @@ bool ZipArchive::addEntry(const string& entryName) const {
     if (!LIBZIPPP_ENTRY_IS_DIRECTORY(entryName)) { return false; }
     
     string::size_type nextSlash = entryName.find(LIBZIPPP_ENTRY_PATH_SEPARATOR);
-    while (nextSlash!=-1) {
+    while (nextSlash!=string::npos) {
         string pathToCreate = entryName.substr(0, nextSlash+1);
         if (!hasEntry(pathToCreate)) {
             libzippp_int64 result = zip_dir_add(zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
