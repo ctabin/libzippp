@@ -392,10 +392,12 @@ using namespace libzippp;
 int main(int argc, char** argv) {
   ZipArchive zf("archive.zip");
   zf.setErrorHandlerCallback([](const std::string& message,
+                                const std::string& strerror,
                                 int zip_error_code,
                                 int system_error_code)
   {
       // Handle error here
+      fprintf(stderr, message.c_str(), strerror.c_str());
   });
 
   zf.open(ZipArchive::Write);

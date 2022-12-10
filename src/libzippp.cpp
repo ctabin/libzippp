@@ -99,29 +99,35 @@ static CompressionMethod convertCompressionFromLibzip(libzippp_uint16 comp) {
 }
 
 namespace Helper {
-    static void callErrorHandlingCallback(zip* zipHandle, const std::string& msg, const ErrorHandlerCallback& callback) {
+    static void callErrorHandlingCallbackFunc(const std::string& message, int zip_error_code, int system_error_code, ErrorHandlerCallback* callback) {
+        zip_error_t error;
+        zip_error_init(&error);
+        zip_error_set(&error, zip_error_code, system_error_code);
+        std::string strerror(zip_error_strerror(&error));
+        (*callback)(message, strerror, zip_error_code, system_error_code);
+        zip_error_fini(&error);
+    }
+  
+    static void callErrorHandlingCallback(zip* zipHandle, const std::string& msg, ErrorHandlerCallback* callback) {
         int error_code_zip, error_code_system;
         zip_error_get(zipHandle, &error_code_zip, &error_code_system);
-        callback(msg, error_code_zip, error_code_system);
+        callErrorHandlingCallbackFunc(msg, error_code_zip, error_code_system, callback);
     }
 
-    static void callErrorHandlingCallback(zip_error_t* error, const std::string& msg, const ErrorHandlerCallback& callback) {
+    static void callErrorHandlingCallback(zip_error_t* error, const std::string& msg, ErrorHandlerCallback* callback) {
         int error_code_zip, error_code_system;
         error_code_zip = zip_error_code_zip(error);
         error_code_system = zip_error_code_system(error);
-        callback(msg, error_code_zip, error_code_system);
+        callErrorHandlingCallbackFunc(msg, error_code_zip, error_code_system, callback);
     }
 }
 
 static void defaultErrorHandler(const std::string& message,
+                                const std::string& strerror,
                                 int zip_error_code,
                                 int system_error_code)
 {
-    zip_error_t error;
-    zip_error_init(&error);
-    zip_error_set(&error, zip_error_code, system_error_code);
-    fprintf(stderr, message.c_str(), zip_error_strerror(&error));
-    zip_error_fini(&error);
+    fprintf(stderr, message.c_str(), strerror.c_str());
 }
 
 ZipEntry::ZipEntry(void) : zipFile(nullptr), index(0), time(0), compressionMethod(ZIP_CM_DEFAULT), encryptionMethod(ZIP_EM_NONE), size(0), sizeComp(0), crc(0) {
@@ -191,6 +197,7 @@ ZipArchive::~ZipArchive(void) {
     zipHandle = nullptr;
     zipSource = nullptr;
     bufferData = nullptr;
+    errorHandlingCallback = nullptr;
     listeners.clear();
 }
 
@@ -273,7 +280,7 @@ bool ZipArchive::openSource(zip_source* source, OpenMode om, bool checkConsisten
     /* open zip archive from source */
     zipHandle = zip_open_from_source(source, zipFlag, &error);
     if (zipHandle == nullptr) {
-        Helper::callErrorHandlingCallback(&error, "can't open zip from source: %s",errorHandlingCallback);
+        Helper::callErrorHandlingCallback(&error, "can't open zip from source: %s\n", errorHandlingCallback);
         zip_error_fini(&error);
         return false;
     }
@@ -315,7 +322,7 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     if (errorFlag!=ZIP_ER_OK) {
         zip_error_t error;
         zip_error_init_with_code(&error, errorFlag);
-        Helper::callErrorHandlingCallback(&error, "unable to open archive: %s", errorHandlingCallback);
+        Helper::callErrorHandlingCallback(&error, "unable to open archive: %s\n", errorHandlingCallback);
         zip_error_fini(&error);
 
         zipHandle = nullptr;
@@ -399,7 +406,7 @@ int ZipArchive::close(void) {
                         zip_int64_t newLength = bufferLength + increment;
                         sourceBuffer = realloc(sourceBuffer, newLength * sizeof(char));
                         if(sourceBuffer==nullptr) {
-                            Helper::callErrorHandlingCallback(zipHandle, "can't read back from source: unable to extend buffer", errorHandlingCallback);
+                            Helper::callErrorHandlingCallback(zipHandle, "can't read back from source: unable to extend buffer\n", errorHandlingCallback);
                             return LIBZIPPP_ERROR_MEMORY_ALLOCATION;
                         }
                         
@@ -417,7 +424,7 @@ int ZipArchive::close(void) {
                 *bufferData = sourceBuffer;
                 bufferLength = totalRead;
             } else {
-                Helper::callErrorHandlingCallback(zipHandle, "can't read back from source: changes were not pushed in the buffer", errorHandlingCallback);
+                Helper::callErrorHandlingCallback(zipHandle, "can't read back from source: changes were not pushed in the buffer\n", errorHandlingCallback);
                 return srcOpen;
             }
             
