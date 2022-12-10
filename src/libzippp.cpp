@@ -902,7 +902,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::function<bool(const voi
             char* data = NEW_CHAR_ARRAY(chunksize)
             if (data!=nullptr) {
                 string::size_type nbChunks = maxSize/chunksize;
-                for (int uiChunk=0 ; uiChunk<nbChunks ; ++uiChunk) {
+                for (uint uiChunk=0 ; uiChunk<nbChunks ; ++uiChunk) {
                     result = zip_fread(zipFile, data, chunksize);
                     if (result>0) {
                         if (result!=static_cast<libzippp_int64>(chunksize)) {
