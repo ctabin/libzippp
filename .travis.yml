@@ -14,6 +14,9 @@ addons:
       - libssl-dev
       - valgrind
 
+permissions:
+  contents: read
+
 branches:
   only:
     - master
