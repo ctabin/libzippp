@@ -871,12 +871,33 @@ void test23() {
     }*/
 }
 
+static void myErrorHandler(const std::string& message,
+                           const std::string& strerror,
+                           int zip_error_code,
+                           int system_error_code)
+{
+    fprintf(stderr, "# zip_error_code: %d\n", zip_error_code);
+    fprintf(stderr, "# system_error_code: %d\n", system_error_code);
+    fprintf(stderr, message.c_str(), strerror.c_str());
+}
+
+void test24() {
+    cout << "Running test 24...";
+    
+    ZipArchive z1("non-existent.zip");
+    z1.setErrorHandlerCallback(myErrorHandler);
+    z1.open(ZipArchive::ReadOnly);
+    z1.close();
+
+    cout << " done." << endl;
+}
+
 int main(int argc, char** argv) {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();
     test16(); test17(); test18(); test19(); test20();
-    test21(); test22(); test23();
+    test21(); test22(); test23(); test24();
     return 0;
 }
 

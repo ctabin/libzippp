@@ -93,6 +93,24 @@ struct zip_source;
 #define LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE -36
 #define LIBZIPPP_ERROR_UNKNOWN -99
 
+/**
+ * User-defined error-handler.
+ * See https://libzip.org/documentation/zip_error_system_type.html
+ * 
+ * The default handler just print the error by the following way:
+ *   fprintf(stderr, message.c_str(), strerror.c_str());
+ * 
+ * Parameters are:
+ * - message: A message, with possible placeholders (%s) for printf.
+ * - strerror: A description of the error message, issued from libzip (see zip_error_strerror).
+ * - zip_error_code: the libzip error code.
+ * - system_error_code: the system error code.
+ */
+typedef void ErrorHandlerCallback(const std::string& message,
+                                  const std::string& strerror,
+                                  int zip_error_code,
+                                  int system_error_code);
+
 namespace libzippp {
     class ZipEntry;
     class ZipProgressListener;
@@ -130,15 +148,6 @@ namespace libzippp {
 #ifdef ZIP_CM_ZSTD
 #define LIBZIPPP_USE_ZSTD
 #endif
-
-
-    /**
-     * User-defined error-handler.
-     * See https://libzip.org/documentation/zip_error_system_type.html
-     */
-    using ErrorHandlerCallback = std::function<void(const std::string& message,
-                                                    int zip_error_code,
-                                                    int system_error_code)>;
 
     /**
      * Represents a ZIP archive. This class provides useful methods to handle an archive
@@ -565,7 +574,7 @@ namespace libzippp {
         inline double getProgressPrecision(void) const { return progressPrecision; }
         void setProgressPrecision(double p) { progressPrecision = p; }
 
-        void setErrorHandlerCallback(const ErrorHandlerCallback& callback) {
+        void setErrorHandlerCallback(ErrorHandlerCallback* callback) {
            errorHandlingCallback = callback;
         }
 
@@ -588,7 +597,7 @@ namespace libzippp {
         libzippp_uint16 compressionMethod;
 
         // User-defined error handler
-        ErrorHandlerCallback errorHandlingCallback;
+        ErrorHandlerCallback* errorHandlingCallback;
         
         //open from in-memory data
         bool openBuffer(void** buffer, libzippp_uint32 sz, OpenMode mode=ReadOnly, bool checkConsistency=false);
