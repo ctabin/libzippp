@@ -2,7 +2,7 @@
 @echo off
 
 SET root=%cd%
-SET zlib=lib\zlib-1.2.12
+SET zlib=lib\zlib-1.2.13
 SET libzip=lib\libzip-1.9.2
 
 if not exist "%zlib%" goto error_zlib_not_found
