@@ -261,7 +261,7 @@ namespace libzippp {
          * 
          * Use ZipArchive::free to delete the returned pointer.
          */
-        static ZipArchive* fromWriteableBuffer(void** data, libzippp_uint32 size, OpenMode mode=Write, bool checkConsistency=false);
+        static ZipArchive* fromWritableBuffer(void** data, libzippp_uint32 size, OpenMode mode=Write, bool checkConsistency=false);
         
         /**
          * Deletes a ZipArchive.

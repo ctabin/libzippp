@@ -721,7 +721,7 @@ void test21() {
     int len4 = strlen(txtFile4);
     int len5 = strlen(txtFile5);
 
-    ZipArchive* z3 = ZipArchive::fromWriteableBuffer((void**)&buffer, bufferSize);
+    ZipArchive* z3 = ZipArchive::fromWritableBuffer((void**)&buffer, bufferSize);
     assert(z3->isMutable());
     
     z3->addData("someNewDataFromBuffer.txt", txtFile3, len3);
@@ -735,7 +735,7 @@ void test21() {
 
     ZipArchive::free(z3);
 
-    ZipArchive* z4 = ZipArchive::fromWriteableBuffer((void**)&buffer, newLength);
+    ZipArchive* z4 = ZipArchive::fromWritableBuffer((void**)&buffer, newLength);
     assert(z4->getNbEntries() == 6);
     assert(z4->hasEntry("somedata"));
     assert(z4->hasEntry("somedata2"));
@@ -801,7 +801,7 @@ void test23() {
 
     char* buffer = (char*)calloc(4096, sizeof(char));
 
-    ZipArchive* z1 = ZipArchive::fromWriteableBuffer((void**)&buffer, 4096, ZipArchive::New);
+    ZipArchive* z1 = ZipArchive::fromWritableBuffer((void**)&buffer, 4096, ZipArchive::New);
     assert(z1!=nullptr);
     z1->addData("somedata", txtFile, len);
     z1->addData("somedata2", txtFile2, len2);

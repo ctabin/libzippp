@@ -169,7 +169,7 @@ It may need some adjusting though.
 The API is meant to be very straight forward. Some french explanations
 can be found [here](http://www.astorm.ch/blog).
 
-### List and read files in an archive:
+### List and read files in an archive
 
 ```C++
 #include "libzippp.h"
@@ -201,7 +201,7 @@ int main(int argc, char** argv) {
 }
 ```
 
-You can also create an archive directly from a buffer:
+You can also create an archive directly from a buffer
 ```C++
 #include "libzippp.h"
 using namespace libzippp;
@@ -221,7 +221,7 @@ int main(int argc, char** argv) {
 }
 ```
 
-### Read a specific entry from an archive:
+### Read a specific entry from an archive
 
 ```C++
 #include "libzippp.h"
@@ -246,7 +246,7 @@ int main(int argc, char** argv) {
 }
 ```
 
-### Read a large entry from an archive:
+### Read a large entry from an archive
 
 ```C++
 #include "libzippp.h"
@@ -267,7 +267,7 @@ int main(int argc, char** argv) {
 }
 ```
 
-### Add data to an archive:
+### Add data to an archive
 
 ```C++
 #include "libzippp.h"
@@ -293,7 +293,7 @@ int main(int argc, char** argv) {
 }
 ```
 
-### Remove data from an archive:
+### Remove data from an archive
 
 ```C++
 #include "libzippp.h"
@@ -351,10 +351,10 @@ int main(int argc, char** argv) {
 using namespace libzippp;
 
 int main(int argc, char** argv) {
-  //important to use calloc/malloc for the fromWriteableBuffer !
+  //important to use calloc/malloc for the fromWritableBuffer !
   char* buffer = (char*)calloc(4096, sizeof(char));
 
-  ZipArchive* z1 = ZipArchive::fromWriteableBuffer(&buffer, 4096, ZipArchive::New);
+  ZipArchive* z1 = ZipArchive::fromWritableBuffer(&buffer, 4096, ZipArchive::New);
   /* add content to the archive */
   
   //will update the content of the buffer
