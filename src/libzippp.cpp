@@ -216,7 +216,7 @@ ZipArchive* ZipArchive::fromBuffer(const void* data, libzippp_uint32 size, bool 
     return za;
 }
 
-ZipArchive* ZipArchive::fromWriteableBuffer(void** data, libzippp_uint32 size, OpenMode mode, bool checkConsistency) {
+ZipArchive* ZipArchive::fromWritableBuffer(void** data, libzippp_uint32 size, OpenMode mode, bool checkConsistency) {
     ZipArchive* za = new ZipArchive("");
     bool o = za->openBuffer(data, size, mode, checkConsistency);
     if(!o) {
