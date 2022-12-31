@@ -23,21 +23,31 @@ if(NOT WIN32)
   set(CMAKE_CXX_FLAGS "-W -Wall -Wextra -ansi -pedantic -std=c++11")
   set(CMAKE_CXX_FLAGS_DEBUG "-g")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+  set(NOTWIN32 ON)
 endif()
 
 option(LIBZIPPP_INSTALL "Install library" ${is_root_project})
 option(LIBZIPPP_INSTALL_HEADERS "Install the headers" ${is_root_project})
 option(LIBZIPPP_BUILD_TESTS "Build unit tests" ${is_root_project})
 option(LIBZIPPP_ENABLE_ENCRYPTION "Build with encryption enabled" OFF)
+option(LIBZIPPP_CMAKE_CONFIG_MODE "Build with libzip installed cmake config files" ${NOTWIN32})
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-find_package(LIBZIP MODULE REQUIRED)
+if(LIBZIPPP_CMAKE_CONFIG_MODE)
+  set(LIBZIP_PKGNAME "libzip")
+  set(fp_mode "CONFIG")
+else()
+  set(LIBZIP_PKGNAME "LIBZIP")
+  set(fp_mode "MODULE")
+endif()
+
+find_package(${LIBZIP_PKGNAME} ${fp_mode} REQUIRED)
 
 add_library(libzippp "src/libzippp.cpp")
 add_library(libzippp::libzippp ALIAS libzippp) # Convenience alias
-target_include_directories(libzippp 
-  PUBLIC  
+target_include_directories(libzippp
+  PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include/libzippp>
 )
@@ -61,7 +71,7 @@ if(LIBZIPPP_BUILD_TESTS)
   add_executable(libzippp_test "tests/tests.cpp")
   target_link_libraries(libzippp_test PRIVATE libzippp)
   add_test(NAME libzippp_tests COMMAND libzippp_test)
-  
+
   if (BUILD_SHARED_LIBS)
     set_target_properties(libzippp_test PROPERTIES OUTPUT_NAME "libzippp_shared_test")
   else()
@@ -71,11 +81,11 @@ endif()
 
 if(LIBZIPPP_INSTALL)
   install(
-    TARGETS libzippp 
+    TARGETS libzippp
     EXPORT libzipppTargets
     LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib 
-    RUNTIME DESTINATION bin 
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
   )
 
   if(LIBZIPPP_INSTALL_HEADERS)
@@ -91,10 +101,10 @@ if(LIBZIPPP_INSTALL)
   else()
     set(configInstallDestination share/${PROJECT_NAME})
   endif()
-  
+
   configure_package_config_file(
-    "Config.cmake.in" 
-    ${PROJECT_CONFIG_FILE} 
+    "Config.cmake.in"
+    ${PROJECT_CONFIG_FILE}
     INSTALL_DESTINATION ${configInstallDestination}
   )
   write_basic_package_version_file(
@@ -103,7 +113,8 @@ if(LIBZIPPP_INSTALL)
   )
 
   install(
-    FILES ${PROJECT_CONFIG_FILE} ${PROJECT_VERSION_FILE} cmake/FindLIBZIP.cmake
+    FILES ${PROJECT_CONFIG_FILE} ${PROJECT_VERSION_FILE}
+    $<$<NOT:$<BOOL:"${LIBZIPPP_CMAKE_CONFIG_MODE}">>:cmake/FindLIBZIP.cmake>
     DESTINATION ${configInstallDestination}
   )
 
