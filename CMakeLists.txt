@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12.0)
+cmake_minimum_required(VERSION 3.14.0)
 
 project(libzippp
         VERSION 6.0.0
@@ -36,6 +36,7 @@ option(LIBZIPPP_INSTALL_HEADERS "Install the headers" ${is_root_project})
 option(LIBZIPPP_BUILD_TESTS "Build unit tests" ${is_root_project})
 option(LIBZIPPP_ENABLE_ENCRYPTION "Build with encryption enabled" OFF)
 option(LIBZIPPP_CMAKE_CONFIG_MODE "Build with libzip installed cmake config files" ${NOTWIN32})
+option(LIBZIPPP_GNUINSTALLDIRS "Install into directories taken from GNUInstallDirs" ${UNIX})
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -49,12 +50,18 @@ endif()
 
 find_package(${LIBZIP_PKGNAME} ${fp_mode} REQUIRED)
 
+if(LIBZIPPP_GNUINSTALLDIRS)
+  include(GNUInstallDirs)
+endif()
+
 add_library(libzippp "src/libzippp.cpp")
 add_library(libzippp::libzippp ALIAS libzippp) # Convenience alias
 target_include_directories(libzippp
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:include/libzippp>
+    "$<INSTALL_INTERFACE:
+       $<IF:$<BOOL:${LIBZIPPP_GNUINSTALLDIRS}>,
+         ${CMAKE_INSTALL_INCLUDEDIR}/libzippp,include/libzippp>>"
 )
 set_target_properties(libzippp PROPERTIES PREFIX "") # Avoid duplicate "lib" prefix
 target_link_libraries(libzippp PRIVATE libzip::zip)
@@ -88,23 +95,28 @@ if(LIBZIPPP_INSTALL)
   install(
     TARGETS libzippp
     EXPORT libzipppTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
   )
 
   if(LIBZIPPP_INSTALL_HEADERS)
-    install(FILES src/libzippp.h DESTINATION include/libzippp)
+    install(
+      FILES src/libzippp.h
+      DESTINATION
+      $<IF:$<BOOL:${LIBZIPPP_GNUINSTALLDIRS}>,${CMAKE_INSTALL_INCLUDEDIR}/libzippp,include/libzippp>
+    )
   endif()
 
   include(CMakePackageConfigHelpers)
 
   set(PROJECT_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}Config.cmake")
   set(PROJECT_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROJECT_NAME}ConfigVersion.cmake")
-  if(WIN32)
-    set(configInstallDestination cmake/${PROJECT_NAME})
+  if(LIBZIPPP_GNUINSTALLDIRS)
+    set(configInstallDestination ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
   else()
-    set(configInstallDestination share/${PROJECT_NAME})
+    if(WIN32)
+      set(configInstallDestination cmake/${PROJECT_NAME})
+    else()
+      set(configInstallDestination share/${PROJECT_NAME})
+    endif()
   endif()
 
   configure_package_config_file(
