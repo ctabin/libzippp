@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.12.0)
 
-project(libzippp VERSION 3.0.0)
+project(libzippp
+        VERSION 6.0.0
+        DESCRIPTION "C++ wrapper for libzip"
+        HOMEPAGE_URL "http://github.com/ctabin/libzippp"
+        LANGUAGES CXX
+)
 
 # Use C++11
 set(CMAKE_CXX_STANDARD 11)
