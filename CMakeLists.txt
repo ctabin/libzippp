@@ -140,5 +140,20 @@ if(LIBZIPPP_INSTALL)
     NAMESPACE "${PROJECT_NAME}::"
     DESTINATION ${configInstallDestination}
   )
-endif()
 
+  if(BUILD_SHARED_LIBS AND LIBZIPPP_GNUINSTALLDIRS AND LIBZIPPP_INSTALL_HEADERS)
+    string(
+      REGEX REPLACE "^${CMAKE_INSTALL_PREFIX}" "\${prefix}"
+      pc_includedir "${CMAKE_INSTALL_FULL_INCLUDEDIR}"
+    )
+    string(
+      REGEX REPLACE "^${CMAKE_INSTALL_PREFIX}" "\${exec_prefix}"
+      pc_libdir "${CMAKE_INSTALL_FULL_LIBDIR}"
+    )
+    configure_file(libzippp.pc.in generated/libzippp.pc @ONLY)
+    install(
+      FILES ${CMAKE_CURRENT_BINARYDIR}/generated/libzipp.pc
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+    )
+  endif()
+endif()
