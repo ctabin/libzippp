@@ -378,7 +378,9 @@ int ZipArchive::close(void) {
         
         int result = zip_close(zipHandle);
         zipHandle = nullptr;
-        progress_callback(zipHandle, 1, this); //enforce the last progression call to be one
+        if(result == 0) {
+          progress_callback(zipHandle, 1, this); //enforce the last progression call to be one
+        }
         
         if (result!=0) { return result; }
 
