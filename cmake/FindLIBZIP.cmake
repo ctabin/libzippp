@@ -9,13 +9,13 @@ mark_as_advanced(LIBZIP_LIBRARY)
 get_filename_component(_libzip_libdir ${LIBZIP_LIBRARY} DIRECTORY)
 find_file(_libzip_pkgcfg libzip.pc
     HINTS ${_libzip_libdir} ${LIBZIP_INCLUDE_DIR}/..
-    PATH_SUFFIXES pkgconfig lib/pkgconfig
+    PATH_SUFFIXES pkgconfig lib/pkgconfig libdata/pkgconfig
     NO_DEFAULT_PATH
 )
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
-    LIBZIP 
+    LIBZIP
     REQUIRED_VARS
         LIBZIP_LIBRARY
         LIBZIP_INCLUDE_DIR
@@ -42,15 +42,15 @@ if (LIBZIP_FOUND)
             set_property(TARGET libzip::zip APPEND PROPERTY INTERFACE_LINK_LIBRARIES OpenSSL::Crypto)
         endif()
         if(_have_extra_libs MATCHES "-lgnutls")
-            find_package(GnuTLS::GnuTLS REQUIRED)
+            find_package(GnuTLS REQUIRED)
             set_property(TARGET libzip::zip APPEND PROPERTY INTERFACE_LINK_LIBRARIES GnuTLS::GnuTLS)
         endif()
-        if(_have_extra_libs MATCHES "lgnutls")
-            find_package(Nettle::Nettle REQUIRED)
+        if(_have_extra_libs MATCHES "-lnettle")
+            find_package(Nettle REQUIRED)
             set_property(TARGET libzip::zip APPEND PROPERTY INTERFACE_LINK_LIBRARIES Nettle::Nettle)
         endif()
         if(_have_extra_libs MATCHES "-llzma")
-            find_package(LibLZMA::LibLZMA REQUIRED)
+            find_package(LibLZMA REQUIRED)
             set_property(TARGET libzip::zip APPEND PROPERTY INTERFACE_LINK_LIBRARIES LibLZMA::LibLZMA)
         endif()
         if(_have_extra_libs MATCHES "-lz")
