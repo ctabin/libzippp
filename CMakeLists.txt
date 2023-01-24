@@ -28,15 +28,14 @@ if(NOT WIN32)
   set(CMAKE_CXX_FLAGS "-W -Wall -Wextra -ansi -pedantic -std=c++11")
   set(CMAKE_CXX_FLAGS_DEBUG "-g")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-  set(NOTWIN32 ON)
 endif()
 
 option(LIBZIPPP_INSTALL "Install library" ${is_root_project})
 option(LIBZIPPP_INSTALL_HEADERS "Install the headers" ${is_root_project})
 option(LIBZIPPP_BUILD_TESTS "Build unit tests" ${is_root_project})
 option(LIBZIPPP_ENABLE_ENCRYPTION "Build with encryption enabled" OFF)
-option(LIBZIPPP_CMAKE_CONFIG_MODE "Build with libzip installed cmake config files" ${NOTWIN32})
-option(LIBZIPPP_GNUINSTALLDIRS "Install into directories taken from GNUInstallDirs" ${UNIX})
+option(LIBZIPPP_CMAKE_CONFIG_MODE "Build with libzip installed cmake config files" OFF)
+option(LIBZIPPP_GNUINSTALLDIRS "Install into directories taken from GNUInstallDirs" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
