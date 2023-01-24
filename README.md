@@ -81,6 +81,8 @@ Set via commandline as `cmake -DNAME=VALUE <other opts>` or via CMake GUI or CCM
 - `LIBZIPPP_INSTALL_HEADERS`: Enable/Disable installation of libzippp headers. Default is OFF when using via `add_subdirectory`, else ON
 - `LIBZIPPP_BUILD_TESTS`: Enable/Disable building libzippp tests. Default is OFF when using via `add_subdirectory`, else ON
 - `LIBZIPPP_ENABLE_ENCRYPTION`: Enable/Disable building libzippp with encryption capabilities. Default is OFF.
+- `LIBZIPPP_CMAKE_CONFIG_MODE`: Enable/Disable building with libzip installed cmake config files. Default is OFF.
+- `LIBZIPPP_GNUINSTALLDIRS`: Enable/Disable building with install directories taken from [GNUInstallDirs](https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html). Default is OFF.
 - `CMAKE_INSTALL_PREFIX`: Where to install the project to
 - `CMAKE_BUILD_TYPE`: Set to Release or Debug to build with or without optimizations
 - `CMAKE_PREFIX_PATH`: Colon-separated list of prefix paths (paths containing `lib` and `include` folders) for installed libs to be used by this
