@@ -51,6 +51,9 @@ find_package(${LIBZIP_PKGNAME} ${fp_mode} REQUIRED)
 
 if(LIBZIPPP_GNUINSTALLDIRS)
   include(GNUInstallDirs)
+  set(install_include_location ${CMAKE_INSTALL_INCLUDEDIR}/libzippp)
+else()
+  set(install_include_location include/libzippp)
 endif()
 
 add_library(libzippp "src/libzippp.cpp")
@@ -58,9 +61,8 @@ add_library(libzippp::libzippp ALIAS libzippp) # Convenience alias
 target_include_directories(libzippp
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    "$<INSTALL_INTERFACE:
-       $<IF:$<BOOL:${LIBZIPPP_GNUINSTALLDIRS}>,
-         ${CMAKE_INSTALL_INCLUDEDIR}/libzippp,include/libzippp>>"
+    $<INSTALL_INTERFACE:${install_include_location}>
+
 )
 set_target_properties(libzippp PROPERTIES PREFIX "") # Avoid duplicate "lib" prefix
 target_link_libraries(libzippp PRIVATE libzip::zip)
@@ -99,8 +101,7 @@ if(LIBZIPPP_INSTALL)
   if(LIBZIPPP_INSTALL_HEADERS)
     install(
       FILES src/libzippp.h
-      DESTINATION
-      $<IF:$<BOOL:${LIBZIPPP_GNUINSTALLDIRS}>,${CMAKE_INSTALL_INCLUDEDIR}/libzippp,include/libzippp>
+      DESTINATION ${install_include_location}
     )
   endif()
 
