@@ -35,7 +35,9 @@
   OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#ifndef _WIN32
+#include <cstdint>
+#endif
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -64,11 +66,11 @@ struct zip_source;
         #define LIBZIPPP_SHARED_LIBRARY_IMPORT
 #else
         //standard ISO c++ does not support long long
-        typedef long int libzippp_int64;
-        typedef unsigned long int libzippp_uint64;
-        typedef unsigned int libzippp_uint32;
-        typedef unsigned short libzippp_uint16;
-        
+        typedef std::int64_t libzippp_int64;
+        typedef std::uint64_t libzippp_uint64;
+        typedef std::uint32_t libzippp_uint32;
+        typedef std::uint16_t libzippp_uint16;
+
         #define LIBZIPPP_SHARED_LIBRARY_EXPORT
         #define LIBZIPPP_SHARED_LIBRARY_IMPORT
 #endif
