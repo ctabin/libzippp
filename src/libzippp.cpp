@@ -812,6 +812,9 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
     if (source!=nullptr) {
         libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
         if (result>=0) {
+            if (useArchiveCompressionMethod) {
+              zip_set_file_compression(zipHandle, result, compressionMethod, 0);
+            }
 #ifdef LIBZIPPP_WITH_ENCRYPTION
             if(isEncrypted()) {
                 if(zip_file_set_encryption(zipHandle,result,encryptionMethod,nullptr)!=0) { //unable to encrypt
