@@ -233,7 +233,7 @@ namespace libzippp {
          * 
          * Use ZipArchive::free to delete the returned pointer.
          */
-        static ZipArchive* fromSource(zip_source* source, OpenMode mode=ReadOnly, bool checkConsistency=false);
+        static ZipArchive* fromSource(zip_source* source, OpenMode mode=ReadOnly, bool checkConsistency=false, const std::string& password="", Encryption encryptionMethod=Encryption::None);
         
         /**
          * Creates a new ZipArchive from the specified data. The archive will
@@ -245,7 +245,7 @@ namespace libzippp {
          * 
          * Use ZipArchive::free to delete the returned pointer.
          */
-        static ZipArchive* fromBuffer(const void* data, libzippp_uint32 size, bool checkConsistency=false);
+        static ZipArchive* fromBuffer(const void* data, libzippp_uint32 size, bool checkConsistency=false, const std::string& password="", Encryption encryptionMethod=Encryption::None);
         
         /**
          * Creates a new ZipArchive from the specified data. The archive will
@@ -263,7 +263,7 @@ namespace libzippp {
          * 
          * Use ZipArchive::free to delete the returned pointer.
          */
-        static ZipArchive* fromWritableBuffer(void** data, libzippp_uint32 size, OpenMode mode=Write, bool checkConsistency=false);
+        static ZipArchive* fromWritableBuffer(void** data, libzippp_uint32 size, OpenMode mode=Write, bool checkConsistency=false, const std::string& password="", Encryption encryptionMethod=Encryption::None);
         
         /**
          * Deletes a ZipArchive.
