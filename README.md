@@ -373,7 +373,7 @@ int main(int argc, char** argv) {
   ZipArchive::free(z2);
   
   //read again from the archive, for modification:
-  ZipArchive* z3 = ZipArchive::fromWriteableBuffer(&buffer, bufferContentLength);
+  ZipArchive* z3 = ZipArchive::fromWritableBuffer(&buffer, bufferContentLength);
   /* read/write the archive */
   ZipArchive::free(z3);
   
