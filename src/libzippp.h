@@ -405,7 +405,7 @@ namespace libzippp {
          * Defines the compression method of an entry. If the ZipArchive is not open
          * or the entry is not linked to this archive, false will be returned.
          **/
-        bool setEntryCompressionMethod(ZipEntry& entry, CompressionMethod compMethod = CompressionMethod::DEFAULT) const;
+        bool setEntryCompressionConfig(ZipEntry& entry, CompressionMethod compMethod=CompressionMethod::DEFAULT, libzippp_uint32 compLevel=0) const;
         
         /**
          * Reads the specified ZipEntry of the ZipArchive and returns its content within
@@ -589,6 +589,14 @@ namespace libzippp {
          */
         void setCompressionMethod(CompressionMethod comp);
 
+        /**
+         * Defines the compression level to use. By default this value is zero to use the default behaviour of libzip.
+         * Otherwise, this value should be between 1 and 9, 1 being the fastest compression and 9 the best.
+         * For ZSTD, possible values are defined by ZSTD_minCLevel and ZSTD_maxCLevel.
+         */
+        inline void setCompressionLevel(libzippp_uint32 level) { this->compressionLevel = level; }
+        inline libzippp_uint32 getCompressionLevel() const { return compressionLevel; }
+
     private:
         std::string path;
         zip* zipHandle;
@@ -604,6 +612,7 @@ namespace libzippp {
 
         bool useArchiveCompressionMethod;
         libzippp_uint16 compressionMethod;
+        libzippp_uint32 compressionLevel;
 
         // User-defined error handler
         ErrorHandlerCallback* errorHandlingCallback;
@@ -678,10 +687,19 @@ namespace libzippp {
         inline time_t getDate(void) const { return time; }
         
         /**
-         * Returns the compression method. By default, ZIP_CM_DEFAULT.
+         * Defines the compression method to be used. By default, ZIP_CM_DEFAULT.
          * Can be one of ZIP_CM_DEFAULT,ZIP_CM_STORE,ZIP_CM_BZIP2,ZIP_CM_DEFLATE,ZIP_CM_XZ or ZIP_CM_ZSTD.
          */
         CompressionMethod getCompressionMethod(void) const;
+        bool setCompressionMethod(CompressionMethod compMethod);
+        
+        /**
+         * Defines the compression level to use. By default this value is zero to use the default behaviour of libzip.
+         * Otherwise, this value should be between 1 and 9, 1 being the fastest compression and 9 the best.
+         * For ZSTD, possible values are defined by ZSTD_minCLevel and ZSTD_maxCLevel.
+         */
+        inline libzippp_uint32 getCompressionLevel(void) const { return compressionLevel; }
+        bool setCompressionLevel(libzippp_uint32 level);
         
         /**
          * Returns the encryption method.
@@ -718,13 +736,6 @@ namespace libzippp {
          * Returns true if this entry is null (means no more entry is available).
          */
         inline bool isNull(void) const { return zipFile==nullptr; }
-        
-        /**
-         * Defines the compression method to be used
-         * Those methods are wrappers around setEntryCompressionMethod and
-         * getCompressionMethod.
-         */
-        bool setCompressionMethod(CompressionMethod compMethod);
         
         /**
          * Defines the comment of the entry. In order to call either one of those
@@ -772,13 +783,14 @@ namespace libzippp {
         libzippp_uint64 index;
         time_t time;
         libzippp_uint16 compressionMethod;
+        libzippp_uint32 compressionLevel;
         libzippp_uint16 encryptionMethod;
         libzippp_uint64 size;
         libzippp_uint64 sizeComp;
         int crc;
         
-        ZipEntry(const ZipArchive* zipFile, const std::string& name, libzippp_uint64 index, time_t time, libzippp_uint16 compMethod, libzippp_uint16 encMethod, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
-                zipFile(zipFile), name(name), index(index), time(time), compressionMethod(compMethod), encryptionMethod(encMethod), size(size), sizeComp(sizeComp), crc(crc) {}
+        ZipEntry(const ZipArchive* zipFile, const std::string& name, libzippp_uint64 index, time_t time, libzippp_uint16 compMethod, libzippp_uint32 compLevel, libzippp_uint16 encMethod, libzippp_uint64 size, libzippp_uint64 sizeComp, int crc) : 
+                zipFile(zipFile), name(name), index(index), time(time), compressionMethod(compMethod), compressionLevel(compLevel), encryptionMethod(encMethod), size(size), sizeComp(sizeComp), crc(crc) {}
     };
 }
 

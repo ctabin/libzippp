@@ -682,6 +682,7 @@ void test21() {
     int len2 = strlen(txtFile2);
 
     ZipArchive z1("test.zip");
+    z1.setCompressionLevel(8);
     z1.open(ZipArchive::Write);
     z1.addData("somedata", txtFile, len);
     z1.addData("somedata2", txtFile2, len2);
