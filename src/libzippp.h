@@ -576,10 +576,17 @@ namespace libzippp {
         inline double getProgressPrecision(void) const { return progressPrecision; }
         void setProgressPrecision(double p) { progressPrecision = p; }
 
+        /**
+         * Defines the error handler callback to notify in case of error while handling
+         * the underlying zip file.
+         */
         void setErrorHandlerCallback(ErrorHandlerCallback* callback) {
            errorHandlingCallback = callback;
         }
 
+        /**
+         * Defines the compression method to used for the newly created ZipEntry.
+         */
         void setCompressionMethod(CompressionMethod comp);
 
     private:

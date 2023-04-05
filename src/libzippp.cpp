@@ -871,10 +871,8 @@ void ZipArchive::removeProgressListener(ZipProgressListener* listener) {
 
 void ZipArchive::setCompressionMethod(CompressionMethod comp)
 {
-  if (mode==New || mode==Write) {
-    useArchiveCompressionMethod = true;
+    useArchiveCompressionMethod = comp!=CompressionMethod::DEFAULT;
     compressionMethod = convertCompressionToLibzip(comp);
-  }
 }
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state, libzippp_uint64 chunksize) const {
