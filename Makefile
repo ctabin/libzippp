@@ -10,6 +10,7 @@ LIBZIP=$(LIB)/$(LIBZIP_NAME)
 LIBZIP_CMAKE=-DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF 
 LIBZIPPP_CFLAGS=-W -Wall -Wextra -ansi -pedantic -std=c++11
 LIBZIPPP_CRYPTO_FLAGS=-lssl -lcrypto
+LIBZIPPP_EXTRA_FLAGS=-lbz2 -llzma
 LIBZIPPP_TESTS_FLAGS=-g
 
 # for optimal compilation speed, should be <nb_proc>+1
@@ -30,11 +31,11 @@ libzippp-shared: libzippp-compile
 
 libzippp-tests: libzippp-static libzippp-shared
 	if [ -d $(ZLIB) ]; then \
-		$(CXX) -o test_static $(LIBZIPPP_TESTS_FLAGS) -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS); \
-		$(CXX) -o test_shared $(LIBZIPPP_TESTS_FLAGS) -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
+		$(CXX) -o test_static $(LIBZIPPP_TESTS_FLAGS) -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS); \
+		$(CXX) -o test_shared $(LIBZIPPP_TESTS_FLAGS) -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
 	else \
-		$(CXX) -o test_static $(LIBZIPPP_TESTS_FLAGS) -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS); \
-		$(CXX) -o test_shared $(LIBZIPPP_TESTS_FLAGS) -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz -lbz2 -llzma $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
+		$(CXX) -o test_static $(LIBZIPPP_TESTS_FLAGS) -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS); \
+		$(CXX) -o test_shared $(LIBZIPPP_TESTS_FLAGS) -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
 	fi;
 
 clean-tests:
