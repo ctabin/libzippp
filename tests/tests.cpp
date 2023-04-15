@@ -675,7 +675,7 @@ void test20() {
 }
 
 void test21() {
-    cout << "Running test 21..." << endl << fflush;
+    cout << "Running test 21..." << endl;
     const char* txtFile = "this is some data";   // 17 Bytes
     const char* txtFile2 = "this is some data!"; // 18 Bytes
     int len = strlen(txtFile);
@@ -893,7 +893,7 @@ void test24() {
     cout << " done." << endl;
 }
 
-int main(int argc, char** argv) {
+int main() {
     test1();  test2();  test3();  test4();  test5();
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();

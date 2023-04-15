@@ -124,8 +124,8 @@ namespace Helper {
 
 static void defaultErrorHandler(const std::string& message,
                                 const std::string& strerror,
-                                int zip_error_code,
-                                int system_error_code)
+                                int /*zip_error_code*/,
+                                int /*system_error_code*/)
 {
     fprintf(stderr, message.c_str(), strerror.c_str());
 }
@@ -354,7 +354,7 @@ bool ZipArchive::open(OpenMode om, bool checkConsistency) {
     return false;
 }
 
-void progress_callback(zip* archive, double progression, void* ud) {
+void progress_callback(zip* /*archive*/, double progression, void* ud) {
     ZipArchive* za = static_cast<ZipArchive*>(ud);
     vector<ZipProgressListener*> listeners = za->getProgressListeners();
     for(vector<ZipProgressListener*>::const_iterator it=listeners.begin() ; it!=listeners.end() ; ++it) {
@@ -363,7 +363,7 @@ void progress_callback(zip* archive, double progression, void* ud) {
     }
 }
 
-int progress_cancel_callback(zip *archive, void *ud) {
+int progress_cancel_callback(zip* /*archive*/, void* ud) {
     ZipArchive* za = static_cast<ZipArchive*>(ud);
     vector<ZipProgressListener*> listeners = za->getProgressListeners();
     for(vector<ZipProgressListener*>::const_iterator it=listeners.begin() ; it!=listeners.end() ; ++it) {
