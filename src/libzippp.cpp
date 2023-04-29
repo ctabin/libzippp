@@ -905,7 +905,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::function<bool(const voi
             char* data = NEW_CHAR_ARRAY(maxSize)
             if (data!=nullptr) {
                 libzippp_int64 result = zip_fread(zipFile, data, maxSize);
-                if (result>0) {
+                if (result>=0) {
                     if (result != static_cast<libzippp_int64>(maxSize)) {
                         iRes = LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE;
                     } else if (!writeFunc(data, maxSize)) {
@@ -926,7 +926,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::function<bool(const voi
                 string::size_type nbChunks = maxSize/chunksize;
                 for (libzippp_uint32 uiChunk=0 ; uiChunk<nbChunks ; ++uiChunk) {
                     result = zip_fread(zipFile, data, chunksize);
-                    if (result>0) {
+                    if (result>=0) {
                         if (result!=static_cast<libzippp_int64>(chunksize)) {
                             iRes = LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE;
                             break;
@@ -952,7 +952,7 @@ int ZipArchive::readEntry(const ZipEntry& zipEntry, std::function<bool(const voi
                 char* data = NEW_CHAR_ARRAY(leftOver);
                 if (data!=nullptr) {
                     result = zip_fread(zipFile, data, leftOver);
-                    if (result>0) {
+                    if (result>=0) {
                         if (result!=static_cast<libzippp_int64>(leftOver)) {
                             iRes = LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE;
                         } else {

@@ -566,12 +566,14 @@ void test19() {
     ZipArchive z1("test.zip");
     z1.open(ZipArchive::Write);
     z1.addData("somedata", txtFile, len);
+    z1.addData("emptydata", "", 0);
     z1.close();
     
     ZipArchive z2("test.zip");
     z2.open(ZipArchive::ReadOnly);
-    assert(z2.getNbEntries()==1);
+    assert(z2.getNbEntries()==2);
     assert(z2.hasEntry("somedata"));
+    assert(z2.hasEntry("emptydata"));
     
     ZipEntry entry = z2.getEntry("somedata");
     assert(!entry.isNull());
@@ -590,6 +592,17 @@ void test19() {
     int clen3 = data3.size();
     assert(clen3==len);
     assert(strncmp("this is some data", data3.c_str(), len)==0);
+    
+    ZipEntry entry2 = z2.getEntry("emptydata");
+    assert(!entry2.isNull());
+    
+    std::ofstream file;
+    file.open("empty", std::ios_base::out | std::ios_base::binary);
+    int ret = z2.readEntry(entry2, file);
+    assert(ret == LIBZIPPP_OK);
+    assert(file.tellp() == 0);
+    file.close();
+    remove("empty");
     
     z2.close();
     z2.unlink();
