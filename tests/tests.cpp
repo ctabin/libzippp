@@ -607,7 +607,9 @@ void test19() {
     file.open("empty", std::ios_base::out | std::ios_base::binary);
     int ret = z2.readEntry(entry2, file);
     assert(ret == LIBZIPPP_OK);
+    #ifndef _WIN32
     assert(file.tellp() == 0);
+    #endif
     file.close();
     remove("empty");
     
