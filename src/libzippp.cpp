@@ -53,49 +53,49 @@ using namespace std;
 #define NEW_CHAR_ARRAY(nb) new (std::nothrow) char[(nb)];
 
 static libzippp_uint16 convertCompressionToLibzip(CompressionMethod comp) {
-  switch(comp) {
-    case CompressionMethod::STORE:
-        return ZIP_CM_STORE;
+    switch(comp) {
+        case CompressionMethod::STORE:
+            return ZIP_CM_STORE;
 #ifdef ZIP_CM_BZIP2
-    case CompressionMethod::BZIP2:
-        return ZIP_CM_BZIP2;
+        case CompressionMethod::BZIP2:
+            return ZIP_CM_BZIP2;
 #endif
-    case CompressionMethod::DEFLATE:
-        return ZIP_CM_DEFLATE;
+        case CompressionMethod::DEFLATE:
+            return ZIP_CM_DEFLATE;
 #ifdef ZIP_CM_XZ
-    case CompressionMethod::XZ:
-        return ZIP_CM_XZ;
+        case CompressionMethod::XZ:
+            return ZIP_CM_XZ;
 #endif
 #ifdef ZIP_CM_ZSTD
-    case CompressionMethod::ZSTD:
-        return ZIP_CM_ZSTD;
+        case CompressionMethod::ZSTD:
+            return ZIP_CM_ZSTD;
 #endif
-    default: // CompressionMethod::DEFAULT
-        return ZIP_CM_DEFAULT;
-  }
+        default:
+            return ZIP_CM_DEFAULT;
+    }
 }
 
 static CompressionMethod convertCompressionFromLibzip(libzippp_uint16 comp) {
-  switch(comp) {
+    switch(comp) {
       case ZIP_CM_STORE:
           return CompressionMethod::STORE;
 #ifdef ZIP_CM_BZIP2
       case ZIP_CM_BZIP2:
           return CompressionMethod::BZIP2;
 #endif
-    case ZIP_CM_DEFLATE:
-        return CompressionMethod::DEFLATE;
+      case ZIP_CM_DEFLATE:
+          return CompressionMethod::DEFLATE;
 #ifdef ZIP_CM_XZ
-    case ZIP_CM_XZ:
-        return CompressionMethod::XZ;
+      case ZIP_CM_XZ:
+          return CompressionMethod::XZ;
 #endif
 #ifdef ZIP_CM_ZSTD
-    case ZIP_CM_ZSTD:
-        return CompressionMethod::ZSTD;
+      case ZIP_CM_ZSTD:
+          return CompressionMethod::ZSTD;
 #endif
-    default: // CompressionMethod::DEFAULT
-        return CompressionMethod::DEFAULT;
-  }
+      default:
+          return CompressionMethod::DEFAULT;
+    }
 }
 
 namespace Helper {
@@ -498,7 +498,7 @@ bool ZipArchive::setEntryCompressionConfig(ZipEntry& entry, CompressionMethod co
     
     bool success = zip_set_file_compression(zipHandle, entry.index, comp_libzip, level)==0;
     if (success) {
-        entry.compressionMethod = comp;
+        entry.compressionMethod = comp_libzip;
         entry.compressionLevel = level;
     }
     return success;
@@ -882,6 +882,10 @@ void ZipArchive::setCompressionMethod(CompressionMethod comp)
 {
     useArchiveCompressionMethod = comp!=CompressionMethod::DEFAULT;
     compressionMethod = convertCompressionToLibzip(comp);
+}
+
+CompressionMethod ZipArchive::getCompressionMethod(void) const {
+    return convertCompressionFromLibzip(compressionMethod);
 }
 
 int ZipArchive::readEntry(const ZipEntry& zipEntry, std::ostream& ofOutput, State state, libzippp_uint64 chunksize) const {

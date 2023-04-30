@@ -588,6 +588,7 @@ namespace libzippp {
          * Defines the compression method to used for the newly created ZipEntry.
          */
         void setCompressionMethod(CompressionMethod comp);
+        CompressionMethod getCompressionMethod(void) const;
 
         /**
          * Defines the compression level to use. By default this value is zero to use the default behaviour of libzip.

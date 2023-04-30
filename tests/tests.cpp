@@ -102,11 +102,15 @@ void test2() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
+    assert(DEFAULT == z1.getCompressionMethod());
+    
     z1.open(ZipArchive::Write);
     z1.addData("somedata", txtFile, len);
     
     ZipEntry z1e1 = z1.getEntry("somedata");
-    z1e1.setCompressionMethod(DEFLATE);
+    bool setcm = z1e1.setCompressionMethod(DEFLATE);
+    assert(setcm);
+    assert(DEFLATE == z1e1.getCompressionMethod());
     
     z1.close();
     
@@ -137,6 +141,9 @@ void test3() {
     int len = strlen(txtFile);
     
     ZipArchive z1("test.zip");
+    z1.setCompressionMethod(DEFLATE);
+    assert(DEFLATE == z1.getCompressionMethod());
+    
     z1.open(ZipArchive::Write);
     z1.addData("somedata/in/subfolder/data.txt", txtFile, len);
     assert(z1.addEntry("somedata/"));
