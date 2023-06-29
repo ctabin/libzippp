@@ -387,16 +387,17 @@ int ZipArchive::close(void) {
 
         //avoid to reset the progress when unzipping
         if(mode != ReadOnly) {
-          progress_callback(zipHandle, 0, this); //enforce the first progression call to be zero
+            progress_callback(zipHandle, 0, this); //enforce the first progression call to be zero
         }
 
         int result = zip_close(zipHandle);
-        zipHandle = nullptr;
-        if(result == 0) {
-          progress_callback(zipHandle, 1, this); //enforce the last progression call to be one
+        if(result!=0) {
+            Helper::callErrorHandlingCallback(zipHandle, "unable to close archive: %s\n", errorHandlingCallback);
+            return LIBZIPPP_ERROR_HANDLE_FAILURE;
         }
-
-        if (result!=0) { return result; }
+        
+        zipHandle = nullptr;
+        progress_callback(zipHandle, 1, this); //enforce the last progression call to be one
 
         //push back the changes in the buffer
         if(bufferData!=nullptr && (mode==New || mode==Write)) {
@@ -434,7 +435,7 @@ int ZipArchive::close(void) {
                 bufferLength = totalRead;
             } else {
                 Helper::callErrorHandlingCallback(zipHandle, "can't read back from source: changes were not pushed in the buffer\n", errorHandlingCallback);
-                return srcOpen;
+                return LIBZIPPP_ERROR_HANDLE_FAILURE;
             }
 
             zip_source_free(zipSource);

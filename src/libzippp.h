@@ -93,6 +93,7 @@ struct zip_source;
 #define LIBZIPPP_ERROR_FREAD_FAILURE -26
 #define LIBZIPPP_ERROR_OWRITE_FAILURE -35
 #define LIBZIPPP_ERROR_OWRITE_INDEX_FAILURE -36
+#define LIBZIPPP_ERROR_HANDLE_FAILURE -37
 #define LIBZIPPP_ERROR_UNKNOWN -99
 
 /**
@@ -298,7 +299,7 @@ namespace libzippp {
          * not open previously, this method does nothing. If the archive was open in modification
          * and some were done, they will be committed.
          * This method returns LIBZIPPP_OK if the archive was successfully closed, otherwise it 
-         * returns the value returned by the zip_close() function.
+         * returns a LIBZIPPP error code. The error is dispatched to ErrorHandlerCallback.
          * While being closed, all the registered ZipProgressListener instances will be invoked on
          * a regular basis, depending on the progression precision.
          */
