@@ -597,7 +597,7 @@ namespace libzippp {
          * For ZSTD, possible values are defined by ZSTD_minCLevel and ZSTD_maxCLevel.
          */
         inline void setCompressionLevel(libzippp_uint32 level) { this->compressionLevel = level; }
-        inline libzippp_uint32 getCompressionLevel() const { return compressionLevel; }
+        inline libzippp_uint32 getCompressionLevel(void) const { return compressionLevel; }
 
     private:
         std::string path;
@@ -656,7 +656,7 @@ namespace libzippp {
          * If this function return 1 the operation is cancelled.
          * If this function return 0 the operation will continue.
          */
-        virtual int cancel() = 0;
+        virtual int cancel(void) = 0;
     };
     
     /**
