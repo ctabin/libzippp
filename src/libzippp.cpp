@@ -109,9 +109,8 @@ namespace Helper {
     }
 
     static void callErrorHandlingCallback(zip* zipHandle, const std::string& msg, ErrorHandlerCallback* callback) {
-        int error_code_zip, error_code_system;
-        zip_error_get(zipHandle, &error_code_zip, &error_code_system);
-        callErrorHandlingCallbackFunc(msg, error_code_zip, error_code_system, callback);
+        auto error_code = zip_get_error(zipHandle);
+        callErrorHandlingCallbackFunc(error_code->str, error_code->zip_err, error_code->sys_err, callback);
     }
 
     static void callErrorHandlingCallback(zip_error_t* error, const std::string& msg, ErrorHandlerCallback* callback) {
