@@ -109,7 +109,7 @@ namespace Helper {
     }
 
     static void callErrorHandlingCallback(zip* zipHandle, const std::string& msg, ErrorHandlerCallback* callback) {
-        auto error_code = zip_get_error(zipHandle);
+        zip_error_t* error_code = zip_get_error(zipHandle);
         callErrorHandlingCallbackFunc(error_code->str, error_code->zip_err, error_code->sys_err, callback);
     }
 
