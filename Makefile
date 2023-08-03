@@ -10,7 +10,7 @@ LIBZIP=$(LIB)/$(LIBZIP_NAME)
 LIBZIP_CMAKE=-DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF 
 LIBZIPPP_CFLAGS=-W -Wall -Wextra -ansi -pedantic -std=c++11
 LIBZIPPP_CRYPTO_FLAGS=-lssl -lcrypto
-LIBZIPPP_EXTRA_FLAGS=-lbz2 -llzma
+LIBZIPPP_EXTRA_FLAGS=-lbz2 -llzma -lzstd
 LIBZIPPP_TESTS_FLAGS=-g
 
 # for optimal compilation speed, should be <nb_proc>+1
@@ -87,7 +87,7 @@ libzip-init:
 	mkdir -p $(LIB)
 
 libzip-download: libzip-init
-	wget --no-check-certificate -c -O "$(LIB)/$(LIBZIP_NAME).tar.gz" "https://libzip.org/download/libzip-$(LIBZIP_VERSION).tar.gz"
+	wget -c -O "$(LIB)/$(LIBZIP_NAME).tar.gz" "https://libzip.org/download/libzip-$(LIBZIP_VERSION).tar.gz"
 
 libzip-unzip: libzip-download
 	cd $(LIB) && tar -xvf libzip-$(LIBZIP_VERSION).tar.gz
