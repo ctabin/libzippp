@@ -1,12 +1,10 @@
 os: linux
-dist: trusty
+dist: jammy
 language: cpp
 compiler: gcc
 addons:
   apt:
     update: true
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
       - g++-9
       - liblzma-dev
@@ -31,6 +29,7 @@ jobs:
   include:
     - env: MATRIX_EVAL="CMAKE_VERSION=3.23.1 && CC=gcc-9 && CXX=g++-9"
       install:
+        - sudo apt-get -y install ca-certificates
         - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
         - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
         - travis_retry wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
@@ -48,7 +47,7 @@ before_install:
   - eval "${MATRIX_EVAL}"
 
 install:
-  - sudo apt-get install ca-certificates
+  - sudo apt-get -y install ca-certificates
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
   - travis_retry wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
