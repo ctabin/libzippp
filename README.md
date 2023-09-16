@@ -138,10 +138,13 @@ It may need some adjusting though.
   and extract it somewhere on your system. This will create a prepared structure, so *libzippp* can 
   be compiled along with the needed libraries.
 
-2. Simply execute the *compile.bat* file. This will compile *zlib*, *libzip* and
+2. Check if there is any patch to apply in *lib*. Sometimes, some files are not compilable in C89 in
+ libzip, depending on the version.
+
+3. Simply execute the *compile.bat* file. This will compile *zlib*, *libzip* and
  finally *libzippp*.
 
-3. You'll have a *dist* folder containing the *release* and *debug* folders 
+4. You'll have a *dist* folder containing the *release* and *debug* folders 
   where you can now execute the libzippp tests.
 
 #### From Stage 0 - DIY
