@@ -354,7 +354,7 @@ using namespace libzippp;
 
 int main(int argc, char** argv) {
   //important to use calloc/malloc for the fromWritableBuffer !
-  char* buffer = (char*)calloc(4096, sizeof(char));
+  void* buffer = calloc(4096, sizeof(char));
 
   ZipArchive* z1 = ZipArchive::fromWritableBuffer(&buffer, 4096, ZipArchive::New);
   /* add content to the archive */

@@ -894,6 +894,34 @@ void test23() {
     }*/
 }
 
+void test23_2() {
+    //important to use calloc/malloc for the fromWritableBuffer !
+    void* buffer = calloc(4096, sizeof(char));
+
+    ZipArchive* z1 = ZipArchive::fromWritableBuffer(&buffer, 4096, ZipArchive::New);
+    /* add content to the archive */
+    
+    //will update the content of the buffer
+    z1->close();
+
+    //length of the buffer content
+    int bufferContentLength = z1->getBufferLength();
+    
+    ZipArchive::free(z1);
+
+    //read again from the archive:
+    ZipArchive* z2 = ZipArchive::fromBuffer(buffer, bufferContentLength);
+    /* read the archive - no modification allowed */
+    ZipArchive::free(z2);
+    
+    //read again from the archive, for modification:
+    ZipArchive* z3 = ZipArchive::fromWritableBuffer(&buffer, bufferContentLength);
+    /* read/write the archive */
+    ZipArchive::free(z3);
+    
+    free(buffer);
+}
+
 static void myErrorHandler(const std::string& message,
                            const std::string& strerror,
                            int zip_error_code,
@@ -920,7 +948,7 @@ int main() {
     test6();  test7();  test8();  test9();  test10();
     test11(); test12(); test13(); test14(); test15();
     test16(); test17(); test18(); test19(); test20();
-    test21(); test22(); test23(); test24();
+    test21(); test22(); test23(); test23_2(); test24();
     return 0;
 }
 
