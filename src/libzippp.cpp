@@ -403,6 +403,7 @@ int ZipArchive::close(void) {
         progress_callback(zipHandle, 1, this); //enforce the last progression call to be one
 
         //push back the changes in the buffer
+        int res_code = LIBZIPPP_OK;
         if(bufferData!=nullptr && (mode==New || mode==Write)) {
             int srcOpen = zip_source_open(zipSource);
             if(srcOpen==0) {
@@ -438,7 +439,7 @@ int ZipArchive::close(void) {
                 bufferLength = totalRead;
             } else {
                 Helper::callErrorHandlingCallback((zip*)nullptr, "can't read back from source: changes were not pushed in the buffer\n", errorHandlingCallback);
-                return LIBZIPPP_ERROR_HANDLE_FAILURE;
+                res_code = LIBZIPPP_ERROR_HANDLE_FAILURE;
             }
 
             zip_source_free(zipSource);
@@ -446,6 +447,7 @@ int ZipArchive::close(void) {
         }
 
         mode = NotOpen;
+        return res_code;
     }
 
     return LIBZIPPP_OK;
