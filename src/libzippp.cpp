@@ -109,8 +109,12 @@ namespace Helper {
     }
 
     static void callErrorHandlingCallback(zip* zipHandle, const std::string& msg, ErrorHandlerCallback* callback) {
-        zip_error_t* error_code = zip_get_error(zipHandle);
-        callErrorHandlingCallbackFunc(error_code->str, error_code->zip_err, error_code->sys_err, callback);
+        if(zipHandle!=nullptr) {
+            zip_error_t* error_code = zip_get_error(zipHandle);
+            callErrorHandlingCallbackFunc(error_code->str, error_code->zip_err, error_code->sys_err, callback);
+        } else {
+            callErrorHandlingCallbackFunc("", -1, -1, callback);
+        }
     }
 
     static void callErrorHandlingCallback(zip_error_t* error, const std::string& msg, ErrorHandlerCallback* callback) {
@@ -433,7 +437,7 @@ int ZipArchive::close(void) {
                 *bufferData = sourceBuffer;
                 bufferLength = totalRead;
             } else {
-                Helper::callErrorHandlingCallback(zipHandle, "can't read back from source: changes were not pushed in the buffer\n", errorHandlingCallback);
+                Helper::callErrorHandlingCallback((zip*)nullptr, "can't read back from source: changes were not pushed in the buffer\n", errorHandlingCallback);
                 return LIBZIPPP_ERROR_HANDLE_FAILURE;
             }
 
