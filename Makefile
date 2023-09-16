@@ -16,38 +16,80 @@ LIBZIPPP_TESTS_FLAGS=-g
 # for optimal compilation speed, should be <nb_proc>+1
 NBPROC=5
 
-all: libzippp-static libzippp-shared
+.PHONY: .FORCE
+
+all: libzippp-static-release libzippp-static-debug libzippp-shared-release libzippp-shared-debug
 
 libzippp-compile:
 	rm -rf $(OBJ)
 	mkdir $(OBJ)
-	$(CXX) -O3 -fPIC -c -I$(LIBZIP)/lib -I$(LIBZIP)/build -o $(OBJ)/libzippp.o $(LIBZIPPP_CFLAGS) src/libzippp.cpp
+	$(CXX) -O3 -fPIC -c -I$(LIBZIP)/lib -I$(LIBZIP)/build -o $(OBJ)/libzippp.o $(LIBZIPPP_CFLAGS) $(LIBZIPPP_DEBUG_FLAGS) src/libzippp.cpp
 
 libzippp-static: libzippp-compile
-	ar rvs libzippp.a $(OBJ)/libzippp.o
+	ar rvs $(LIBZIPPP_LIB_NAME).a $(OBJ)/libzippp.o
+
+libzippp-static-debug:
+	LIBZIPPP_DEBUG_FLAGS="-g" LIBZIPPP_LIB_NAME="libzippp-debug" make libzippp-static
+	echo "Compiled static library in debug mode."
+
+libzippp-static-release:
+	LIBZIPPP_LIB_NAME="libzippp" make libzippp-static
+	echo "Compiled static library in release mode."
 
 libzippp-shared: libzippp-compile
-	$(CXX) -shared -o libzippp.so $(OBJ)/libzippp.o
+	$(CXX) -shared -o $(LIBZIPPP_LIB_NAME).so $(OBJ)/libzippp.o
 
-libzippp-tests: libzippp-static libzippp-shared
+libzippp-shared-debug:
+	LIBZIPPP_DEBUG_FLAGS="-g" LIBZIPPP_LIB_NAME="libzippp-debug" make libzippp-shared
+	echo "Compiled shared library in debug mode."
+
+libzippp-shared-release:
+	LIBZIPPP_LIB_NAME="libzippp" make libzippp-shared
+	echo "Compiled shared library in release mode."
+
+libzippp-tests: libzippp-static-release libzippp-shared-release
 	if [ -d $(ZLIB) ]; then \
-		$(CXX) -o test_static $(LIBZIPPP_TESTS_FLAGS) -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS); \
-		$(CXX) -o test_shared $(LIBZIPPP_TESTS_FLAGS) -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -lzippp -lzip -lz $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
+		$(CXX) -o test_static $(LIBZIPPP_TESTS_FLAGS) -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp lib$(LIBZIPPP_NAME_SUFFIX).a $(LIBZIP)/build/lib/libzip.a $(ZLIB)/libz.a $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS); \
+		$(CXX) -o test_shared $(LIBZIPPP_TESTS_FLAGS) -I$(ZLIB) -I$(LIBZIP)/lib -I$(LIBZIP)/build -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -L$(ZLIB) -l$(LIBZIPPP_NAME_SUFFIX) -lzip -lz $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
 	else \
-		$(CXX) -o test_static $(LIBZIPPP_TESTS_FLAGS) -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp libzippp.a $(LIBZIP)/build/lib/libzip.a -lz $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS); \
-		$(CXX) -o test_shared $(LIBZIPPP_TESTS_FLAGS) -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -lzippp -lzip -lz $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
+		$(CXX) -o test_static $(LIBZIPPP_TESTS_FLAGS) -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp lib$(LIBZIPPP_NAME_SUFFIX).a $(LIBZIP)/build/lib/libzip.a -lz $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS); \
+		$(CXX) -o test_shared $(LIBZIPPP_TESTS_FLAGS) -I$(LIBZIP)/lib -Isrc $(LIBZIPPP_CFLAGS) tests/tests.cpp -L. -L$(LIBZIP)/build/lib -l$(LIBZIPPP_NAME_SUFFIX) -lzip -lz $(LIBZIPPP_EXTRA_FLAGS) $(LIBZIPPP_CRYPTO_FLAGS) -Wl,-rpath=.; \
 	fi;
+
+libzippp-tests-release: LIBZIPPP_NAME_SUFFIX=zippp
+libzippp-tests-release: libzippp-static-release libzippp-shared-release libzippp-tests
+
+libzippp-tests-debug: LIBZIPPP_NAME_SUFFIX=zippp-debug
+libzippp-tests-debug: libzippp-static-debug libzippp-shared-debug libzippp-tests
 
 clean-tests:
 	@rm -rf *.zip
 
-tests: libzippp-tests clean-tests
+tests: .FORCE
+	make tests-debug
+	make tests-release
+
+tests-run: clean-tests
 	LD_LIBRARY_PATH="$(LIBZIP)/build/lib" valgrind --suppressions=ld.supp --leak-check=full ./test_shared
 	valgrind --suppressions=ld.supp --leak-check=full ./test_static
-	
-tests-direct: libzippp-tests clean-tests
+
+tests-release:
+	make libzippp-tests-release tests-run
+tests-debug:
+	make libzippp-tests-debug tests-run
+
+tests-direct: .FORCE
+	make tests-direct-debug
+	make tests-direct-release
+
+tests-direct-run: clean-tests
 	LD_LIBRARY_PATH="$(LIBZIP)/build/lib" ./test_shared
 	./test_static
+
+tests-direct-release:
+	make libzippp-tests-release tests-direct-run
+tests-direct-debug:
+	make libzippp-tests-debug tests-direct-run
 
 clean:
 	@rm -rf libzippp.a libzippp.so
