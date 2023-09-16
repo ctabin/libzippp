@@ -302,6 +302,8 @@ namespace libzippp {
          * returns a LIBZIPPP error code. The error is dispatched to ErrorHandlerCallback.
          * While being closed, all the registered ZipProgressListener instances will be invoked on
          * a regular basis, depending on the progression precision.
+         * In some cases (when the archive is created with fromWritableBuffer), the archive is still
+         * being closed, even if an error code is returned.
          */
         int close(void);
         
