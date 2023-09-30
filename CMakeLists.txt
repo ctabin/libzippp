@@ -152,7 +152,7 @@ if(LIBZIPPP_INSTALL)
     )
     configure_file(libzippp.pc.in generated/libzippp.pc @ONLY)
     install(
-      FILES ${CMAKE_CURRENT_BINARYDIR}/generated/libzipp.pc
+      FILES ${CMAKE_CURRENT_BINARY_DIR}/generated/libzippp.pc
       DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
     )
   endif()
