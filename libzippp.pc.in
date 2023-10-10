@@ -9,4 +9,4 @@ URL: @PROJECT_HOMEPAGE_URL@
 Version: @PROJECT_VERSION@
 
 Libs: -L${libdir} -lzippp
-Cflags: -I${includedir}
+Cflags: -I${includedir} @pc_compile_definitions@
