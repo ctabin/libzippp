@@ -191,10 +191,10 @@ int main(int argc, char** argv) {
     string name = entry.getName();
     int size = entry.getSize();
 
-    //the length of binaryData will be size
+    //the length of binaryData will be given by 'size'
     void* binaryData = entry.readAsBinary();
 
-    //the length of textData will be size
+    //the length of textData will be given by 'size'
     string textData = entry.readAsText();
 
     //...
@@ -217,7 +217,7 @@ int main(int argc, char** argv) {
 
   ZipArchive* zf = ZipArchive::fromBuffer(buffer, bufferSize);
   if(zf!=nullptr) {
-    /* work with zf */
+    /* work with the ZipArchive instance */
     zf->close();
     delete zf;
   }
@@ -282,9 +282,10 @@ int main(int argc, char** argv) {
   ZipArchive zf("archive.zip");
   zf.open(ZipArchive::Write);
 
-  // Advanced usage : change the compression method. Default is DEFLATE.
+  
 #ifdef LIBZIPPP_USE_BZIP2
-    zf.setCompressionMethod(entry, CompressionMethod::BZIP2);
+  // Advanced usage : change the compression method. Default is DEFLATE.
+  zf.setCompressionMethod(entry, CompressionMethod::BZIP2);
 #endif
 
   zf.addEntry("folder/subdir/");
@@ -362,7 +363,7 @@ int main(int argc, char** argv) {
   ZipArchive* z1 = ZipArchive::fromWritableBuffer(&buffer, 4096, ZipArchive::New);
   /* add content to the archive */
   
-  //will update the content of the buffer
+  //updates the content of the buffer
   z1->close();
 
   //length of the buffer content
