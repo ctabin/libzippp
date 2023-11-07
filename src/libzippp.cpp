@@ -788,6 +788,7 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
     if (source!=nullptr) {
         libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
         if (result>=0) {
+            zip_file_set_mtime(zipHandle, result, time(nullptr), 0);
             if (useArchiveCompressionMethod) {
               zip_set_file_compression(zipHandle, result, compressionMethod, 0);
             }
@@ -830,6 +831,7 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
     if (source!=nullptr) {
         libzippp_int64 result = zip_file_add(zipHandle, entryName.c_str(), source, ZIP_FL_OVERWRITE);
         if (result>=0) {
+            zip_file_set_mtime(zipHandle, result, time(nullptr), 0);
             if (useArchiveCompressionMethod) {
               zip_set_file_compression(zipHandle, result, compressionMethod, 0);
             }
