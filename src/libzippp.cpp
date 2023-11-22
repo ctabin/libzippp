@@ -111,7 +111,7 @@ namespace Helper {
     static void callErrorHandlingCallback(zip* zipHandle, const std::string& msg, ErrorHandlerCallback* callback) {
         if(zipHandle!=nullptr) {
             zip_error_t* error_code = zip_get_error(zipHandle);
-            callErrorHandlingCallbackFunc(error_code->str, error_code->zip_err, error_code->sys_err, callback);
+            callErrorHandlingCallbackFunc(msg, error_code->zip_err, error_code->sys_err, callback);
         } else {
             callErrorHandlingCallbackFunc("", -1, -1, callback);
         }
@@ -398,7 +398,7 @@ int ZipArchive::close(void) {
             Helper::callErrorHandlingCallback(zipHandle, "unable to close archive: %s\n", errorHandlingCallback);
             return LIBZIPPP_ERROR_HANDLE_FAILURE;
         }
-        
+
         zipHandle = nullptr;
         progress_callback(zipHandle, 1, this); //enforce the last progression call to be one
 
@@ -501,7 +501,7 @@ bool ZipArchive::setEntryCompressionConfig(ZipEntry& entry, CompressionMethod co
     if (entry.zipFile!=this) { return false; }
     if (mode==ReadOnly) { return false; }
     const libzippp_uint16 comp_libzip = convertCompressionToLibzip(comp);
-    
+
     bool success = zip_set_file_compression(zipHandle, entry.index, comp_libzip, level)==0;
     if (success) {
         entry.compressionMethod = comp_libzip;
