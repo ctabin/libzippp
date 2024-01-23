@@ -11,7 +11,7 @@ Compilation has been tested with:
 - MS Visual Studio 2012 (Windows 7)
 
 Underlying libraries:
-- [ZLib](https://zlib.net) 1.3
+- [ZLib](https://zlib.net) 1.3.1
 - [libzip](https://www.nih.at/libzip) 1.10.1
 - [BZip2](https://www.sourceware.org/bzip2/) 1.0.8 (optional)
 - [ZSTD](https://github.com/facebook/zstd) 1.5.2 (optional)
@@ -68,7 +68,7 @@ make install
 	- Click `Configure` & `Generate`
   - If CMake can't find zlib and/or libzip you need to set `CMAKE_PREFIX_PATH` to the directories where you installed those into
   (either via `-DCMAKE_PREFIX_PATH=<...>` or via the GUI)
-    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.10.1:/home/user/zlib-1.3`
+    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.10.1:/home/user/zlib-1.3.1`
 - Compile as usual
   - Linux: `make && make install`
   - Windows: Open generated project in MSVC. Build the `INSTALL` target to install.
@@ -103,7 +103,7 @@ g++ -I./src \
     -I./lib/libzip-1.10.1/lib I./lib/libzip-1.10.1/build \
     main.cpp libzippp.a \
     lib/libzip-1.10.1/lib/.libs/libzip.a \
-    lib/zlib-1.3/libz.a
+    lib/zlib-1.3.1/libz.a
 ```
 
 ### Encryption
@@ -151,11 +151,11 @@ It may need some adjusting though.
 
 0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual Studio 2012.
   
-1. Download [libzip](http://www.nih.at/libzip/libzip-1.10.1.tar.gz) and [zlib](https://www.zlib.net/zlib-1.3.tar.gz) sources and extract them in the 'lib' folder.
+1. Download [libzip](http://www.nih.at/libzip/libzip-1.10.1.tar.gz) and [zlib](https://www.zlib.net/zlib-1.3.1.tar.gz) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
   ```
   libzippp/compile.bat
-  libzippp/lib/zlib-1.3
+  libzippp/lib/zlib-1.3.1
   libzippp/lib/libzip-1.10.1
   ```
 2. Execute the *compile.bat* (simply double-click on it). The compilation should 
