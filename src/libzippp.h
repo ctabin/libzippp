@@ -58,6 +58,7 @@ struct zip_source;
 
 #ifdef _WIN32
         typedef long long libzippp_int64;
+        typedef unsigned char libzippp_uint8;
         typedef unsigned long long libzippp_uint64;
         typedef unsigned int libzippp_uint32;
         typedef unsigned short libzippp_uint16;
@@ -67,6 +68,7 @@ struct zip_source;
 #else
         //standard ISO c++ does not support long long
         typedef std::int64_t libzippp_int64;
+        typedef std::uint8_t libzippp_uint8;
         typedef std::uint64_t libzippp_uint64;
         typedef std::uint32_t libzippp_uint32;
         typedef std::uint16_t libzippp_uint16;
@@ -525,6 +527,15 @@ namespace libzippp {
         bool addData(const std::string& entryName, const void* data, libzippp_uint64 length, bool freeData=false) const;
         
         /**
+         * Adds the given data to the specified entry name in the archive. If the entry already exists,
+         * its content will be erased. 
+         * If the entryName contains folders that don't exist in the archive, they will be automatically created.
+         * If the entryName denotes a directory, this method returns false.
+         * If the zip file is not open, this method returns false.
+         */
+        bool addData(const std::string& entryName, const std::basic_string<libzippp_uint8> data) const;
+        
+        /**
          * Adds the specified entry to the ZipArchive. All the needed hierarchy will be created.
          * The entryName must be a directory (end with '/').
          * If the ZipArchive is not open or the entryName is not a directory, this method will
@@ -652,6 +663,7 @@ namespace libzippp {
          * set in libzip.
          */
         virtual void progression(double p) = 0;
+        
         /**
          * This method is invoked during zip/unzip operations.
          * Define this function to be able to stop a long zip/unzip operation.
@@ -751,8 +763,8 @@ namespace libzippp {
         bool setComment(const std::string& str) const;
         
         /**
-         * Reads the content of this ZipEntry as text. 
-         * The returned string will be of size getSize() if the latter is not specified or too big. 
+         * Reads the content of this ZipEntry as text.
+         * The returned string will be of size `getSize()` if the latter is not specified or too big. 
          * If the ZipArchive is not open, this method returns an
          * empty string. This method is a wrapper around ZipArchive::readEntry(...).
          */
@@ -760,13 +772,21 @@ namespace libzippp {
         
         /**
          * Reads the content of this ZipEntry as binary. 
-         * The returned void* will be of size getSize() if the latter is not specified or too big.
-         * If the ZipArchive is not open, this method returns nullptr. 
+         * The returned void* will be of size `getSize()` if the latter is not specified or too big.
+         * If the ZipArchive is not open, this method returns nullptr.
          * The data must be deleted by the developer once not used anymore.
          * This method is a wrapper around ZipArchive::readEntry(...).
          */
-        void* readAsBinary(ZipArchive::State state=ZipArchive::Current, libzippp_uint64 size=0) const;
-        
+        libzippp_uint8* readAsBinary(ZipArchive::State state=ZipArchive::Current, libzippp_uint64 size=0) const;
+
+        /**
+         * Reads the content of this ZipEntry as binary string. 
+         * The returned string will be of size `getSize()` if the latter is not specified or too big.
+         * If the ZipArchive is not open, this method returns nullptr.
+         * This method is a wrapper around ZipArchive::readEntry(...).
+         */
+        std::basic_string<libzippp_uint8> readAsBinaryString(ZipArchive::State state=ZipArchive::Current, libzippp_uint64 size=0) const;
+
         /**
          * Reads the specified ZipEntry of the ZipArchive and inserts its content in the provided reference to an already
          * opened std::ofstream, gradually, with chunks of size "chunksize" to reduce memory usage when dealing with big files.
