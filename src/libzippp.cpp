@@ -109,7 +109,7 @@ namespace Helper {
     }
 
     static void callErrorHandlingCallback(zip* zipHandle, const std::string& msg, ErrorHandlerCallback* callback) {
-        if(zipHandle!=nullptr) {
+        if (zipHandle!=nullptr) {
             zip_error_t* error_code = zip_get_error(zipHandle);
             callErrorHandlingCallbackFunc(msg, error_code->zip_err, error_code->sys_err, callback);
         } else {
@@ -166,8 +166,18 @@ string ZipEntry::readAsText(ZipArchive::State state, libzippp_uint64 size) const
     return str;
 }
 
-void* ZipEntry::readAsBinary(ZipArchive::State state, libzippp_uint64 size) const {
-    return zipFile->readEntry(*this, false, state, size);
+libzippp_uint8* ZipEntry::readAsBinary(ZipArchive::State state, libzippp_uint64 size) const {
+    return (libzippp_uint8*)zipFile->readEntry(*this, false, state, size);
+}
+
+basic_string<libzippp_uint8> ZipEntry::readAsBinaryString(ZipArchive::State state, libzippp_uint64 size) const {
+    libzippp_uint8* content = (libzippp_uint8*)zipFile->readEntry(*this, true, state, size);
+    if (content==nullptr) { return basic_string<libzippp_uint8>(); } //happen if the ZipArchive has been closed
+
+    libzippp_uint64 maxSize = getSize();
+    basic_string<libzippp_uint8> str(content, (size==0 || size>maxSize ? maxSize : size));
+    delete[] content;
+    return str;
 }
 
 int ZipEntry::readContent(std::ostream& ofOutput, ZipArchive::State state, libzippp_uint64 chunksize) const {
@@ -217,7 +227,7 @@ ZipArchive* ZipArchive::fromBuffer(const void* data, libzippp_uint32 size, bool 
     void* mutableData = const_cast<void*>(data);
     ZipArchive* za = new ZipArchive("", password, encryptionMethod);
     bool o = za->openBuffer(&mutableData, size, ZipArchive::ReadOnly, checkConsistency);
-    if(!o) {
+    if (!o) {
         delete za;
         za = nullptr;
     }
@@ -228,7 +238,7 @@ ZipArchive* ZipArchive::fromWritableBuffer(void** data, libzippp_uint32 size, Op
                                            const std::string& password, Encryption encryptionMethod) {
     ZipArchive* za = new ZipArchive("", password, encryptionMethod);
     bool o = za->openBuffer(data, size, mode, checkConsistency);
-    if(!o) {
+    if (!o) {
         delete za;
         za = nullptr;
     }
@@ -239,7 +249,7 @@ ZipArchive* ZipArchive::fromSource(zip_source* source, OpenMode om, bool checkCo
                                    const std::string& password, Encryption encryptionMethod) {
     ZipArchive* za = new ZipArchive("", password, encryptionMethod);
     bool o = za->openSource(source, om, checkConsistency);
-    if(!o) {
+    if (!o) {
         delete za;
         za = nullptr;
     }
@@ -259,8 +269,8 @@ bool ZipArchive::openBuffer(void** data, libzippp_uint32 size, OpenMode om, bool
     }
 
     bool open = openSource(localZipSource, om, checkConsistency);
-    if(open) {
-        if(om==Write || om==New) {
+    if (open) {
+        if (om==Write || om==New) {
             bufferData = data;
             bufferLength = size;
 
@@ -371,7 +381,7 @@ int progress_cancel_callback(zip* /*archive*/, void* ud) {
     vector<ZipProgressListener*> listeners = za->getProgressListeners();
     for(vector<ZipProgressListener*>::const_iterator it=listeners.begin() ; it!=listeners.end() ; ++it) {
         ZipProgressListener* listener = *it;
-        if(listener->cancel())
+        if (listener->cancel())
           return 1;
     }
     return 0;
@@ -383,18 +393,18 @@ int ZipArchive::close(void) {
         //do not handle zipSource at all because it will be deleted by libzip
         //directly when not necessary anymore
 
-        if(!listeners.empty()) {
+        if (!listeners.empty()) {
             zip_register_progress_callback_with_state(zipHandle, progressPrecision, progress_callback, nullptr, this);
             zip_register_cancel_callback_with_state(zipHandle, progress_cancel_callback, nullptr, this);
         }
 
         //avoid to reset the progress when unzipping
-        if(mode != ReadOnly) {
+        if (mode != ReadOnly) {
             progress_callback(zipHandle, 0, this); //enforce the first progression call to be zero
         }
 
         int result = zip_close(zipHandle);
-        if(result!=0) {
+        if (result!=0) {
             Helper::callErrorHandlingCallback(zipHandle, "unable to close archive: %s\n", errorHandlingCallback);
             return LIBZIPPP_ERROR_HANDLE_FAILURE;
         }
@@ -404,9 +414,9 @@ int ZipArchive::close(void) {
 
         //push back the changes in the buffer
         int res_code = LIBZIPPP_OK;
-        if(bufferData!=nullptr && (mode==New || mode==Write)) {
+        if (bufferData!=nullptr && (mode==New || mode==Write)) {
             int srcOpen = zip_source_open(zipSource);
-            if(srcOpen==0) {
+            if (srcOpen==0) {
                 void* sourceBuffer = *bufferData;
                 void* tempBuffer = sourceBuffer;
                 zip_int64_t increment = 1024;
@@ -416,10 +426,10 @@ int ZipArchive::close(void) {
                 while(read>0) {
                     totalRead += read;
                     tempBufferSize -= read;
-                    if(tempBufferSize<=0) {
+                    if (tempBufferSize<=0) {
                         zip_int64_t newLength = bufferLength + increment;
                         sourceBuffer = realloc(sourceBuffer, newLength * sizeof(char));
-                        if(sourceBuffer==nullptr) {
+                        if (sourceBuffer==nullptr) {
                             Helper::callErrorHandlingCallback(zipHandle, "can't read back from source: unable to extend buffer\n", errorHandlingCallback);
                             return LIBZIPPP_ERROR_MEMORY_ALLOCATION;
                         }
@@ -458,7 +468,7 @@ void ZipArchive::discard(void) {
         zip_discard(zipHandle);
         zipHandle = nullptr;
 
-        if(bufferData!=nullptr && (mode==New || mode==Write)) {
+        if (bufferData!=nullptr && (mode==New || mode==Write)) {
             zip_source_free(zipSource);
             zipSource = nullptr;
         }
@@ -635,7 +645,7 @@ void* ZipArchive::readEntry(const ZipEntry& zipEntry, bool asText, State state, 
         libzippp_uint64 uisize = size==0 || size>maxSize ? maxSize : size;
 
         char* data = NEW_CHAR_ARRAY(uisize+(asText ? 1 : 0))
-        if(!data) { //allocation error
+        if (!data) { //allocation error
             zip_fclose(zipFile);
             return nullptr;
         }
@@ -793,8 +803,8 @@ bool ZipArchive::addFile(const string& entryName, const string& file) const {
               zip_set_file_compression(zipHandle, result, compressionMethod, 0);
             }
 #ifdef LIBZIPPP_WITH_ENCRYPTION
-            if(isEncrypted()) {
-                if(zip_file_set_encryption(zipHandle,result,encryptionMethod,nullptr)!=0) { //unable to encrypt
+            if (isEncrypted()) {
+                if (zip_file_set_encryption(zipHandle,result,encryptionMethod,nullptr)!=0) { //unable to encrypt
                     zip_source_free(source);
                 } else {
                     return true;
@@ -836,8 +846,8 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
               zip_set_file_compression(zipHandle, result, compressionMethod, 0);
             }
 #ifdef LIBZIPPP_WITH_ENCRYPTION
-            if(isEncrypted()) {
-                if(zip_file_set_encryption(zipHandle,result,encryptionMethod,nullptr)!=0) { //unable to encrypt
+            if (isEncrypted()) {
+                if (zip_file_set_encryption(zipHandle,result,encryptionMethod,nullptr)!=0) { //unable to encrypt
                     zip_source_free(source);
                 } else {
                     return true;
@@ -856,6 +866,10 @@ bool ZipArchive::addData(const string& entryName, const void* data, libzippp_uin
         //unable to create the zip_source
     }
     return false;
+}
+
+bool ZipArchive::addData(const std::string& entryName, const std::basic_string<libzippp_uint8> data) const {
+    return addData(entryName, data.data(), data.size(), false);
 }
 
 bool ZipArchive::addEntry(const string& entryName) const {
@@ -879,7 +893,7 @@ bool ZipArchive::addEntry(const string& entryName) const {
 void ZipArchive::removeProgressListener(ZipProgressListener* listener) {
     for(vector<ZipProgressListener*>::const_iterator it=listeners.begin() ; it!=listeners.end() ; ++it) {
         ZipProgressListener* l = *it;
-        if(l==listener) {
+        if (l==listener) {
             listeners.erase(it);
             break;
         }
