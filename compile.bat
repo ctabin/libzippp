@@ -3,7 +3,7 @@
 
 SET root=%cd%
 SET zlib=lib\zlib-1.3.1
-SET libzip=lib\libzip-1.11.3
+SET libzip=lib\libzip-1.11.4
 
 if not exist "%zlib%" goto error_zlib_not_found
 if not exist "%libzip%" goto error_libzip_not_found

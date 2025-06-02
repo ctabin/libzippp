@@ -66,7 +66,7 @@ install:
     make -j3 install
   - |
     mkdir -p $THIRD_PARTY/libzip && cd $THIRD_PARTY/libzip
-    travis_retry wget -O libzip.tar.gz "https://github.com/nih-at/libzip/archive/v1.11.3.tar.gz"
+    travis_retry wget -O libzip.tar.gz "https://github.com/nih-at/libzip/archive/v1.11.4.tar.gz"
     tar xzf libzip.tar.gz --strip-components=1
     mkdir build && cd build
     cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${THIRD_PARTY_PREFIX} -DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_PREFIX} -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF
