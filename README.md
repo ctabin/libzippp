@@ -240,6 +240,7 @@ int main(int argc, char** argv) {
   char* data = (char*)zf.readEntry("myFile.txt", true);
   ZipEntry entry1 = zf.getEntry("myFile.txt");
   string str1(data, entry1.getSize());
+  delete[] data;
 
   //text access
   ZipEntry entry2 = zf.getEntry("myFile.txt");
