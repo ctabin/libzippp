@@ -1,5 +1,5 @@
 os: linux
-dist: jammy
+dist: noble
 language: cpp
 compiler: gcc
 addons:
