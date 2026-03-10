@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/ctabin/libzippp.svg?branch=master)](https://app.travis-ci.com/github/ctabin/libzippp)
+[![Build Status](https://app.travis-ci.com/ctabin/libzippp.svg?token=Xj6Mrm8MyKgwZpT9Q2zh&branch=master)](https://app.travis-ci.com/github/ctabin/libzippp)
 
 # LIBZIPPP
 
@@ -11,7 +11,7 @@ Compilation has been tested with:
 - MS Visual Studio 2012 (Windows 7)
 
 Underlying libraries:
-- [ZLib](https://zlib.net) 1.3.1
+- [ZLib](https://zlib.net) 1.3.2
 - [libzip](https://www.nih.at/libzip) 1.11.4
 - [BZip2](https://www.sourceware.org/bzip2/) 1.0.8 (optional)
 - [ZSTD](https://github.com/facebook/zstd) 1.5.2 (optional)
@@ -68,7 +68,7 @@ make install
 	- Click `Configure` & `Generate`
   - If CMake can't find zlib and/or libzip you need to set `CMAKE_PREFIX_PATH` to the directories where you installed those into
   (either via `-DCMAKE_PREFIX_PATH=<...>` or via the GUI)
-    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.11.4:/home/user/zlib-1.3.1`
+    - Example: `-DCMAKE_PREFIX_PATH=/home/user/libzip-1.11.4:/home/user/zlib-1.3.2`
 - Compile as usual
   - Linux: `make && make install`
   - Windows: Open generated project in MSVC. Build the `INSTALL` target to install.
@@ -103,7 +103,7 @@ g++ -I./src \
     -I./lib/libzip-1.11.4/lib I./lib/libzip-1.11.4/build \
     main.cpp libzippp.a \
     lib/libzip-1.11.4/lib/.libs/libzip.a \
-    lib/zlib-1.3.1/libz.a
+    lib/zlib-1.3.2/libz.a
 ```
 
 ### Encryption
@@ -151,11 +151,11 @@ It may need some adjusting though.
 
 0. Make sure you have cmake 3.10 (*cmake.exe* must be in the PATH) and MS Visual Studio 2012.
   
-1. Download [libzip](http://www.nih.at/libzip/libzip-1.11.4.tar.gz) and [zlib](https://www.zlib.net/zlib-1.3.1.tar.gz) sources and extract them in the 'lib' folder.
+1. Download [libzip](http://www.nih.at/libzip/libzip-1.11.4.tar.gz) and [zlib](https://www.zlib.net/zlib-1.3.2.tar.gz) sources and extract them in the 'lib' folder.
   You should end up with the following structure:
   ```
   libzippp/compile.bat
-  libzippp/lib/zlib-1.3.1
+  libzippp/lib/zlib-1.3.2
   libzippp/lib/libzip-1.11.4
   ```
 2. Execute the *compile.bat* (simply double-click on it). The compilation should 
